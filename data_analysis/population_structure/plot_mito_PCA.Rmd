@@ -1,0 +1,204 @@
+---
+title: "Bombus terrestris population genomics"
+output: plot_mito_PCA.html
+---
+
+Introduction:
+This script takes a VCF file as input and:
+1) Performs a principal component analysis
+2) Generates a heatmap from the genotypes present within the input VCF file
+3) Plots the PCA and heatmap in the same plot, the primary output of the script
+
+```{r}
+## Load libraries:
+libraries <- c("devtools", "ggplot2", "ggmap", "SNPRelate", 
+               "reshape", "ggpubr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+```
+
+
+```{r}
+### PCA analysis:
+## Assign the input name:  
+input_vcf <- "freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.mito_combined_minQ200_max_missing_1_indels_removed.non_rare_alleles.recode.vcf"
+
+## Convert VCF to genome data structure (gds) file format
+## gds is a container for storing annotation data and SNP genotypes.
+## In this format, each byte encodes up to four SNP genotypes thereby reducing file size and access time.
+## The GDS format supports data blocking so that only the subset of data that is being processed needs
+## to reside in memory. GDS formatted data is also designed for efficient data access to large datasets.
+
+## Use the name of input to designate the name for the GDS file format.
+input_vcf_gds <- gsub(".vcf", ".gds", input_vcf)
+
+## Reformat VCF into GDS format
+snpgdsVCF2GDS(input_vcf, input_vcf_gds, method="biallelic.only")
+
+## Extract genotype information:
+input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
+
+## Extract genotype information and generate genotypic matrix:  
+input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile, "genotype"))
+
+## Perform PCA and store output in variable:  
+pca      <- snpgdsPCA(input_vcf_gds_genofile, num.thread=2, autosome.only=FALSE)
+
+## Calculate percentages for principal components:  
+pc_percent      <- pca$varprop*100
+## Print rounded up percentages:  
+print(round(pc_percent, 2))
+
+## Extract sample names from input:  
+sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile, "sample.id"))
+
+## Read in file containing treatment information. 
+## This file should contain 'treatment information' for each sample and be in the same order as each sample. 
+## i.e. the first treatment information would be assigned to the first sample, etc., etc.
+pop_code_df <- read.table("./landuse_site_info_n51.txt", header=FALSE)
+
+pop_code <- pop_code_df$V3 
+site_number <- pop_code_df$V2
+
+## Generate a dataframe containing a column for:
+## 1) Sample name
+## 2) Treatment condition
+## 3) First principal component of interest
+## 4) Second principal component of interest
+tab <- data.frame(sample.id = pca$sample.id,
+                  pop = factor(pop_code)[match(pca$sample.id, sample.id)],
+                  EV1 = pca$eigenvect[,1],    # the first eigenvector
+                  EV2 = pca$eigenvect[,2],    # the second eigenvector
+                  stringsAsFactors = FALSE)
+
+tab$site_id <- site_number
+
+## Check status of whether there are two or one individual per site:
+new_site_id <- vector()
+
+for (i in 1:length(tab$site_id)){
+        status <- duplicated(tab$site_id)[i]
+        if (status==FALSE){
+                print("Not duplicated")
+                new_site_id <- c(new_site_id, paste(tab$site_id[i], "A", sep=""))
+        }
+        else {
+                print("Duplicated")
+                new_site_id <- c(new_site_id, paste(tab$site_id[i], "B", sep=""))
+        }
+}
+
+##
+tab$site_id <- new_site_id
+
+## Using the 'tab' dataframe, plot two principal components of interest using ggplot2:
+landuse_plot<- ggplot(tab, aes(x=tab$EV1, y=tab$EV2, 
+                               color = tab$pop, shape=tab$pop)) +
+        geom_point(size=7) +
+        geom_text(size=5, colour="black", aes(label=tab$site_id))  +
+        xlab(paste("PC1"," ",round(pc_percent[1], 2),"%")) +
+        ylab(paste("PC2"," ",round(pc_percent[2], 2),"%")) + 
+        scale_color_manual(values= c("light blue", "orange", "pink"))  +
+        theme_minimal() +
+        theme(legend.position="none")
+
+## Plot:
+landuse_plot <- landuse_plot +
+                theme(axis.text=element_text(size=15),
+                axis.title=element_text(size=15,face="bold"))
+
+## Alternatively, to plot with just sample ids and not points:
+names_plot<- ggplot(tab, aes(x=tab$EV1, y=tab$EV2, color = tab_ordered$pop)) +
+        #geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
+        theme_minimal() +
+        xlab(paste("Principal component", 1," ","(",round(pc_percent[1], 2), "%", ")", sep="")) +
+        ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) + 
+        geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
+        scale_color_manual(values= c("blue", "orange", "red"))
+
+## Adjust the size of the labels:
+names_plot <- names_plot +
+                 theme(axis.text=element_text(size=20),
+                 axis.title=element_text(size=20,face="bold")) +
+                 theme(legend.position="none")
+
+## Plot:
+names_plot
+
+## Plot together:
+ggarrange(collection_site_plot, 
+          names_plot,
+          ncol=2, nrow=1,
+          labels = c("A", "B"))
+```
+
+Plot a genotype heatmap for the mitochondria
+
+```{r}
+## Format change '2' to '1'
+input_vcf_gds_genofile_matrix[input_vcf_gds_genofile_matrix==2] <- 1
+
+## Read in sample names:
+names <- tab$site_id
+
+##
+rownames(input_vcf_gds_genofile_matrix) <- names
+## Read in genomic coordinates:
+positions <- read.table("./non_rare_alleles.txt", header=FALSE)
+
+positions_to_plot <- positions$V2
+
+## Assign to colnames:
+input_vcf_gds_genofile_matrix_df <- as.data.frame(input_vcf_gds_genofile_matrix)
+colnames(input_vcf_gds_genofile_matrix_df) <- positions_to_plot
+input_vcf_gds_genofile_matrix <- as.matrix(input_vcf_gds_genofile_matrix_df)
+#input_vcf_gds_genofile_matrix_subset <- input_vcf_gds_genofile_matrix[,250:350]
+                
+## Convert into dataframe:
+input_vcf_gds_genofile_matrix_subset_df <- as.data.frame(input_vcf_gds_genofile_matrix)
+
+dat<- input_vcf_gds_genofile_matrix
+
+row.order <- hclust(dist(dat))$order # clustering
+col.order <- hclust(dist(t(dat)))$order
+dat_new <- dat[row.order, col.order] # re-order matrix accoring to clustering
+dat_new_df <- as.data.frame(dat_new)
+
+dat_new_df$samples <- rownames(dat_new_df)
+
+## Convert heatmap2 into ggplot2 format:
+## Reshape:
+dat_new_melted <- melt(dat_new, id.vars = "samples")
+## Rename:
+colnames(dat_new_melted) <- c("samples", "variable", "value")
+
+## Adjust levels:
+dat_new_melted$samples<- factor(dat_new_melted$samples, levels=c(as.character(unlist(dat_new_melted$samples))))
+
+dat_new_melted$variable <- factor(dat_new_melted$variable, levels=c(sort(as.numeric(as.character(unlist((dat_new_melted$variable)))))))
+
+## Plot:
+heatmap_plot <- ggplot(dat_new_melted, aes(variable, samples)) +
+                  geom_tile(aes(fill = value), color = "white") +
+                  scale_fill_gradient(low = "black", high = "grey") +
+                  ylab("Samples") +
+                  xlab("Genomic coordinates (bp)") +
+                  theme(legend.title = element_text(size = 15),
+                        axis.text.y = element_text(size=6),
+                        legend.text = element_text(size = 15),
+                        plot.title = element_text(size=15),
+                        axis.title=element_text(size=15,face="bold"),
+                        axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        theme(legend.position="none")
+                        #scale_x_discrete(breaks = levels(dat_new_melted$variable)[c(T, rep(F, 999))])
+
+```
