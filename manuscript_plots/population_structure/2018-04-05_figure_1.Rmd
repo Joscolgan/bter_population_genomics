@@ -18,7 +18,7 @@ For the purpose of the Colgan et al. figure 1 which is a combination of:
 
 ## Load libraries:
 libraries <- c("devtools", "ggplot2", "ggmap", "SNPRelate", 
-               "reshape", "ggpubr")
+               "reshape", "ggpubr", "Hmisc")
 for (lib in libraries) {
         if (require(package = lib, character.only = TRUE)) {
                 print("Successful")
@@ -262,7 +262,71 @@ ggarrange(collection_site_plot,
           names_plot,
           ncol=2, nrow=1,
           labels = c("A", "B"))
+```
 
+Comparison between latitude coordinates and PC2:
+
+```{r}
+## Read in landuse information including latitude coordinates:
+landuse_info <- read.table("landuse_site_info_n41.txt", header=FALSE)
+
+tab$latitude <- landuse_info$V4
+
+## Subset columns of interest:
+tab_subset <- tab[,c(3,4,6)]
+
+## Test for correlation between each variable:
+res2 <- rcorr(as.matrix(tab_subset))
+
+# Extract the correlation coefficients
+res2$r
+
+# Extract p-values
+res2$P
+
+lat_plot<- ggplot(tab, aes(x=tab$EV2, y=tab$latitude, color = tab$pop)) +
+        geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
+        theme_minimal() +
+        xlab(paste("Principal component ", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) +
+        ylab("Latitude") + 
+        #geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
+        geom_smooth(method=lm, na.rm = TRUE, fullrange= TRUE,
+               aes(group=1),colour="grey", se=FALSE)+
+        scale_color_manual(values= c("red", "orange", "blue"))
+
+## Adjust the size of the labels:
+lat_plot <- lat_plot +
+                 theme(axis.text=element_text(size=15),
+                 axis.title=element_text(size=15,face="bold")) +
+                 theme(legend.position="none")
+
+## Plot with site names instead of points:
+lat_labs<- ggplot(tab, aes(x=tab$EV2, y=tab$latitude, color = tab$pop)) +
+        #geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
+        theme_minimal() +
+        xlab(paste("Principal component ", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) +
+        ylab("Latitude") + 
+        #geom_text(size=4, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
+        geom_text(size=4, aes(label=tabS$site_id, color=tab$pop)) +
+        geom_smooth(method=lm, na.rm = TRUE, fullrange= TRUE,
+               aes(group=1),colour="grey", se=FALSE)+
+        scale_color_manual(values= c("red", "orange", "blue"))
+
+## Adjust the size of the labels:
+lat_labs <- lat_labs +
+                 theme(axis.text=element_text(size=15),
+                 axis.title=element_text(size=15,face="bold")) +
+                 theme(legend.position="none")
+
+## Print to console:
+ggarrange(lat_plot, lat_labs,
+          nrow = 2,
+          ncol = 1,
+          align = "v")
+
+```
+
+```{r}
 ## Plot PCA of larger number of samples (n=46):
 ## Assign the input name:  
 input_n46_vcf <- "n46_samples/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n46.NC_only.minQ20.snps_only.no_hets.sites_low_freq.maxmissing1.0.rare_variants_removed.recode.vcf"
