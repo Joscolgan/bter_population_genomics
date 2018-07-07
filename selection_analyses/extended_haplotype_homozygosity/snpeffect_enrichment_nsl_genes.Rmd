@@ -1,0 +1,31 @@
+---
+title: "2018-07-07_proportion_test"
+author: "JoeColgan"
+date: "7 July 2018"
+output: html_document
+---
+
+The purpose of the script is to compare the number of high nsl-annotated SNPs:
+
+The most abundant regions where high |nsl| scores are present are within intronic regions
+of genes.  
+
+```{r}
+## Assign values for each genomic region:
+intronic_snps <- 5358
+intergenic_snps <- 1860
+coding_snps <- 370
+total_snps <- 10555
+```
+
+Compute proportions:
+
+```{r}
+## Comparison between number of high |nsl| values in intronic and coding regions
+fisher.test( rbind( c(intronic_snps, total_snps), 
+                    c(coding_snps, total_snps)))
+
+## Comparison between number of high |nsl| values in intronic and intergenic regions
+fisher.test( rbind( c(intronic_snps, total_snps), 
+                    c(intergenic_snps, total_snps)))
+```
