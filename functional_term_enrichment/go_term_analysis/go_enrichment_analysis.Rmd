@@ -43,7 +43,7 @@ Load in genelist and database files.
 ```{r}
 ## Step One
 ## GO annotations
-gene_to_go_mapping_file <- "input/bter_renamed_drosophila_go_terms.input_for_topgo.txt"
+gene_to_go_mapping_file <- "input/dmel_vs_bter_biomart.input_for_converter.output.txt"
 
 ## file of significant genes (2 column file: i.e. gene id and nsl value) file:
 nsl_genes_file <- "input/2018-02-08_tmp_file_filtered_sorted-onlyscored.txt"
@@ -61,7 +61,7 @@ names(topgo_genelist) <- nsl_ranked$locus
 topgo_genelist =  1 - topgo_genelist/max(topgo_genelist)
 
 ## Create an output directory:
-output_directory <- "test_output"
+output_directory <- "test_new_output"
 if (file.exists(output_directory)) {
   stop("The output directory:", output_directory, ", already exists",
        "Let's avoid overwriting")
