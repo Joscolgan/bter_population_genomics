@@ -110,8 +110,8 @@ test <- ggmap(map) +
 collection_site_plot <- test + scale_colour_manual(values = c("blue", "orange", "red")) +
                                 scale_x_continuous(limits = c(-6.5, 2.5), expand = c(0, 0)) +
                                 scale_y_continuous(limits = c(49.5, 56.5), expand = c(0, 0)) +
-                                theme(text=element_text(size=20),
-                                      axis.title=element_text(size=20,face="bold"))
+                                theme(text=element_text(size=18),
+                                      axis.title=element_text(size=18,face="bold"))
 ```
 
 2) Principal component analysis using genome-wide unlinked SNPs
@@ -197,12 +197,6 @@ tab$site_id <- pop_code_df$site_number
 ## Reorder:
 #tab_ordered <- tab[order(tab$sample.id),]
 
-## Update names to reflect 
-#tab_ordered$site_id <- c("01", "01", "02", "02", "03","03","04","04","05","06",
-  "07", "08", "08", "09", "09","10","11","12","13","14",
-  "14", "15", "16", "16", "17","17","18","18","19","20",
-  "20", "21", "22", "23", "24", "25","26","27","27","28","28")
-
 ## Check status of whether there are two or one individual per site:
 new_site_id <- vector()
 
@@ -243,15 +237,15 @@ tab$site_id <- new_site_id
 names_plot<- ggplot(tab, aes(x=tab$EV1, y=tab$EV2, color = tab$pop)) +
         #geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
         theme_minimal() +
-        xlab(paste("Principal component", 1," ","(",round(pc_percent[1], 2), "%", ")", sep="")) +
-        ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) + 
-        geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
+        xlab(paste("Principal component ", 1," ","(",round(pc_percent[1], 2), "%", ")", sep="")) +
+        ylab(paste("Principal component ", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) + 
+        geom_text(size=4, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
         scale_color_manual(values= c("blue", "orange", "red"))
 
 ## Adjust the size of the labels:
 names_plot <- names_plot +
-                 theme(axis.text=element_text(size=20),
-                 axis.title=element_text(size=20,face="bold")) +
+                 theme(axis.text=element_text(size=18),
+                 axis.title=element_text(size=18,face="bold")) +
                  theme(legend.position="none")
 
 ## Plot:
@@ -270,13 +264,25 @@ Comparison between latitude coordinates and PC2:
 ## Read in landuse information including latitude coordinates:
 landuse_info <- read.table("landuse_site_info_n41.txt", header=FALSE)
 
-tab$latitude <- landuse_info$V4
+## Subset the components you want to look at:
+tab_subset <- data.frame(sample.id = pca$sample.id,
+                        pop = factor(pop_code)[match(pca$sample.id, sample.id)],
+                        EV1 = pca$eigenvect[,2],    # the first eigenvector
+                        EV2 = pca$eigenvect[,3],    # the second eigenvector
+                        stringsAsFactors = FALSE)
+
+## Add site ids:
+tab_subset$site_id <- new_site_id
+
+## Add columns for latitude and longitude:
+tab_subset$latitude <- landuse_info$V4
+tab_subset$longitude <- landuse_info$V5
 
 ## Subset columns of interest:
-tab_subset <- tab[,c(3,4,6)]
+tab_subset_cor <- tab_subset[,c(3,4,5)]
 
 ## Test for correlation between each variable:
-res2 <- rcorr(as.matrix(tab_subset))
+res2 <- rcorr(as.matrix(tab_subset_cor))
 
 # Extract the correlation coefficients
 res2$r
@@ -284,15 +290,17 @@ res2$r
 # Extract p-values
 res2$P
 
-lat_plot<- ggplot(tab, aes(x=tab$EV2, y=tab$latitude, color = tab$pop)) +
-        geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
-        theme_minimal() +
-        xlab(paste("Principal component ", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) +
-        ylab("Latitude") + 
-        #geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
-        geom_smooth(method=lm, na.rm = TRUE, fullrange= TRUE,
-               aes(group=1),colour="grey", se=FALSE)+
-        scale_color_manual(values= c("red", "orange", "blue"))
+lat_plot<- ggplot(tab_subset, aes(x=tab_subset$EV1, 
+                           y=tab_subset$latitude, 
+                           color = tab_subset$pop)) +
+                 geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
+                 theme_minimal() +
+                 xlab(paste("Principal component ", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) +
+                 ylab("Latitude") + 
+                 #geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
+                geom_smooth(method=lm, na.rm = TRUE, fullrange= TRUE,
+                aes(group=1),colour="grey", se=FALSE)+
+                scale_color_manual(values= c("red", "orange", "blue"))
 
 ## Adjust the size of the labels:
 lat_plot <- lat_plot +
@@ -301,28 +309,35 @@ lat_plot <- lat_plot +
                  theme(legend.position="none")
 
 ## Plot with site names instead of points:
-lat_labs<- ggplot(tab, aes(x=tab$EV2, y=tab$latitude, color = tab$pop)) +
+lat_labs<- ggplot(tab_subset, aes(x=tab_subset$EV1, 
+                                  y=tab_subset$latitude, 
+                                  color = tab_subset$pop)) +
         #geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
         theme_minimal() +
         xlab(paste("Principal component ", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) +
         ylab("Latitude") + 
-        #geom_text(size=4, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
-        geom_text(size=4, aes(label=tabS$site_id, color=tab$pop)) +
+        geom_text(size=4, position=position_jitter(width=0.04, height=0.04), aes(label=tab_subset$site_id, color=tab_subset$pop)) +
+        #geom_text(size=4, aes(label=tab_subset$site_id, color=tab_subset$pop)) +
         geom_smooth(method=lm, na.rm = TRUE, fullrange= TRUE,
-               aes(group=1),colour="grey", se=FALSE)+
-        scale_color_manual(values= c("red", "orange", "blue"))
+               aes(group=1),colour="grey", se=FALSE) +
+        scale_color_manual(values= c("blue", "orange", "red"))
 
 ## Adjust the size of the labels:
 lat_labs <- lat_labs +
-                 theme(axis.text=element_text(size=15),
-                 axis.title=element_text(size=15,face="bold")) +
+                 theme(axis.text=element_text(size=18),
+                 axis.title=element_text(size=18,face="bold")) +
                  theme(legend.position="none")
 
 ## Print to console:
-ggarrange(lat_plot, lat_labs,
-          nrow = 2,
-          ncol = 1,
-          align = "v")
+ggarrange(collection_site_plot, 
+          ggarrange(names_plot, lat_labs,
+                    nrow=2, ncol=1,
+                    labels = c("B", "C"),
+                    align = "v"),
+          labels = "A",
+          nrow = 1,
+          ncol = 2,
+          align = "h")
 
 ```
 
