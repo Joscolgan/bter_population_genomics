@@ -123,16 +123,23 @@ for (go_category in c("BP", "MF", "CC")) {
                                    orderBy       = "weight_ks",
                                    topNodes      = length(score(result_weight_ks)))
   
+  ## Correct ks test for multiple testing:
+  result_weight_output$weight_ks <- as.numeric(result_weight_output$weight_ks)
+  result_weight_output$weight_ks_adjusted <- p.adjust(p=result_weight_output$weight_ks, method = c("bonferroni"))
+            
   ## Subset calls with significance higher than expected:
   result_weight_output_sig <- subset(x      = result_weight_output,
-                                     subset = (Significant > Expected) & (weight_ks < 0.05))
+                                     subset = (Significant > Expected) & (weight_ks_adjusted < 0.05))
+    ## Write to output:
+        write.table(x         = result_weight_output,
+              file      = file.path(output_directory,
+                                    paste(go_category, "all.tsv", sep = "_")),
+              row.names = FALSE,
+              sep       = "\t",
+              quote = FALSE)
   
-  ## Correct ks test for multiple testing:
-  result_weight_output_sig$weight_ks_adjusted <- p.adjust(p=result_weight_output_sig$weight_ks,
-                                                          method = c("bonferroni"))
-  
-  ## Write to output:
-  write.table(x         = result_weight_output_sig,
+      ## Write to output:
+        write.table(x         = result_weight_output_sig,
               file      = file.path(output_directory,
                                     paste(go_category, "sig.tsv", sep = "_")),
               row.names = FALSE,
