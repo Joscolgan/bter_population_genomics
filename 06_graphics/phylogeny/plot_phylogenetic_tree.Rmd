@@ -1,0 +1,310 @@
+---
+title: "plot_phylogenetic_tree"
+author: "JoeColgan"
+date: "11 July 2018"
+output: html_document
+---
+
+The purpose of this script is to take a newick-aligned dataset of protein sequences and plot the phylogeny. 
+
+Load libraries:
+
+```{r}
+## Load libraries:
+libraries <- c("tidyverse", "ggtree", "rphylopic", "ggplot2", "EBImage")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+```
+
+Read in data:
+
+```{r}
+## Read newick alignment file in and store as variable:
+tree <- read.tree("./wolbachia_10_75_phyml_output_newick.txt")
+
+
+## Plot phylogenetic tree:
+p3 <- ggtree(tree, aes(color=branch.length)) +
+  xlim(0, 2.5) + 
+  geom_tiplab(size=4, color="black", offset = 0.03) +
+  geom_label2(aes(subset=!isTip, label=label), size=3, color="darkred", alpha=1) +
+  geom_hilight(node=66, fill="yellow", alpha=0.5) +
+  theme_tree2("white") +
+  scale_color_continuous(low='grey', high='grey', name="Branch length (my)") 
+plot(p3) + guides(fill=FALSE)
+
+```
+
+TEMP===========
+
+```{r}
+# build a ggplot with a geom_tree
+ggplot(tree) + geom_tree() + theme_tree()
+
+
+
+
+
+## Reversr order:
+ggtree(tree, ladderize=FALSE)
+
+## Remove branch lengths:
+ggtree(tree, branch.length="none")
+
+## Different types of cladograms:
+tr <-tree
+ggtree(tr)
+ggtree(tr, layout="slanted")
+ggtree(tr, layout="circular")
+ggtree(tr, layout="fan", open.angle=120)
+ggtree(tr, layout="equal_angle")
+ggtree(tr, layout="daylight")
+ggtree(tr, branch.length='none')
+ggtree(tr, branch.length='none', layout='circular')
+ggtree(tr, layout="daylight", branch.length='none')
+
+##
+ggtree(tr) + scale_x_reverse()
+ggtree(tr) + coord_flip()
+ggtree(tr) + scale_x_reverse() + coord_flip()
+print(ggtree(tr), newpage=TRUE, vp=grid::viewport(angle=-30, width=.9, height=.9))
+ggtree(tr, layout='slanted') + coord_flip()
+ggtree(tr, layout='slanted', branch.length='none') +
+    coord_flip() + scale_y_reverse() +scale_x_reverse()
+ggtree(tr, layout='circular') + xlim(-10, NA)
+ggtree(tr) + scale_x_reverse() + coord_polar(theta='y')
+ggtree(tr) + scale_x_reverse(limits=c(10, 0)) + coord_polar(theta='y')
+
+## Include time scale:
+ggtree(tree) + theme_tree2()
+
+## Include evolution distance:
+ggtree(tree) + geom_text2(aes(label=tree$node.label, colour = "red", hjust = -1)) +
+               geom_text2(aes(label=tree$tip.label, colour = "blue"))
+        
+
+ggtree(tree) + geom_point(aes(shape=isTip, color=isTip), size=3)
+
+p <- ggtree(tree) + geom_nodepoint(color="#b5e521", alpha=1/4, size=10)
+p + geom_tippoint(color="#FDAC4F", shape=8, size=3)
+
+insect <- name_search('Bombus terrestris')[[1]]
+bird <- name_search('Malacoptila panamensis')[[1]]
+(x <- name_minsuptaxa(uuid = c(insect$uid, bird$uid))[[1]])
+#> $canonicalName
+#> $canonicalName$uid
+#> [1] "68226175-f88d-4ea8-8228-3204c49bfda0"
+name_get(x$canonicalName$uid, options = c('string'))
+
+
+bumblebee <- name_search(text = "Bombus terrestris", options = "namebankID")[[1]]
+
+drosophila <- name_search(text = "Drosophila melanogaster", options = "namebankID")[[1]]
+
+wolbachia <- name_search(text = "Wolbachia", options = "namebankID")[[1]]
+
+amyelois <- name_search(text = "Amyelois", options = "namebankID")[[1]]
+
+folsomia <- name_search(text = "Folsomia", options = "namebankID")[[1]]
+
+culex <- name_search(text = "Culex", options = "namebankID")[[1]]
+
+operophtera <- name_search(text = "Manduca", options = "namebankID")[[1]]
+
+nomada <- name_search(text = "Nomada", options = "namebankID")[[1]]
+
+vollenhovia <- name_search(text = "Solenopsis", options = "namebankID")[[1]]
+
+dactylopius <- name_search(text = "Dactylopius", options = "namebankID")[[1]]
+
+
+# no options just returns the UUID (aka: self)
+name_get(uuid = dactylopius$uid[1])
+#> $uid
+#> [1] "1ee65cf3-53db-4a52-9960-a9f7093d845d"
+# specify fields to return with the `options` parameter
+name_get(uuid = dactylopius$uid[1], options = c('citationStart', 'html'))
+#> $html
+#> [1] "<span class=\"nomen\"><span class=\"scientific\">Homo sapiens</span> <span class=\"citation\">Linnaeus, 1758</span></span>"
+#> 
+#> $citationStart
+#> [1] 13
+#> 
+#> $uid
+#> [1] "1ee65cf3-53db-4a52-9960-a9f7093d845d"
+
+name_images(uuid = bumblebee$uid[1])
+name_images(uuid = drosophila$uid[1])
+name_images(uuid = wolbachia$uid[1])
+name_images(uuid = amyelois$uid[1])
+name_images(uuid = folsomia$uid[1])
+name_images(uuid = culex$uid[1])
+name_images(uuid = operophtera$uid[1])
+name_images(uuid = nomada$uid[1])
+name_images(uuid = vollenhovia$uid[1])
+name_images(uuid = dactylopius$uid[1])
+
+library('ggplot2')
+img <- image_data("750eeb4f-7ca5-49ff-a814-27a12d0cb13a", size = "64")[[1]]
+p <- ggplot(mtcars, aes(drat, wt)) +
+      geom_blank() +
+      theme_grey(base_size = 18)
+for (i in 1:nrow(mtcars)) {
+  p <- p + add_phylopic(img, 1, mtcars$drat[i], mtcars$wt[i], ysize = 0.3)
+}
+p
+
+ggtree(tree, branch.length="none") +
+        geom_treescale() 
+%>% 
+  ## Node One: WP_015588545.1_Wolbachia_endosymbiont_of_Drosophila_simulans
+  phylopic("ea8fa530-d856-4423-a81d-a74342cd1875", color="darkcyan", alpha=.5, node=1) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=1) %>%
+  ## Node Two: XP_013194705.1_Amyelois_transitella        
+  phylopic("abed690d-9548-411c-a83e-0289ebb41bd8", color="red", alpha=.8, node=2) %>%
+  
+  ## Node Three: APR98680.1_Wolbachia_endosymbiont_of_Folsomia_candida 
+  phylopic("346576ab-7f04-4794-b3b8-30610b8feaeb", color="darkcyan", alpha=.5, node=3) %>%
+  
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=3) %>%
+        
+  ## Node Four: XP_012247033.1_Bombus_impatiens
+  phylopic("750eeb4f-7ca5-49ff-a814-27a12d0cb13a", color="steelblue", alpha=.8, node=4) %>%
+  
+  ## Node Five: XP_012168301.1_Bombus_terrestris        
+  phylopic("750eeb4f-7ca5-49ff-a814-27a12d0cb13a", color="steelblue", alpha=.8, node=5) %>%
+        
+  ## Node Six: WP_038536794.1_Wolbachia_endosymbiont_of_Culex_molestus
+  phylopic("3010e744-6b06-4022-9ce6-354db93e99fe", color="darkcyan", alpha=.5, node=6) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=6)  %>%
+  ## Node Seven: WP_019236324.1_Wolbachia_pipientis 
+phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=7)  %>%
+## Node Eight: WP_019078592.1_Wolbachia_endosymbiont_of_Culex_pipiens_molestus
+  phylopic("3010e744-6b06-4022-9ce6-354db93e99fe", color="darkcyan", alpha=.5, node=8) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=8)  %>%
+
+## Node Nine: EEB55946.1_Wolbachia_endosymbiont_of_Culex_quinquefasciatus_JHB
+  phylopic("3010e744-6b06-4022-9ce6-354db93e99fe", color="darkcyan", alpha=.5, node=9) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=9)  %>%
+      
+## Node Ten: WP_007548990.1_Wolbachia_endosymbiont_of_Drosophila_ananassae
+  phylopic("ea8fa530-d856-4423-a81d-a74342cd1875", color="darkcyan", alpha=.5, node=10) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=10)  %>%  
+
+## Node Eleven: WP_012673061.1_Wolbachia_species
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.5, node=11) %>%
+
+## Node Twelve: WP_052264754.1_Wolbachia_endosymbiont_of_Operophtera_brumata
+
+  phylopic("6b9f52e9-3f9d-49b8-865b-9f2718f91ee6", color="red", alpha=.8, node=12) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.5, node=12) %>%
+        
+## Node Thirteen: WP_065106796.1_Wolbachia_endosymbiont_of_Nomada_ferruginata
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=13) %>%
+        
+## Node Fourteen:WP_065094586.1_Wolbachia_species
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=14) %>%    
+
+ ## Node Fifteen: WP_051062191.1_Wolbachia_endosymbiont_of_Drosophila_simulans
+  phylopic("ea8fa530-d856-4423-a81d-a74342cd1875", color="darkcyan", alpha=.5, node=15) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=15)  %>%  
+
+ ## Node Sixteen: AGJ99559.1_Wolbachia_endosymbiont_of_Drosophila_simulans_wHa
+  phylopic("ea8fa530-d856-4423-a81d-a74342cd1875", color="darkcyan", alpha=.5, node=16) %>%
+
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=16)  %>%  
+
+ ## Node Seventeen: XP_011861565.1_Vollenhovia_emeryi
+ phylopic("abbdd441-4479-4c86-808a-55e2640e3ab6", color="red", 
+           alpha=.8, node=17) %>%  
+   ## Node Eighteen: WP_064125268.1_Wolbachia_endosymbiont_of_Dactylopius_coccus
+  phylopic("41feb63b-c31e-46c1-b811-598163a69125", color="orange", alpha=.8, node=18) 
+
+##
+p <- ggtree(tree) + xlim(NA, 6)
+p + geom_cladelabel(node=45, label="test label", align=T, color='red') +
+    geom_cladelabel(node=34, label="another clade", align=T, color='blue')
+
+
+## Highlight labels:
+p + geom_tiplab(size=3, color="black") +
+        geom_nodepoint(size=3, color="black")
+
+phylopic_info <- data.frame(node = c(124, 113, 110, 96, 89, 70),
+                            phylopic = c("7fb9bea8-e758-4986-afb2-95a2c3bf983d",
+                                        "bac25f49-97a4-4aec-beb6-f542158ebd23",
+                                        "f598fb39-facf-43ea-a576-1861304b2fe4",
+                                        "aceb287d-84cf-46f1-868c-4797c4ac54a8",
+                                        "0174801d-15a6-4668-bfe0-4c421fbe51e8",
+                                        "72f2f854-f3cd-4666-887c-35d5c256ab0f"),
+                            species = c("galagoids", "lemurs", "tarsiers",
+                                        "cebids", "hominoids", "cercopithecoids"))
+
+
+p + geom_tiplab(aes(x=branch), size=3, color="purple", vjust=-0.3)
+pg <- ggtree(tree)
+pg %<+% phylopic_info + geom_nodelab(aes(image=phylopic), geom="phylopic", alpha=.5, color='steelblue')
+
+# This is convenient shorthand
+ggtree(tree)
+
+# add a scale
+ggtree(tree) + geom_treescale()
+
+# or add the entire scale to the x axis with theme_tree2()
+ggtree(tree) + theme_tree2()
+
+
+## Identify node of most recent common ancestor (MRCA):
+MRCA(tree, tip=c("XP_012168301.1_Bombus_terrestris", 
+                 "XP_012247033.1_Bombus_impatiens"))
+
+## Plot phylogenetic tree:
+ggtree(tree) + 
+  geom_tiplab(align=TRUE, linesize=0.5) + 
+  geom_cladelabel(node=23, label="Bumblebee homologs", 
+                  color="blue", offset=0.8, align=TRUE) + 
+  geom_cladelabel(node=4, label="A different clade", 
+                  color="blue", offset=.8, align=TRUE) + 
+  geom_hilight(node=23, fill="gold") + 
+  theme_tree2() + 
+  xlim(0, 1.5) + 
+  theme_tree()
+
+source("https://bioconductor.org/biocLite.R")
+        biocLite("EBImage")
+
+
+read.tree("./wolbachia_10_100_phyml_output_newick.txt") %>% 
+  ggtree() %>% 
+  phylopic("750eeb4f-7ca5-49ff-a814-27a12d0cb13a", 
+           color="gold2", alpha = .25) %>% 
+  phylopic("750eeb4f-7ca5-49ff-a814-27a12d0cb13a", 
+           color="red")
+
+
+MRCA(tree, tip=c("XP_012168301.1_Bombus_terrestris", 
+                 "XP_012247033.1_Bombus_impatiens"))
+
+## Plot with multiple sequence alignment:
+
+
+
+```
