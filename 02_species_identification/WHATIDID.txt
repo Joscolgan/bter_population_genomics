@@ -1,0 +1,308 @@
+## A redo of initial analysis using Bombus sequences downloaded from the BOLD database (http://v3.boldsystems.org/).
+## Bombus sequences were downloaded manually and copied to this directory from ~/Downloads
+cd data
+cp -p ~/Downloads/fasta.fas .
+
+## File was renamed for human-friendly using symbolic links:
+ln -s fasta.fas Bombus_cox1_bold_sequences.fasta
+
+## Download cdhit:
+cd ../src
+git clone https://github.com/weizhongli/cdhit.git
+cd cdhit
+module load gcc/6.3.0
+make
+cd ../results
+
+## Make directory
+mkdir 2019-01-23_cdhit_nonredundant_reference
+ln -s ../../data/Bombus_cox1_bold_sequences.fasta
+
+## Command for running cd-hit:
+## The command takes nucleotide sequences are input:
+## The command outputs a fasta file containing representative sequences:
+## -c : Provide a percentage identity and is the clustering threshold:
+## -n : Word size: Two nucleotide sequences must share a certain number of k-mers:
+## -T : Number of threads:
+../../src/cdhit/cd-hit-est -i Bombus_cox1_bold_sequences.fasta -o Bombus_cox1_bold_sequences_97.fasta -c 0.97 -n 10 -T 10
+## A complication of running magic-blast with the output of cd-hit is that magic-blast complains about long sequence
+## header names. To reduce sequence header length whilst still retaining important information:
+grep 'COI-5' Bombus_cox1_bold_sequences_97.fasta | sed 's/>//g' - > sequences_to_keep.txt
+module load seqtk
+seqtk subseq  Bombus_cox1_bold_sequences_97_modified.fasta sequences_to_keep.txt | cut -d '|' -f 1,2 - > Bombus_cox1_bold_sequences_97_modified.tmp
+
+## For running magic-blast:
+## Download in source directory:
+cd ../../src/
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/magicblast/LATEST/ncbi-magicblast-1.4.0-x64-linux.tar.gz
+
+## Create symbolic links into bin directory
+cd ../bin
+ln -s ../src/ncbi-magicblast-1.4.0/bin/magicblast .
+ln -s ../src/ncbi-magicblast-1.4.0/bin/makeblastdb .
+cd ../results/2019-01-23b_alignments/blap_alignments
+
+## Create symbolic links for input files and rename:
+for name in *R1*fastq.gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3,4,5,6,7,8,9 - )";
+ln -s "$name" "$new_name".R1.fastq.gz;
+done
+
+for name in *R2*fastq.gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3,4,5,6,7,8,9 - )";
+ln -s "$name" "$new_name".R2.fastq.gz;
+done
+
+## Run magic blast:
+./run_magic_blast.sh ../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp 2014_Blap_P_D_21_412_thorax_ATTACTCG-CCTATCCT_L008.R1.fastq.gz 2014_Blap_P_D_21_412_thorax_ATTACTCG-CCTATCCT_L008.R2.fastq.gz
+
+## Link the second batch of samples that were run on the HISEQ3000:
+ln -s ../../../data/linked_blap_data/2017-04-12_Blap_batch_two_run_1_HiSeq3000/*.gz .
+
+## The original names are slightly different so will rename the symbolic links:
+for name in 2014-*R1*gz; do new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )"; mv "$name" "$new_name".R1.fastq.gz; done
+for name in 2014-*R2*gz; do new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )"; mv "$name" "$new_name".R2.fastq.gz; done
+
+## Run magic blast:
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp "$name" "$new_name".R2.fastq.gz;
+done
+
+## Create directory for lucorum alignments
+mkdir bluc_alignments
+cd bluc_alignments
+
+## Create symbolic links:
+ln -s ../../../data/linked_bluc_data/2017-01-26_B_lucorum_run_1/*.gz .
+
+## Rename for analysis:
+for name in 2014_*R1*gz; do new_name="$(echo "$name" | cut -d '_' -f 1,2,3,4,5,6,7,8,9 - )"; mv "$name" "$new_name".R1.fastq.gz; done
+for name in 2014_*R2*gz; do new_name="$(echo "$name" | cut -d '_' -f 1,2,3,4,5,6,7,8,9 - )"; mv "$name" "$new_name".R2.fastq.gz; done
+
+## Run magicblast:
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp "$name" "$new_name".R2.fastq.gz;
+done
+
+## Exit directory:
+cd ../
+
+## Bombus pascuorum
+## Create directory:
+mkdir bpas_alignments
+cd bpas_alignments
+ln -s ../../../data/linked_blap_data/2017-04-12_Bpas_batch_two_run_1_HiSeq3000/*R*gz .
+
+## Rename each pair:
+for name in 2014-*R1*gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )";
+mv "$name" "$new_name".R1.fastq.gz;
+done
+
+for name in 2014-*R2*gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )";
+mv "$name" "$new_name".R2.fastq.gz;
+done
+
+## Run magicblast:
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp "$name" "$new_name".R2.fastq.gz;
+done
+
+## Bombus hortorum:
+cd ../data/
+mkdir linked_bhor_data
+cd linked_bhor_data
+ln -s ~/SBCS-Wurmlab-reads/Bombus_hortorum/*R*.fastq.gz .
+cd ../results/2019-01-23b_alignments
+
+mkdir bhor_alignments
+cd bhor_alignments
+mkdir run_1
+mkdir run_2
+cd run_1
+
+## Renamed linked files:
+for name in *R1*.gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )";
+mv "$name" "$new_name".R1.fastq.gz;
+mv "$new_name"_R2_001.fastq.gz "$new_name".R2.fastq.gz;
+done
+
+## Run magicblast:
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp \
+"$name" "$new_name".R2.fastq.gz;
+done
+
+## For the second run on putative hortorum samples:
+cd ../run_2/
+
+## Create a symbolic link with original files:
+ln -s ~/SBCS-Wurmlab-reads/Bombus_hortorum/2017-05-22_Bhor_batch_one_run_2_HiSeq3000/*R*.fastq.gz .
+
+## Rename files:
+for name in *R1*.gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )";
+mv "$name" "$new_name".R1.fastq.gz;
+mv "$new_name"_R2_001.fastq.gz "$new_name".R2.fastq.gz;
+done
+
+## Copy over script for running magic blast:
+cp -p ../run_1/run_magic_blast.sh
+
+## Run magicblast:
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp \
+"$name" "$new_name".R2.fastq.gz;
+done
+
+## Bombus pratorum:
+cd ../../data/
+mkdir linked_bpra_data
+cd linked_bpra_data
+mkdir run_1
+mkdir run_2
+
+## Create symbolic links for each run:
+cd run_1
+ln -s ~/SBCS-Wurmlab-reads/Bombus_pratorum/*R*.gz .
+cd ../run_2/
+ln -s ~/SBCS-Wurmlab-reads/Bombus_pratorum/2017-05-22_Bpra_batch_one_run_2_HiSeq3000/*R*.gz .
+cd ../../results/2019-01-23b_alignments/
+
+mkdir bpra_alignments
+cd bpra_alignments
+
+## Create directories for performing magic-blast alignments:
+mkdir run_1
+mkdir run_2
+
+cd run_1
+ln -s ../../../../data/linked_bpra_data/run_1/*.gz .
+## Rename files:
+for name in *R1*.gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )";
+mv "$name" "$new_name".R1.fastq.gz;
+mv "$new_name"_R2_001.fastq.gz "$new_name".R2.fastq.gz;
+done
+
+## Copy over script for running magic-blast:
+cp -p ../../bhor_alignments/run_1/run_magic_blast.sh .
+
+## Run magicblast:
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp \
+"$name" "$new_name".R2.fastq.gz;
+done
+
+## For the second run:
+cd ../run_2/
+ln -s ../../../../data/linked_bpra_data/run_2/*.gz .
+
+## Rename files:
+for name in *R1*.gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3 - )";
+mv "$name" "$new_name".R1.fastq.gz;
+mv "$new_name"_R2_001.fastq.gz "$new_name".R2.fastq.gz;
+done
+
+## Copy over script for running magic-blast:
+cp -p ../../bhor_alignments/run_1/run_magic_blast.sh .
+
+## Run magicblast:
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp \
+"$name" "$new_name".R2.fastq.gz;
+done
+
+## Bombus terrestris:
+cd ../../data/
+
+## Create run directories for linking of raw genomic sequences:
+## Genomic libraries of Bombus terrestris were run on five lanes total:
+mkdir run_1
+mkdir run_2
+mkdir run_3
+cd run_1/
+
+ln -s ~/SBCS-Wurmlab-reads/Bombus_terrestris/2015-08-17-Bter_batch_one_run_1/processed/Project_P541_Wozniak/Sample_2014_B* .
+
+cd ../run_2/
+ln -s ~/SBCS-Wurmlab-reads/Bombus_terrestris/2015-12-08-Bter_batch_one_run_2/processed/Project_P585_Colgan/Sample_2014_B* .
+cd ../
+cd run_3/
+ln -s ~/SBCS-Wurmlab-reads/Bombus_terrestris/2017-01-26_Bombus_batch_two_run_1/2014_Bter_* .
+cd ../
+
+mkdir run_4
+cd run_4/
+ln -s ~/SBCS-Wurmlab-reads/Bombus_terrestris/2017-01-26_Bombus_batch_two_run_2/2014_Bter_* .
+cd ../
+
+mkdir run_5
+cd run_5/
+ln -s ~/SBCS-Wurmlab-reads/Bombus_terrestris/2017-04-20_Oxford_HiSeq2500_run/2014_Bter_* .
+
+## Move to results directory:
+cd ../../results/2019-01-23b_alignments/
+mkdir run_1
+mkdir run_2
+mkdir run_3
+mkdir run_4
+mkdir run_5
+
+## Create symbolic links:
+cd run_1
+ln -s ../../../../data/linked_bter_data/run_1/Sample_2014_B* .
+for name in Sample_2014_B*; do ln -s "$name"/*.gz .; done
+
+cd ../run_2/
+ln -s ../../../../data/linked_bter_data/run_2/Sample_2014_B* .
+for name in Sample_2014_B*; do ln -s "$name"/*.gz .; done
+
+cd ../run_3/
+ln -s ../../../../data/linked_bter_data/run_3/2014_Bter_*.gz .
+cd ../run_4/
+ln -s ../../../../data/linked_bter_data/run_4/2014_Bter_*.gz .
+cd ../run_5
+ln -s ../../../../data/linked_bter_data/run_5/2014_Bter_*.gz .
+
+## Running magic-blast for each run:
+cd ../run_1
+## Rename files:
+for name in *R1*.gz;
+do
+new_name="$(echo "$name" | cut -d '_' -f 1,2,3,4,5,6,7,8,9)";
+mv "$name" "$new_name".R1.fastq.gz;
+mv "$new_name"_R2_001.fastq.gz "$new_name".R2.fastq.gz;
+done
+
+for name in *.R1*gz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 - )";
+./run_magic_blast.sh ../../../2019-01-23_cdhit_nonredundant_reference/Bombus_cox1_bold_sequences_97_modified.tmp \
+"$name" "$new_name".R2.fastq.gz;
+done
