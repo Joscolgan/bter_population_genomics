@@ -1,5 +1,5 @@
-# brit_pop_colgan_et_al_2018
-Scripts used for Colgan et al. (2018) selection within bumblebees  
+# brit_pop_colgan_et_al_2019
+Scripts used for Colgan et al. (2019) selection within bumblebees  
 
 The present repository contains scripts for:  
 - The quality assessment and filtering of raw Illumina FASTQ data (data_analysis/)  
