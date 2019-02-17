@@ -1,4 +1,4 @@
-## TJ Colgan 2019  
+#### TJ Colgan 2019  
 
 ### Gene Ontology analyses:  
 This subdirectory contains scripts for identifying gene ontology terms enriched within a subset of genes of interest.  
