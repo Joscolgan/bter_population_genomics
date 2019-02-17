@@ -9,7 +9,7 @@ GO:0000003      reproduction    CG10112 CG10128 CG1262 CG13873 CG14034 CG15117 C
 ```
 To obtain this script, the following steps can be taken:  
 
-Using the input file used for topGO (``` ```) that contains two columns:
+Using the input file used for topGO (```dmel_vs_bter_biomart.input_for_converter.output.txt```) that contains two columns:
 Column 1: Gene ID
 Column 2: List of comma separated assigned gene ontology terms.  
 
