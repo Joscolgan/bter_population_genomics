@@ -13,7 +13,9 @@ Step One: Using an input file that contains two columns:
 Column 1: Gene ID
 Column 2: List of comma separated assigned gene ontology terms.  
 
-The script ```   ```` takes the input file and converts into an output which switches the column information.  
+The script ``` ``` creates a unique list of gene ontology terms and each gene assigne to it.
+
+The second script ```go_term_converter.R``` takes the output file of ``` ``` and converts into an output which switches the column information.  
 The output will be a tab-delimited text file containing two columns:  
 Column 1: GO term ID  
 Column 2: A list of comma separated genes assigned that gene ontology term within the input file.  
