@@ -1,0 +1,86 @@
+---
+title: "Bombus population genomics"
+output: plot_apis_tajimas_d.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com 
+---
+
+## Introduction:  
+This script takes a tab-delimited text file as input containing the following information:  
+1. chromosome name
+2. start position (bp) of a 10kb sliding window
+3. end position (bp) of a 10kb sliding window
+4. average nucleotide diversity (pi) of a 10kb sliding window 
+5. tajima's D of a 10kb sliding window
+6. number of segregating sites within a 10kb sliding window
+7. midpoint position of sliding window
+
+```{r, message = FALSE}
+# Load libraries; install from scratch if needed
+libraries <- c("ggplot2", "ggpubr", "lintr")
+for (lib in libraries) {
+    if (require(package = lib, character.only = TRUE)) {
+        print("Successful")
+    } else {
+        print("Installing")
+        source("https://bioconductor.org/biocLite.R")
+        library(lib, character.only = TRUE )
+    }
+}
+
+## Create output directory:
+dir.create("results")
+```
+
+Load input file:
+
+```{r, message = FALSE}
+summary_data <- read.table(file = "./apis_all_chrom_10kb.txt",
+                           header = TRUE)
+```
+
+Calculate summary statistics for Tajima's D:
+
+```{r, message = FALSE}
+## Calculate summary statistics for Tajima's D:
+summary(summary_data$tajima_d)
+
+## Order by tajima's D from highest to lowest:
+summary_data <- summary_data[order(summary_data$tajima_d),]
+
+##
+summary_data_subset_part_1 <- subset(summary_data,
+                                     chrom == "NC_007070.3" &
+                                             start > 22256798 &
+                                             end < 22331728)
+
+
+## Plot:
+ggplot(summary_data_subset_part_1, aes(x = midpoint,
+                                       y = tajima_d)) +
+        geom_point()
+
+
+## Subset section 2:
+summary_data_subset_part_2 <- subset(summary_data,
+                                     chrom == "NC_007070.3" &
+                                             start > 27054423 &
+                                             end < 27146439)
+
+## Plot:
+ggplot(summary_data_subset_part_2, aes(x = midpoint,
+                                       y = tajima_d)) +
+        geom_point()
+
+
+summary_data_subset_part_3 <- subset(summary_data,
+                                     chrom=="NC_007070.3" &
+                                             start > 22256798 &
+                                             end < 28318506)
+
+
+## Plot:
+ggplot(summary_data_subset_part_3, aes(x = midpoint,
+                                       y = tajima_d)) +
+        geom_point()
+
+```
