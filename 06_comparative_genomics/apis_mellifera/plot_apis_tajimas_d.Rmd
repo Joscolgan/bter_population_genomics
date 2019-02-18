@@ -47,8 +47,16 @@ summary(summary_data$tajima_d)
 ## Order by tajima's D from highest to lowest:
 summary_data <- summary_data[order(summary_data$tajima_d),]
 
-##
-summary_data_subset_part_1 <- subset(summary_data,
+summary_data_complete <- summary_data[complete.cases(summary_data), ]
+
+## Calculate the top 5%
+quantile(summary_data_complete$tajima_d, 0.01)
+
+summary_data_complete_1 <- subset(summary_data_complete,
+                                  tajima_d < quantile(summary_data_complete$tajima_d, 0.01))
+
+## Subset for plotting:
+summary_data_subset_part_1 <- subset(summary_data_complete_1,
                                      chrom == "NC_007070.3" &
                                              start > 22256798 &
                                              end < 22331728)
@@ -61,7 +69,7 @@ ggplot(summary_data_subset_part_1, aes(x = midpoint,
 
 
 ## Subset section 2:
-summary_data_subset_part_2 <- subset(summary_data,
+summary_data_subset_part_2 <- subset(summary_data_complete,
                                      chrom == "NC_007070.3" &
                                              start > 27054423 &
                                              end < 27146439)
@@ -72,7 +80,7 @@ ggplot(summary_data_subset_part_2, aes(x = midpoint,
         geom_point()
 
 
-summary_data_subset_part_3 <- subset(summary_data,
+summary_data_subset_part_3 <- subset(summary_data_complete,
                                      chrom=="NC_007070.3" &
                                              start > 22256798 &
                                              end < 28318506)
