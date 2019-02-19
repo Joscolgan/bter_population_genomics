@@ -1,0 +1,45 @@
+---
+title: "Bombus population genomics"
+output: plot_all_populations_tajimas_d.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com 
+---
+
+## Introduction:
+This scripts loads plots of Tajima's D across genomic windows of 10kb for four honeybee populations. Plots were performed individually for each population.  
+
+```{r, message = FALSE}
+# Load libraries; install from scratch if needed
+libraries <- c("ggplot2", "ggpubr", "lintr")
+for (lib in libraries) {
+    if (require(package = lib, character.only = TRUE)) {
+        print("Successful")
+    } else {
+        print("Installing")
+        source("https://bioconductor.org/biocLite.R")
+        library(lib, character.only = TRUE )
+    }
+}
+
+## Create output directory:
+dir.create("results")
+```
+
+Load data: 
+
+```{r, message=FALSE}
+## Load african data
+load(file = "./input/african_plots.Rdata")
+load(file = "./input/asian_plots.Rdata")
+load(file = "./input/eEurope_plots.Rdata")
+load(file = "./input/wEurope_plots.Rdata")
+```
+
+Plot together:
+
+```{r, message =  FALSE}
+##
+ggarrange(combined_plot_africa,
+          combined_plot_asia,
+          ncol = 1,
+          nrow = 2)
+```
