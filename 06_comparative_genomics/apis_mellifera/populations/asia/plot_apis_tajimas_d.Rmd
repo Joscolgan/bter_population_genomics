@@ -104,12 +104,11 @@ Plot together:
 
 ```{r, message = FALSE}
 combined_plot_asia <- ggarrange(plot_1,
-                                  plot_2,
-                                  plot_3)
+                                plot_2)
 
 ## Save plot:
 dir.create(path = "results/plots/")
-save(combined_plot_africa, file = "results/plots/asian_plots.Rdata")
+save(combined_plot_asia, file = "results/plots/asian_plots.Rdata")
 ```
 
 Run lintr: 
