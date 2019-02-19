@@ -1,0 +1,119 @@
+---
+title: "Bombus population genomics"
+output: plot_apis_tajimas_d.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com 
+---
+
+## Introduction:  
+This script takes a tab-delimited text file as input containing the following information:  
+1. chromosome name
+2. start position (bp) of a 10kb sliding window
+3. end position (bp) of a 10kb sliding window
+4. average nucleotide diversity (pi) of a 10kb sliding window 
+5. tajima's D of a 10kb sliding window
+6. number of segregating sites within a 10kb sliding window
+7. midpoint position of sliding window
+
+```{r, message = FALSE}
+# Load libraries; install from scratch if needed
+libraries <- c("ggplot2", "ggpubr", "lintr")
+for (lib in libraries) {
+    if (require(package = lib, character.only = TRUE)) {
+        print("Successful")
+    } else {
+        print("Installing")
+        source("https://bioconductor.org/biocLite.R")
+        library(lib, character.only = TRUE )
+    }
+}
+
+## Create output directory:
+dir.create("results")
+```
+
+Load input file:
+
+```{r, message = FALSE}
+summary_data <- read.table(file = "./apis_all_chrom_10kb.txt",
+                           header = TRUE)
+```
+
+Calculate summary statistics for Tajima's D:
+
+```{r, message = FALSE}
+## Calculate summary statistics for Tajima's D:
+summary(summary_data$tajima_d)
+
+## Order by tajima's D from highest to lowest:
+summary_data <- summary_data[order(summary_data$tajima_d), ]
+
+summary_data_complete <- summary_data[complete.cases(summary_data), ]
+
+## Calculate the top 5%
+quantile(summary_data_complete$tajima_d, 0.01)
+
+summary_data_complete_1 <- subset(summary_data_complete,
+                                  tajima_d < quantile(summary_data_complete$tajima_d, 0.01))
+
+## Subset for plotting:
+summary_data_subset_part_1 <- subset(summary_data_complete,
+                                     chrom == "NC_007070.3" &
+                                             start > 22056798 &
+                                             end < 22531728)
+
+## Plot:
+plot_1 <- ggplot(summary_data_subset_part_1, aes(x = midpoint,
+                                       y = tajima_d)) +
+        xlab("Gemomic position (bp)") +
+        ylab("Tajima's D") +
+        geom_point() +
+        theme_bw()
+
+
+## Subset section 2:
+summary_data_subset_part_2 <- subset(summary_data_complete,
+                                     chrom == "NC_007070.3" &
+                                             start > 26854423 &
+                                             end < 27346439)
+
+## Plot:
+plot_2 <- ggplot(summary_data_subset_part_2, aes(x = midpoint,
+                                       y = tajima_d)) +
+        xlab("Gemomic position (bp)") +
+        ylab("Tajima's D") +
+        geom_point() +
+        theme_bw()
+
+
+summary_data_subset_part_3 <- subset(summary_data_complete,
+                                     chrom == "NC_007070.3" &
+                                             start > 22256798 &
+                                             end < 28318506)
+
+
+## Plot:
+plot_3 <- ggplot(summary_data_subset_part_3, aes(x = midpoint,
+                                       y = tajima_d)) +
+        xlab("Gemomic position (bp)") +
+        ylab("Tajima's D") +
+        geom_point() +
+        theme_bw()
+```
+
+Plot together:
+
+```{r, message = FALSE}
+combined_plot_western_euro <- ggarrange(plot_1,
+                                  plot_2,
+                                  plot_3)
+
+## Save plot:
+dir.create(path = "results/plots/")
+save(combined_plot_western_euro, file = "results/plots/wEurope_plots.Rdata")
+```
+
+Run lintr: 
+
+```{r, message = FALSE}
+lintr::lint("./plot_apis_tajimas_d.Rmd")
+```
