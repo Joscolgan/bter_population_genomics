@@ -40,6 +40,8 @@ make_genetic_map <- function(){
         data$rho<-cumsum(data$rho)
         ## Add locus names
         data$locus<-1:nrow(data)
+	## Add a one to last row physical position to remove duplication:
+	data$physical_distance[nrow(data)] <- data$physical_distance[nrow(data)] + 1
         ## Write to file
         write.table(data, file = output,
         row.names = FALSE,
