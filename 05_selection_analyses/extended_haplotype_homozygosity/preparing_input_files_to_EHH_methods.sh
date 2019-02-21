@@ -45,6 +45,17 @@ done
 rm -r tmp/
 rm -r vcf/
 
+## Run nsl
+for name in input/hap/*.out;
+do
+new_name="$(echo "$name" | cut -d '/' -f 3 | cut -d '.' -f 1,2 )";
+singularity exec /data/SBCS-Informatics/singularity/images/ubuntu_trusty-selscan.img selscan \
+--nsl \
+--hap "$name" \
+--map ./input/map/"$new_name".map \
+--out results/"$new_name";
+done
+
 ## For running iHS, a genetic map containg genetic and physical distances between SNPs is required: 
 mkdir map_ihs
 ln -s ~/autoscratch_monthly_projects/2016-10-11_Bombus_population_genomics/results/2017-11-02_terrestris_combined_reanalysis/results/2017-11-19_run_ldhelmet/*post.txt .
