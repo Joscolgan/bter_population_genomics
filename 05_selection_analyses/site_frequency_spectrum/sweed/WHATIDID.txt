@@ -1,0 +1,19 @@
+mkdir src
+mkdir code
+git clone https://github.com/alachins/sweed.git
+cd sweed
+make -f Makefile.gcc
+cd ../../
+
+mkdir bin
+cd bin
+ln -s ../code/sweed/SweeD .
+cd ../input
+
+## Create a symbolic link with input VCF:
+mkdir vcf
+cd vcf/
+ln -s ~/autoscratch_monthly_projects/2016-10-11_Bombus_population_genomics/results/2017-11-02_terrestris_combined_reanalysis/results/2017-12-27-apis_analysis/raw_temp/02_sorted/africa/chroms/NC_007070.3.recode.vcf .
+cd ../../
+## Run sweed using chromosome one and African honeybee population data:
+./src/SweeD_v3.2.1_Linux/SweeD -name test -input input/vcf/NC_007070.3.recode.vcf  -grid 2900
