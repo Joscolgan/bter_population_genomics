@@ -59,3 +59,29 @@ done
 ## For running iHS, a genetic map containg genetic and physical distances between SNPs is required: 
 mkdir map_ihs
 ln -s ~/autoscratch_monthly_projects/2016-10-11_Bombus_population_genomics/results/2017-11-02_terrestris_combined_reanalysis/results/2017-11-19_run_ldhelmet/*post.txt .
+
+## prepare files for iHS analysis:
+for name in *.txt;
+do
+awk '{ print $1,$3,$1 }' "$name" | tail -n +4 - >> "$name".tmp;
+awk '{ print $2,$3,$1 }' "$name" | tail -n 1 >> "$name".tmp;
+while read line;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1,2 )";
+echo "$new_name" >> "$new_name".chrom.tmp;
+done < "$name".tmp;
+paste "$new_name".chrom.tmp "$name".tmp > "$new_name".input_for_genetic_map.txt;
+done
+
+## Ensure there are tabs rather than spaces between columns:
+for name in *nput_for_genetic_map.txt;
+do
+sed -i 's/ /\t/g' "$name";
+done
+
+## Generate genetic maps for each chromosome:
+for name in *input_for_genetic_map.txt;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1,2 )";
+Rscript make_genetic_map.R "$name" "$new_name".ihs_map.txt;
+done
