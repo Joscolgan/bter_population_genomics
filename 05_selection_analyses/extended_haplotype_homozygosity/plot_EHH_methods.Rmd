@@ -1,0 +1,86 @@
+---
+title: "Bombus population genomics"
+output: plot_EHH_methods.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com 
+---
+
+## Introduction:
+This scripts loads plots of genome-wide iHS and nSL scores calculated by selscan for one single population of _Bombus terrestris_.
+
+```{r, message = FALSE}
+# Load libraries; install from scratch if needed
+libraries <- c("ggplot2", "ggpubr", "lintr")
+for (lib in libraries) {
+    if (require(package = lib, character.only = TRUE)) {
+        print("Successful")
+    } else {
+        print("Installing")
+        source("https://bioconductor.org/biocLite.R")
+        library(lib, character.only = TRUE )
+    }
+}
+
+## Create output directory:
+dir.create("results")
+```
+
+Load input file:
+
+```{r, message = FALSE}
+ihs_data <- read.table(file = "./input/NC_015762.1.ihs.out.100bins.norm",
+                           header = FALSE)
+
+head(ihs_data)
+ihs_data$V7 <- abs(ihs_data$V7)
+summary(ihs_data$V7)
+quantile(ihs_data$V7, 0.99)
+
+nsl_data <- read.table(file = "./input/NC_015762.1.nsl.out.100bins.norm",
+                       header = FALSE)
+
+head(nsl_data)
+nsl_data$V7 <- abs(nsl_data$V7)
+quantile(nsl_data$V7, 0.99)
+
+ihs_plot <- ggplot(ihs_data, aes(x = V2, y = abs(V7))) +
+        geom_point() +
+        geom_hline(yintercept = quantile(ihs_data$V7, 0.99)) +
+        theme_bw()
+
+nsl_plot <- ggplot(nsl_data, aes(x = V2, y = abs(V7))) +
+        geom_point() +
+        geom_hline(yintercept = quantile(nsl_data$V7, 0.99)) +
+        theme_bw()
+
+## Chromosome one region:
+ihs_data_subset <- subset(ihs_data,
+                          V2 < 1000000)
+
+nsl_data_subset <- subset(nsl_data,
+                          V2 < 1000000)
+
+ihs_plot <- ggplot(ihs_data_subset, aes(x = V2, y = abs(V7))) +
+        geom_point(alpha = 0.5) +
+        geom_hline(yintercept = quantile(ihs_data$V7, 0.99),
+                   color = "red",
+                   linetype = "dashed") +
+        theme_bw()
+
+nsl_plot <- ggplot(nsl_data_subset, aes(x = V2, y = abs(V7))) +
+        geom_point(alpha = 0.5) +
+        geom_hline(yintercept = quantile(nsl_data$V7, 0.99),
+                   color = "red",
+                   linetype = "dashed") +
+        theme_bw()
+
+```
+
+Plot together:
+
+```{r, message=FALSE}
+ggarrange(ihs_plot,
+          nsl_plot,
+          ncol = 1,
+          nrow = 2,
+          align = "hv")
+```
