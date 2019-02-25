@@ -62,13 +62,19 @@ summary_data_subset_part_1 <- subset(summary_data_complete,
                                              end < 22531728)
 
 ## Plot:
-plot_1 <- ggplot(summary_data_subset_part_1, aes(x = midpoint,
-                                       y = tajima_d)) +
-        xlab("Gemomic position (bp)") +
-        ylab("Tajima's D") +
+plot_1_nuc_div <- ggplot(summary_data_subset_part_1, aes(x = midpoint,
+                                       y = nuc_diversity)) +
+        xlab("Genomic position (bp)") +
+        ylab("Nucleotide diversity") +
         geom_point() +
         theme_bw()
 
+plot_1_tajimas_d <- ggplot(summary_data_subset_part_1, aes(x = midpoint,
+                                       y = tajima_d)) +
+        xlab("Genomic position (bp)") +
+        ylab("Tajima's D") +
+        geom_point() +
+        theme_bw()
 
 ## Subset section 2:
 summary_data_subset_part_2 <- subset(summary_data_complete,
@@ -77,9 +83,16 @@ summary_data_subset_part_2 <- subset(summary_data_complete,
                                              end < 27346439)
 
 ## Plot:
-plot_2 <- ggplot(summary_data_subset_part_2, aes(x = midpoint,
+plot_2_nuc_div <- ggplot(summary_data_subset_part_2, aes(x = midpoint,
+                                       y = nuc_diversity)) +
+        xlab("Genomic position (bp)") +
+        ylab("Nucleotide diversity") +
+        geom_point() +
+        theme_bw()
+
+plot_2_tajimas_d <- ggplot(summary_data_subset_part_2, aes(x = midpoint,
                                        y = tajima_d)) +
-        xlab("Gemomic position (bp)") +
+        xlab("Genomic position (bp)") +
         ylab("Tajima's D") +
         geom_point() +
         theme_bw()
@@ -103,8 +116,13 @@ plot_3 <- ggplot(summary_data_subset_part_3, aes(x = midpoint,
 Plot together:
 
 ```{r, message = FALSE}
-combined_plot_asia <- ggarrange(plot_1,
-                                plot_2)
+combined_plot_asia <- ggarrange(plot_1_nuc_div,
+                                plot_2_nuc_div,
+                                plot_1_tajimas_d,
+                                plot_2_tajimas_d,
+                                nrow = 2,
+                                ncol = 2,
+                                align="hv")
 
 ## Save plot:
 dir.create(path = "results/plots/")
