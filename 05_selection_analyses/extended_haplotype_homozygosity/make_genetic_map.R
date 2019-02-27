@@ -23,6 +23,9 @@ input <- args[1] 						# Assign first argument as input
 output <- args[2]                                               # Assign second argument as input
 message(paste("will output to", output))
 
+## Turn off scientific notation:
+options(scipen = 999)
+
 ## Assign effective population size
 ## Effective population size calculated by B. Viera using PSMC
 Ne <- 200000
