@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: identify_sig_sites_nsl.html
+output: identify_sig_sites_ihs.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com 
 ---
 
@@ -10,10 +10,10 @@ The input consists of tab-delimited text files, one per bumblebee chromosome, wh
 1) Locus ID (chromosome name)
 2) Physical position
 3) '1' Freq
-4) nsl1
-5) nsl0
-6) Unstandardised nsl
-7) Standardised nsl
+4) ihs1
+5) ihs0
+6) Unstandardised ihs
+7) Standardised ihs
 8) Indicator of 'unsual' or not (1 = unsual; 0 = not)
 
 ```{r, message = FALSE}
@@ -31,61 +31,61 @@ for (lib in libraries) {
 }
 
 ## Create output directory:
-dir.create("nsl_significant_sites")
+dir.create("ihs_significant_sites")
 ```
 
 Read in input:
 
 ```{r, message=FALSE}
 ## Read in data:
-NC_015762.1_nsl_data <- read.table("./nsl/NC_015762.1.nsl.out.100bins.norm")
-NC_015763.1_nsl_data <- read.table("./nsl/NC_015763.1.nsl.out.100bins.norm")
-NC_015764.1_nsl_data <- read.table("./nsl/NC_015764.1.nsl.out.100bins.norm")
-NC_015765.1_nsl_data <- read.table("./nsl/NC_015765.1.nsl.out.100bins.norm")
-NC_015766.1_nsl_data <- read.table("./nsl/NC_015766.1.nsl.out.100bins.norm")
-NC_015767.1_nsl_data <- read.table("./nsl/NC_015767.1.nsl.out.100bins.norm")
-NC_015768.1_nsl_data <- read.table("./nsl/NC_015768.1.nsl.out.100bins.norm")
-NC_015769.1_nsl_data <- read.table("./nsl/NC_015769.1.nsl.out.100bins.norm")
-NC_015770.1_nsl_data <- read.table("./nsl/NC_015770.1.nsl.out.100bins.norm")
-NC_015771.1_nsl_data <- read.table("./nsl/NC_015771.1.nsl.out.100bins.norm")
-NC_015772.1_nsl_data <- read.table("./nsl/NC_015772.1.nsl.out.100bins.norm")
-NC_015773.1_nsl_data <- read.table("./nsl/NC_015773.1.nsl.out.100bins.norm")
-NC_015774.1_nsl_data <- read.table("./nsl/NC_015774.1.nsl.out.100bins.norm")
-NC_015775.1_nsl_data <- read.table("./nsl/NC_015775.1.nsl.out.100bins.norm")
-NC_015776.1_nsl_data <- read.table("./nsl/NC_015776.1.nsl.out.100bins.norm")
-NC_015777.1_nsl_data <- read.table("./nsl/NC_015777.1.nsl.out.100bins.norm")
-NC_015778.1_nsl_data <- read.table("./nsl/NC_015778.1.nsl.out.100bins.norm")
-NC_015779.1_nsl_data <- read.table("./nsl/NC_015779.1.nsl.out.100bins.norm")
+NC_015762.1_ihs_data <- read.table("./ihs/NC_015762.1.ihs.out.100bins.norm")
+NC_015763.1_ihs_data <- read.table("./ihs/NC_015763.1.ihs.out.100bins.norm")
+NC_015764.1_ihs_data <- read.table("./ihs/NC_015764.1.ihs.out.100bins.norm")
+NC_015765.1_ihs_data <- read.table("./ihs/NC_015765.1.ihs.out.100bins.norm")
+NC_015766.1_ihs_data <- read.table("./ihs/NC_015766.1.ihs.out.100bins.norm")
+NC_015767.1_ihs_data <- read.table("./ihs/NC_015767.1.ihs.out.100bins.norm")
+NC_015768.1_ihs_data <- read.table("./ihs/NC_015768.1.ihs.out.100bins.norm")
+NC_015769.1_ihs_data <- read.table("./ihs/NC_015769.1.ihs.out.100bins.norm")
+NC_015770.1_ihs_data <- read.table("./ihs/NC_015770.1.ihs.out.100bins.norm")
+NC_015771.1_ihs_data <- read.table("./ihs/NC_015771.1.ihs.out.100bins.norm")
+NC_015772.1_ihs_data <- read.table("./ihs/NC_015772.1.ihs.out.100bins.norm")
+NC_015773.1_ihs_data <- read.table("./ihs/NC_015773.1.ihs.out.100bins.norm")
+NC_015774.1_ihs_data <- read.table("./ihs/NC_015774.1.ihs.out.100bins.norm")
+NC_015775.1_ihs_data <- read.table("./ihs/NC_015775.1.ihs.out.100bins.norm")
+NC_015776.1_ihs_data <- read.table("./ihs/NC_015776.1.ihs.out.100bins.norm")
+NC_015777.1_ihs_data <- read.table("./ihs/NC_015777.1.ihs.out.100bins.norm")
+NC_015778.1_ihs_data <- read.table("./ihs/NC_015778.1.ihs.out.100bins.norm")
+NC_015779.1_ihs_data <- read.table("./ihs/NC_015779.1.ihs.out.100bins.norm")
 ```
 
 Create a list:
 
 ```{r, message = FALSE}
 ## Make a list:
-nsl_samples <- list(NC_015762.1_nsl_data = NC_015762.1_nsl_data,
-                    NC_015763.1_nsl_data = NC_015763.1_nsl_data,
-                    NC_015764.1_nsl_data = NC_015764.1_nsl_data,
-                    NC_015765.1_nsl_data = NC_015765.1_nsl_data,
-                    NC_015766.1_nsl_data = NC_015766.1_nsl_data,
-                    NC_015767.1_nsl_data = NC_015767.1_nsl_data,
-                    NC_015768.1_nsl_data = NC_015768.1_nsl_data,
-                    NC_015769.1_nsl_data = NC_015769.1_nsl_data,
-                    NC_015770.1_nsl_data = NC_015770.1_nsl_data,
-                    NC_015771.1_nsl_data = NC_015771.1_nsl_data,
-                    NC_015772.1_nsl_data = NC_015772.1_nsl_data,
-                    NC_015773.1_nsl_data = NC_015773.1_nsl_data,
-                    NC_015774.1_nsl_data = NC_015774.1_nsl_data,
-                    NC_015775.1_nsl_data = NC_015775.1_nsl_data,
-                    NC_015776.1_nsl_data = NC_015776.1_nsl_data,
-                    NC_015777.1_nsl_data = NC_015777.1_nsl_data,
-                    NC_015778.1_nsl_data = NC_015778.1_nsl_data,
-                    NC_015779.1_nsl_data = NC_015779.1_nsl_data)
+ihs_samples <- list(NC_015762.1_ihs_data = NC_015762.1_ihs_data,
+                    NC_015763.1_ihs_data = NC_015763.1_ihs_data,
+                    NC_015764.1_ihs_data = NC_015764.1_ihs_data,
+                    NC_015765.1_ihs_data = NC_015765.1_ihs_data,
+                    NC_015766.1_ihs_data = NC_015766.1_ihs_data,
+                    NC_015767.1_ihs_data = NC_015767.1_ihs_data,
+                    NC_015768.1_ihs_data = NC_015768.1_ihs_data,
+                    NC_015769.1_ihs_data = NC_015769.1_ihs_data,
+                    NC_015770.1_ihs_data = NC_015770.1_ihs_data,
+                    NC_015771.1_ihs_data = NC_015771.1_ihs_data,
+                    NC_015772.1_ihs_data = NC_015772.1_ihs_data,
+                    NC_015773.1_ihs_data = NC_015773.1_ihs_data,
+                    NC_015774.1_ihs_data = NC_015774.1_ihs_data,
+                    NC_015775.1_ihs_data = NC_015775.1_ihs_data,
+                    NC_015776.1_ihs_data = NC_015776.1_ihs_data,
+                    NC_015777.1_ihs_data = NC_015777.1_ihs_data,
+                    NC_015778.1_ihs_data = NC_015778.1_ihs_data,
+                    NC_015779.1_ihs_data = NC_015779.1_ihs_data)
 ```
 
 ##Step Two:
 ## For the examination of interest peak regions with certain size windows:
-## The following command will take the absolute nsl values and for nonoverlapping 50kb sites,
-## calculate the number of SNPs with nsl values with a value higher than 2 (potentially interesting)
+## The following command will take the absolute ihs values and for nonoverlapping 50kb sites,
+## calculate the number of SNPs with ihs values with a value higher than 2 (potentially interesting)
 ## divided by the total number of SNPs i.e. get the proportion of interesting SNPs within a particular
 ## region.
 
@@ -94,16 +94,16 @@ nsl_samples <- list(NC_015762.1_nsl_data = NC_015762.1_nsl_data,
 df <- data.frame()
 
 ## Load quantile value:
-load(file = "./nsl_combined/nsl_quantile.Rdata")
+load(file = "./ihs_combined/ihs_quantile.Rdata")
 
 ## For each sample in the list:
-for (name in nsl_samples){
+for (name in ihs_samples){
         ## Examine 100 lines at a time (representative of SNPs),
-        ## count the proportion of SNPs with an interesting nsl value.
+        ## count the proportion of SNPs with an interesting ihs value.
         name.rolled <- rollapply(abs(name$V7),
                                 width = 100,
                                 by = 100,
-                                function(x) sum(x > nsl_quantile) / 100)
+                                function(x) sum(x > ihs_quantile) / 100)
         ## Add the count proportion per window to the empty dataframe:
         df <- c(df, name.rolled)
         ## Unlist the contents of the dataframe:
@@ -133,8 +133,8 @@ table(unlisted.df.sig$df)
 
 
 ## Convert the input text files into zoo formatted files:
-#for (item in 1:length(names(nsl.samples))){
-#        nsl.samples[[item]] <- zoo((nsl.samples)[[item]])
+#for (item in 1:length(names(ihs.samples))){
+#        ihs.samples[[item]] <- zoo((ihs.samples)[[item]])
 #}
 
 ```{r, message=FALSE}
@@ -143,10 +143,10 @@ table(unlisted.df.sig$df)
 ## Loop through the 'zoo' samples:
 ## Add column containing chromosomal number to each chromosome:
 count <- 0
-for (item in 1:length(names(nsl_samples))){
+for (item in 1:length(names(ihs_samples))){
         count <- count + 1
         ## Add chromosome number to each individual chromosome:
-        nsl_samples[[item]]$chrom <- count
+        ihs_samples[[item]]$chrom <- count
 }
 ```
 
@@ -158,11 +158,11 @@ combined_test <- data.frame()
 
 ## For the generation of a manhattan plot:
 ## Require, "SNP", "CHR", "BP" and "P" columns:
-for (item in 1:length(names(nsl_samples))){
-        nsl_samples[[item]]$V1 <- sub("^", "rs", nsl_samples[[item]]$V1)
-        nsl_samples[[item]] <- nsl_samples[[item]][, c(1, 9, 2, 7)]
+for (item in 1:length(names(ihs_samples))){
+        ihs_samples[[item]]$V1 <- sub("^", "rs", ihs_samples[[item]]$V1)
+        ihs_samples[[item]] <- ihs_samples[[item]][, c(1, 9, 2, 7)]
         combined_test <- rbind(combined_test,
-                               as.data.frame(nsl_samples[[item]]))
+                               as.data.frame(ihs_samples[[item]]))
 }
 
 ## Change the column names for plotting:
@@ -180,12 +180,12 @@ manhattan(combined_test)
 zoo_samples <- list()
 
 ## Transform to zoo format
-for (item in 1:length(names(nsl_samples))){
-        zoo_samples[[item]] <- zoo((nsl_samples)[[item]])
+for (item in 1:length(names(ihs_samples))){
+        zoo_samples[[item]] <- zoo((ihs_samples)[[item]])
 }
 
-chromosome_names <- names(nsl_samples)
-chromosome_names<- gsub("_nsl_data", "", chromosome_names)
+chromosome_names <- names(ihs_samples)
+chromosome_names<- gsub("_ihs_data", "", chromosome_names)
 
 ## Need to examine sites for each chromosome with a SNP proportion of 0.15:
 df_sig <- data.frame()
@@ -199,7 +199,7 @@ for (name in 1:length(zoo_samples)){
                 name_rolled <- rollapply(zoo_samples[[name]]$V7,
                                          width = 100,
                                          by = 100,
-                                         function(x) sum(x > nsl_quantile) / 100)
+                                         function(x) sum(x > ihs_quantile) / 100)
                 df_sig <- name.rolled[which(name_rolled >= 0.14)]
                 df_sig_index <- (index(df_sig))
                 df_index <- index(name_rolled)
@@ -247,7 +247,7 @@ colnames(combined_df_rearranged) <- c("Chr",
 ## present within genomic windows. Windows with a high proportion (10%) of 
 ## Ns are to be removed. 
 write.table(combined_df_rearranged,
-            file = "nsl_n41_unfiltered.txt",
+            file = "ihs_n41_unfiltered.txt",
             sep = "\t",
             quote = FALSE,
             row.names = FALSE,
@@ -258,19 +258,19 @@ combined_df_sig <- subset(combined_df_rearranged, binom_test_adjusted < 0.05)
 
 ## Write to output:
 write.table(combined_df_sig,
-            file = "nsl_n41_unfiltered.sig.txt",
+            file = "ihs_n41_unfiltered.sig.txt",
             sep = "\t",
             quote = FALSE,
             row.names = FALSE,
             col.names = FALSE)
 
 ## The region with strongest signature:
-head(combined_df_sig[order(-combined_df_sig$SNP_proportion), ])
+head(combined_df_sig[order(-combined_df_sig$df), ])
 ```
 
 Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "./identify_sig_sites_nsl.Rmd")
+lintr::lint(file = "./identify_sig_sites_ihs.Rmd")
 ```
