@@ -1,14 +1,13 @@
 ---
-title: "2018-07-06_suppl_pca_plots"
-author: "JoeColgan"
-date: "6 July 2018"
-output: html_document
+title: "Bombus population genomics"
+output: plot_pca.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ```{r}
 ## Plot PCA of larger number of samples (n=46):
 ## Assign the input name:  
-input_n46_vcf <- "n46_samples/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n46.NC_only.minQ20.snps_only.no_hets.sites_low_freq.maxmissing1.0.rare_variants_removed.recode.vcf"
+input_vcf <- "n46_samples/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n46.NC_only.minQ20.snps_only.no_hets.sites_low_freq.maxmissing1.0.rare_variants_removed.recode.vcf"
 
 ## Convert VCF to genome data structure (gds) file format
 ## gds is a container for storing annotation data and SNP genotypes.
@@ -17,50 +16,58 @@ input_n46_vcf <- "n46_samples/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter
 ## to reside in memory. GDS formatted data is also designed for efficient data access to large datasets.
 
 ## Use the name of input to designate the name for the GDS file format.
-input_n46_vcf_gds <- gsub(".vcf", ".gds", input_n46_vcf)
+input_vcf_gds <- gsub(".vcf", ".gds", input_vcf)
 
 ## Reformat VCF into GDS format
-snpgdsVCF2GDS(input_n46_vcf, input_n46_vcf_gds, method="biallelic.only")
+snpgdsVCF2GDS(input_vcf,
+              input_vcf_gds,
+              method="biallelic.only")
 
 ## Extract genotype information:
-input_n46_vcf_gds_genofile <- snpgdsOpen(input_n46_vcf_gds)
+input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
 
 ## Extract genotype information and generate genotypic matrix:  
-input_n46_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_n46_vcf_gds_genofile, "genotype"))
+input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
+                                                      "genotype"))
 
 ## Perform PCA and store output in variable:  
-pca_n46      <- snpgdsPCA(input_n46_vcf_gds_genofile, num.thread=2, autosome.only=FALSE)
+pca        <- snpgdsPCA(input_vcf_gds_genofile,
+                          num.thread = 20,
+                          autosome.only = FALSE)
 
 ## Calculate percentages for principal components:  
-pc_percent_n46      <- pca_n46$varprop*100
+pc_percent      <- pca$varprop*100
 ## Print rounded up percentages:  
-print(round(pc_percent_n46, 2))
+print(round(pc_percent, 2))
 
 ## Extract sample names from input:  
-sample_id_n46     <- read.gdsn(index.gdsn(input_n46_vcf_gds_genofile, "sample.id"))
+sample_id     <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
+                                      "sample.id"))
 
 ## Read in file containing treatment information. 
 ## This file should contain 'treatment information' for each sample and be in the same order as each sample. 
 ## i.e. the first treatment information would be assigned to the first sample, etc., etc.
 ## Read in table:
-pop_code_n46_df <- read.table(file = "n46_samples/landuse_site_info_n46.txt",
+pop_code_df <- read.table(file = "input/landuse_site_info.txt",
                           header = FALSE)
 
 ## Rename columns:
-colnames(pop_code_n46_df) <- c("sample", "site_number", "landuse")
+colnames(pop_code_df) <- c("sample",
+                           "site_number",
+                           "landuse")
 
-##
-pop_code_n46 <- pop_code_n46_df$landuse
+## 
+pop_code <- pop_code_df$landuse
 
 ## Generate a dataframe containing a column for:
 ## 1) Sample name
 ## 2) Treatment condition
 ## 3) First principal component of interest
 ## 4) Second principal component of interest
-tab_n46 <- data.frame(sample.id = pca_n46$sample.id,
-                  pop = factor(pop_code_n46)[match(pca_n46$sample.id, sample_id_n46)],
-                  EV1 = pca_n46$eigenvect[,1],    # the first eigenvector
-                  EV2 = pca_n46$eigenvect[,2],    # the second eigenvector
+tab <- data.frame(sample.id = pca$sample.id,
+                  pop = factor(pop_code)[match(pca$sample.id, sample_id)],
+                  EV1 = pca$eigenvect[,1],    # the first eigenvector
+                  EV2 = pca$eigenvect[,2],    # the second eigenvector
                   stringsAsFactors = FALSE)
 
 ## Rename the samples for plotting:  
@@ -68,39 +75,39 @@ tab_n46 <- data.frame(sample.id = pca_n46$sample.id,
 new_names <- list()
 
 ## Create a list:
-for (name in sample_id_n46){
+for (name in sample_id){
         new_names[name] <- paste(strsplit(name, "_")[[1]][5],"_",strsplit(name, "_")[[1]][6], sep="")
 }
 
 ## Unlist as a character string and update sample ids:
-tab_n46$sample.id <- as.character(unlist(new_names))
+tab$sample.id <- as.character(unlist(new_names))
 
 ## Add another column for site_id:
-tab_n46$site_id <- pop_code_n46_df$site_number
+tab$site_id <- pop_code_df$site_number
 
 ## Check status of whether there are two or one individual per site:
 new_site_id <- vector()
 
-for (i in 1:length(tab_n46$site_id)){
-        status <- duplicated(tab_n46$site_id)[i]
+for (i in 1:length(tab$site_id)){
+        status <- duplicated(tab$site_id)[i]
         if (status==FALSE){
                 print("Not duplicated")
-                new_site_id <- c(new_site_id, paste(tab_n46$site_id[i], "A", sep=""))
+                new_site_id <- c(new_site_id, paste(tab$site_id[i], "A", sep=""))
         }
         else {
                 print("Duplicated")
-                new_site_id <- c(new_site_id, paste(tab_n46$site_id[i], "B", sep=""))
+                new_site_id <- c(new_site_id, paste(tab$site_id[i], "B", sep=""))
         }
 }
 
-## Write samples to file:
-#write(new_site_id, file="sample_names.txt", sep="\t")
-
 ## Update site information: 
-tab_n46$site_id <- new_site_id
+tab$site_id <- new_site_id
 
 ## Alternatively, to plot with just sample ids and not points:
-names_n46_plot<- ggplot(tab_n46, aes(x=tab_n46$EV1, y=tab_n46$EV2, color = tab_n46$pop)) +
+names_plot<- ggplot(tab,
+                    aes(x = tab$EV1,
+                        y = tab$EV2,
+                        color = tab$pop)) +
         #geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
         theme_minimal() +
         xlab(paste("Principal component", 1," ","(",round(pc_percent_n46[1], 2), "%", ")", sep="")) +
@@ -109,13 +116,16 @@ names_n46_plot<- ggplot(tab_n46, aes(x=tab_n46$EV1, y=tab_n46$EV2, color = tab_n
         scale_color_manual(values= c("blue", "orange", "red"))
 
 ## Adjust the size of the labels:
-names_n46_plot <- names_n46_plot +
-                 theme(axis.text=element_text(size=20),
-                 axis.title=element_text(size=20,face="bold")) +
-                 theme(legend.position="none")
+names_plot <- names_plot +
+              theme(axis.text=element_text(size = 20),
+                    axis.title=element_text(size = 20,
+                                            face = "bold")) +
+                    theme(legend.position = "none")
 
 ## Plot:
-names_n46_plot
+ggsave(file = "pca_plot.png",
+       width = 10,
+       height = 10)
 
 ## Plot together:
 ggarrange(names_n46_plot, 
