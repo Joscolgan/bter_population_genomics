@@ -33,7 +33,7 @@ Load data and perform PCA:
 ```{r}
 ## Plot PCA of larger number of samples (n=46):
 ## Assign the input name:  
-input_vcf <- "n46_samples/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n46.NC_only.minQ20.snps_only.no_hets.sites_low_freq.maxmissing1.0.rare_variants_removed.recode.vcf"
+input_vcf <- "input/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n41.NC_only.minQ20.snps_only.no_hets.sites_low_freq.rare_variants_free.maxMeanDP100.recode.ann.vcf"
 
 ## Convert VCF to genome data structure (gds) file format
 ## gds is a container for storing annotation data and SNP genotypes.
@@ -55,10 +55,19 @@ input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
 ## Extract genotype information and generate genotypic matrix:  
 input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                                       "genotype"))
+                                                      
+## For performing PCA, it is recommended to perform LD pruning:
+snpset <- snpgdsLDpruning(input_vcf_gds_genofile,
+                          ld.threshold = 0.2,
+                          autosome.only = FALSE)
+
+## Get all selected SNP ids:
+snpset.id <- unlist(unname(snpset))
 
 ## Perform PCA and store output in variable:  
 pca        <- snpgdsPCA(input_vcf_gds_genofile,
                           num.thread = 20,
+                          snp.id = snpset.id,
                           autosome.only = FALSE)
 
 ## Calculate percentages for principal components:  
@@ -74,7 +83,7 @@ sample_id     <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
 ## This file should contain 'treatment information' for each sample and be in the same order as each sample. 
 ## i.e. the first treatment information would be assigned to the first sample, etc., etc.
 ## Read in table:
-pop_code_df <- read.table(file = "input/landuse_site_info.txt",
+pop_code_df <- read.table(file = "input/landuse.txt",
                           header = FALSE)
 
 ## Rename columns:
@@ -92,8 +101,8 @@ pop_code <- pop_code_df$landuse
 ## 4) Second principal component of interest
 tab <- data.frame(sample.id = pca$sample.id,
                   pop = factor(pop_code)[match(pca$sample.id, sample_id)],
-                  EV1 = pca$eigenvect[,1],    # the first eigenvector
-                  EV2 = pca$eigenvect[,2],    # the second eigenvector
+                  EV1 = pca$eigenvect[,2],    # the first eigenvector
+                  EV2 = pca$eigenvect[,3],    # the second eigenvector
                   stringsAsFactors = FALSE)
 
 ## Rename the samples for plotting:  
@@ -134,11 +143,11 @@ names_plot<- ggplot(tab,
                     aes(x = tab$EV1,
                         y = tab$EV2,
                         color = tab$pop)) +
-        #geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
+        #geom_point(shape = 16, size=4, alpha=0.4, show.legend = T) +
         theme_minimal() +
-        xlab(paste("Principal component", 1," ","(",round(pc_percent_n46[1], 2), "%", ")", sep="")) +
-        ylab(paste("Principal component", 2," ","(",round(pc_percent_n46[2], 2), "%", ")", sep="")) + 
-        geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab_n46$site_id, color=tab_n46$pop)) +
+        xlab(paste("Principal component", 1," ","(",round(pc_percent[1], 2), "%", ")", sep="")) +
+        ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) + 
+        geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
         scale_color_manual(values= c("blue", "orange", "red"))
 
 ## Adjust the size of the labels:
@@ -149,7 +158,7 @@ names_plot <- names_plot +
                     theme(legend.position = "none")
 
 ## Plot:
-ggsave(file = "pca_plot.png",
+ggsave(file = "pca_plot_PC2_PC3.png",
        width = 10,
        height = 10)
 
@@ -158,6 +167,66 @@ ggarrange(names_n46_plot,
           names_plot,
           ncol=2, nrow=1,
           labels = c("A", "B"))
+
+```
+
+Explore relatedness among individuals:
+
+```{r, message = FALSE}
+# Estimate IBD coefficients
+ibd_mom <- snpgdsIBDMoM(input_vcf_gds_genofile,
+                    sample.id = sample_id,
+                    snp.id = snpset.id,
+                    maf = 0.05,
+                    missing.rate = 0.05,
+                    num.thread = 20,
+                    autosome.only = FALSE)
+
+# Make a data.frame
+ibd_mom_coeff <- snpgdsIBDSelection(ibd_mom)
+
+
+## Alternatively, to plot with just sample ids and not points:
+ibd_plot<- ggplot(ibd_mom_coeff,
+                    aes(x = ibd_mom_coeff$k0,
+                        y = ibd_mom_coeff$k1)) +
+        geom_point(shape = 16, size=4, alpha=0.4, show.legend = T) +
+        theme_minimal() +
+        xlab("K0") +
+        ylab("K1")
+        #geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
+        #scale_color_manual(values= c("blue", "orange", "red"))
+
+ggsave(file = "ibd_mon_plot.png",
+       width = 10,
+       height = 10)
+
+set.seed(100)
+snp.id <- sample(snpset.id, 2000)  # random 2000 SNPs
+ibd_mle <- snpgdsIBDMLE(input_vcf_gds_genofile,
+                    sample.id = sample_id,
+                    snp.id = snp.id,
+                    maf = 0.05,
+                    missing.rate = 0.05,
+                    num.thread = 20,
+                    autosome.only = FALSE)
+
+# Make a data.frame
+ibd_coeff_mle <- snpgdsIBDSelection(ibd_mle)
+
+ibd_mle_plot<- ggplot(ibd_coeff_mle,
+                    aes(x = k0,
+                        y = k1)) +
+                        geom_point()
+                        
+        theme_minimal() +
+        xlab("K0") +
+        ylab("K1")
+
+## Reporting of kinship:
+ggsave(file = "ibd_mle_plot.png",
+       width = 10,
+       height = 10)
 
 ```
 
