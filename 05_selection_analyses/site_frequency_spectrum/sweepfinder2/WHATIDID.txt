@@ -1,0 +1,45 @@
+mkdir input
+mkdir data
+mkdir code
+ln -s ../../../2019-02-19_ihs_analysis/input/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n41.NC_only.minQ20.snps_only.no_hets.sites_low_freq.rare_variants_free.maxMeanDP100.recode.ann.vcf .
+
+cd input
+mkdir vcf
+cd vcf
+
+## Create a symbolic link:
+ln -s ../../../2019-02-19_ihs_analysis/input/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n41.NC_only.minQ20.snps_only.no_hets.sites_low_freq.rare_variants_free.maxMeanDP100.recode.ann.vcf .
+
+grep -v '#' freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n41.NC_only.minQ20.snps_only.no_hets.sites_low_freq.rare_variants_free.maxMeanDP100.recode.ann.vcf | \
+cut -f 1 | \
+sort | uniq > chromosome_list.txt
+
+## Extract chromosome-level VCF files:
+while read line;
+do 
+vcftools --vcf freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n41.NC_only.minQ20.snps_only.no_hets.sites_low_freq.rare_variants_free.maxMeanDP100.recode.ann.vcf \
+--chr "$line" \
+--recode --out "$line"; 
+done < chromosome_list.txt 
+
+## Run vcftools to calculate allele frequencies:
+for name in vcf/NC_0157*vcf;
+do
+new_name="$(echo "$name" | cut -d '/' -f 2 | cut -d '.' -f 1,2 - )";
+vcftools --vcf "$name" --freq --out freq_files/"$new_name";
+done
+
+## Remove header information:
+for name in *.frq; do tail -n +2 "$name" > "$name".tmp; done
+
+## Reformat:
+for name in *.tmp; do new_name="$(echo "$name" | cut -d '.' -f 1,2 )"; Rscript sweepfinder2_formatter.R "$name" "$new_name".freqfile.txt; done
+cat *freq* > CombinedFreqFile
+cd ../../
+
+mkdir results
+for name in input/freq_files/*freqfile.txt;
+do
+new_name="$(echo "$name" | cut -d '/' -f 3 | cut -d '.' -f 1,2 )";
+./src/SF2/SweepFinder2 -sg 100000 "$name" ./results/"$new_name".SF_output.txt;
+done
