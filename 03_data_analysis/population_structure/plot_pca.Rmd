@@ -14,7 +14,12 @@ These plots are output as .PNG files.
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
-libraries <- c("gdsfmt", "SNPRelate", "ggplot2", "ggpubr", "lintr")
+libraries <- c("gdsfmt",
+               "SNPRelate",
+               "ggplot2",
+               "ggpubr",
+               "lintr",
+               "reshape2")
 for (lib in libraries) {
     if (require(package = lib, character.only = TRUE)) {
         print("Successful")
@@ -58,7 +63,7 @@ input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                                       
 ## For performing PCA, it is recommended to perform LD pruning:
 snpset <- snpgdsLDpruning(input_vcf_gds_genofile,
-                          ld.threshold = 0.2,
+                          ld.threshold = 0.1,
                           autosome.only = FALSE)
 
 ## Get all selected SNP ids:
@@ -83,7 +88,7 @@ sample_id     <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
 ## This file should contain 'treatment information' for each sample and be in the same order as each sample. 
 ## i.e. the first treatment information would be assigned to the first sample, etc., etc.
 ## Read in table:
-pop_code_df <- read.table(file = "input/landuse.txt",
+pop_code_df <- read.table(file = "input/population_information.txt",
                           header = FALSE)
 
 ## Rename columns:
@@ -101,8 +106,8 @@ pop_code <- pop_code_df$landuse
 ## 4) Second principal component of interest
 tab <- data.frame(sample.id = pca$sample.id,
                   pop = factor(pop_code)[match(pca$sample.id, sample_id)],
-                  EV1 = pca$eigenvect[,2],    # the first eigenvector
-                  EV2 = pca$eigenvect[,3],    # the second eigenvector
+                  EV1 = pca$eigenvect[,1],    # the first eigenvector
+                  EV2 = pca$eigenvect[,2],    # the second eigenvector
                   stringsAsFactors = FALSE)
 
 ## Rename the samples for plotting:  
@@ -158,7 +163,7 @@ names_plot <- names_plot +
                     theme(legend.position = "none")
 
 ## Plot:
-ggsave(file = "pca_plot_PC2_PC3.png",
+ggsave(file = "pca_plot_PC1_PC2.pruned.0.1.png",
        width = 10,
        height = 10)
 
@@ -228,6 +233,27 @@ ggsave(file = "ibd_mle_plot.png",
        width = 10,
        height = 10)
 
+## Identity by state:
+ibs <- snpgdsIBS(genofile,
+                 num.thread = 20,
+                 autosomes.only = FALSE)
+
+## Order samples by population information:
+pop.idx <- order(pop_code)
+
+input_for_melt <- ibs$ibs
+input_for_melt_melted <- melt(input_for_melt)
+
+## Generate plot:
+plot <- ggplot(data = input_for_melt_melted,
+               aes(x = Var1,
+                   y = Var2,
+                   fill = value)) + geom_tile()
+
+## Save plot:
+ggsave("correlation_plot_IBS.png",
+       width = 10,
+       height = 10)
 ```
 
 We want a means to cycle through the first four principal components:
