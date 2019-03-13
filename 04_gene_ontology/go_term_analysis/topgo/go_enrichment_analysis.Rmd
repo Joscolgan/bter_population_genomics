@@ -1,5 +1,5 @@
 ---
-title: "Bombus population genomics"
+title: "Bombus pesticide exposure: gene expression in head"
 output: GO_enrichment.html
 ---
 
@@ -22,7 +22,7 @@ This script outputs a results table of significantly enriched GO terms.
 
 *It should be run once per treatment, and will produce 3 output files each time it is run*
 
-```{r}
+```{r, message = FALSE}
 # Load libraries; install from scratch if needed
 libraries <- c("topGO", "lintr", "lattice")
 for (lib in libraries) {
@@ -31,7 +31,7 @@ for (lib in libraries) {
     } else {
         print("Installing")
         source("https://bioconductor.org/biocLite.R")
-        biocLite(pkgs = lib)
+        avebiocLite(pkgs = lib)
         library(lib, character.only = TRUE )
     }
 }
@@ -41,39 +41,51 @@ for (lib in libraries) {
 Load in genelist and database files.  
 
 ```{r}
-## Step One
+## Step One:
+## Define input:
+input <- "./input/topgo/mart_export_dmel_bter_go_terms.converted.output.txt"
+
 ## GO annotations
-gene_to_go_mapping_file <- "input/dmel_vs_bter_biomart.input_for_converter.output.txt"
+gene_to_go_mapping_file <- input
 
-## file of significant genes (2 column file: i.e. gene id and nsl value) file:
-nsl_genes_file <- "input/2018-02-08_tmp_file_filtered_sorted-onlyscored.txt"
+## file of significant genes (2 column file: i.e. gene id and pvalue) file:
+nsl_ranked_file <- "./input/nsl_input/nsl_scores_per_gene.tmp"
 
-## Read table in:
-nsl_ranked <- read.table(file=nsl_genes_file, header = FALSE)
-
-## Update column names:
-colnames(nsl_ranked) = c("locus", "nsl_score")
-topgo_genelist <-nsl_ranked$nsl_score
-names(topgo_genelist) <- nsl_ranked$locus
-
-# now we mess around to make the nSL ranking go from strongest to weakest simialrly to 
-# what we see with pvalues. 
-topgo_genelist =  1 - topgo_genelist/max(topgo_genelist)
-
-## Create an output directory:
-output_directory <- "test_new_output"
+output_directory <- "results/output_10_new"
 if (file.exists(output_directory)) {
   stop("The output directory:", output_directory, ", already exists",
        "Let's avoid overwriting")
 } else {
   dir.create(output_directory)
 }
+```
+
+Read in input file:
+
+```{r, message = FALSE}
+## Read in information
+nsl_ranked <- read.table(file = nsl_ranked_file,
+                         col.names = c("locus",
+                                       "nsl_score"))
+## Sort by adjusted p value:
+nsl_ranked_sorted <- nsl_ranked[order(-nsl_ranked$nsl_score), ]
+
+## Remove na values:
+## NA values are present for certain genes without expression, such as tRNAs:
+nsl_ranked_sorted_filtered <- subset(x      = nsl_ranked_sorted,
+                                   subset = !is.na(nsl_score))
 
 ## Read in GO annotations:  
 gene_to_go_mapping <- readMappings(file = gene_to_go_mapping_file)
 
+## Convert into topgo's genelist format:
+topgo_genelist        <- nsl_ranked_sorted_filtered$nsl_score
+names(topgo_genelist) <- nsl_ranked_sorted_filtered$locus
+
+topgo_genelist <-  1 - topgo_genelist / max(topgo_genelist)
 # Define a cut-off for running fisher's exact test:  
-cutoff_for_top_fivepercent <- quantile(x = topgo_genelist, probs = 0.05)
+cutoff_for_top_fivepercent <- quantile(x = topgo_genelist,
+                                       probs = 0.05)
 ```
 
 ## Steps Two and Three: Create topGO Object & run tests for GO term enrichment
@@ -97,74 +109,75 @@ for (go_category in c("BP", "MF", "CC")) {
   my_go_data <- new("topGOdata",
                     description = paste("GOtest", go_category, sep = "_"),
                     ontology    = go_category,
-                    geneSel     = function(x) { # fails to run without this
+                    geneSel     = function(x) {
+                                   # fails to run without this
                                      return(x <= cutoff_for_top_fivepercent)
                                    },
                     allGenes    = topgo_genelist,
                     gene2GO     = gene_to_go_mapping,
                     annot       = annFUN.gene2GO,
-                    nodeSize    = 50) # Modify to reduce/increase stringency.
-  
+                    nodeSize    = 100) # Modify to reduce/increase stringency.
   # STEP THREE
   ## Calculate ks test using 'weight01' algorithm:
   result_weight_ks <- runTest(object    = my_go_data,
                               algorithm = "weight01",
                               statistic = "ks")
-  
   ## Calculate fisher exact test using 'weight01' algorithm:
   result_weight_fisher <- runTest(object    = my_go_data,
                                   algorithm = "weight01",
                                   statistic = "fisher")
-  
   ## Combine results from statistical tests:
   result_weight_output <- GenTable(object       = my_go_data,
                                    weight_ks     = result_weight_ks,
                                    weight_fisher = result_weight_fisher,
                                    orderBy       = "weight_ks",
                                    topNodes      = length(score(result_weight_ks)))
-  
   ## Correct ks test for multiple testing:
   result_weight_output$weight_ks <- as.numeric(result_weight_output$weight_ks)
-  result_weight_output$weight_ks_adjusted <- p.adjust(p=result_weight_output$weight_ks, method = c("bonferroni"))
-            
+  result_weight_output$weight_fisher <- as.numeric(result_weight_output$weight_fisher)
+  result_weight_output$weight_ks_adjusted <- p.adjust(p = result_weight_output$weight_ks,
+                                                      method = c("fdr"))
+  result_weight_output$weight_fisher_adjusted <- p.adjust(p = result_weight_output$weight_fisher,
+                                                          method = c("fdr"))
   ## Subset calls with significance higher than expected:
   result_weight_output_sig <- subset(x      = result_weight_output,
-                                     subset = (Significant > Expected) & (weight_ks_adjusted < 0.05))
-    ## Write to output:
-        write.table(x         = result_weight_output,
-              file      = file.path(output_directory,
-                                    paste(go_category, "all.tsv", sep = "_")),
-              row.names = FALSE,
-              sep       = "\t",
-              quote = FALSE)
-  
-      ## Write to output:
-        write.table(x         = result_weight_output_sig,
-              file      = file.path(output_directory,
-                                    paste(go_category, "sig.tsv", sep = "_")),
-              row.names = FALSE,
-              sep       = "\t",
-              quote = FALSE)
-}
-
-```
-
-Code for examining GO term plots:
-
-```{r}
+                                     subset = (Significant > Expected) &
+                                             (weight_ks < 0.05))
+  ## Print to console one of the GO terms of interest to check the distribution of that GO term across ranked genes:
   print(showGroupDensity(object  = my_go_data,
-                         whichGO = head(result_weight_output_sig$GO.ID, n = 1),
+                         whichGO = head(result_weight_output_sig$GO.ID,
+                                        n = 1),
                          ranks   = TRUE,
                          rm.one  = FALSE))
   ## Print out all GO terms of interest:
   for (go_term in 1:nrow(result_weight_output_sig)){
-          output_name <- head(result_weight_output_sig$GO.ID, n = go_term)
-          output_name <- paste("./", output_name, ".pdf", sep="")
+          output_name <- head(result_weight_output_sig$GO.ID,
+                              n = go_term)
+          output_name <- paste("./",
+                               output_name,
+                               ".pdf",
+                               sep = "")
           pdf()
           print(showGroupDensity(object  = my_go_data,
                          whichGO = result_weight_output_sig$GO.ID[go_term],
                          ranks   = TRUE,
                          rm.one  = FALSE))
-          dev.off
+          dev.off()
   }
+  ## Write to output:
+  write.table(x         = result_weight_output_sig,
+              file      = file.path(output_directory,
+                                    paste(go_category,
+                                          "sig.tsv",
+                                          sep = "_")),
+              row.names = FALSE,
+              sep       = "\t")
+}
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Check style:
+lintr::lint(file = "./GO_enrichment_ks_rank_test.Rmd")
 ```
