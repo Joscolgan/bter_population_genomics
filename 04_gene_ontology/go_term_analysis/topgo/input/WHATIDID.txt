@@ -1,0 +1,9 @@
+## Create a symbolic link to the biomart input file used by gowinda:
+ln -s ../gowinda/input/tmp/mart_export_dmel_bter_go_terms.txt .
+
+## Cut out go terms and bombus gene ids:
+cut -f 3,6 mart_export_dmel_bter_go_terms.txt | tail -n +2 | awk '{ print $2,$1 }' | sed 's/ /\t/g' | sort | uniq | grep 'GO:' - > mart_export_dmel_bter_go_terms.tmp
+
+## Run the R script to convert to a format useable by topGO:
+Rscript GO_term_conversion.R mart_export_dmel_bter_go_terms.tmp mart_export_dmel_bter_go_terms.converted.output.txt
+mkdir old_input
