@@ -76,6 +76,18 @@ for (current_interpro in interpros_to_check) {
 ## Adjust p values for multiple testing:
 pvalues_adjust <- p.adjust(pvalues,
                            method = "bonferroni")
+
+## Convert to dataframe:
+pvalues_adjust_df <- as.data.frame(pvalues_adjust)
+pvalues_adjust_df$ipr_domain <- rownames(pvalues_adjust_df)
+
+## Write to output:
+write.table(pvalues_adjust_df,
+      file = "./results/signficiant_ipr_domains.txt",
+      row.names = FALSE,
+      col.names = TRUE,
+      sep = "\t",
+      quote = FALSE)
 ```
 
 Run lintr:
