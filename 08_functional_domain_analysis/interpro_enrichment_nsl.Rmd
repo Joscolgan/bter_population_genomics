@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_wolbachia_sweep.html
+output: interpro_enrichment_nsl.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -16,7 +16,7 @@ This script outputs a tab-delimited text file containing two columns:
 2. Bonferroni-adjusted p-value
 This output file can be used to plot a barchart of enriched interpro domains.
 
-```{r, message = FALE}
+```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("lintr")
 for (lib in libraries) {
@@ -75,14 +75,18 @@ for (current_interpro in interpros_to_check) {
 
 ## Adjust p values for multiple testing:
 pvalues_adjust <- p.adjust(pvalues,
-                           method = "bonferroni")
+                           method = "BH")
 
 ## Convert to dataframe:
 pvalues_adjust_df <- as.data.frame(pvalues_adjust)
 pvalues_adjust_df$ipr_domain <- rownames(pvalues_adjust_df)
 
+## Subset significant terms:
+pvalues_adjust_sig <- subset(pvalues_adjust_df,
+                             pvalues_adjust < 0.05)
+
 ## Write to output:
-write.table(pvalues_adjust_df,
+write.table(pvalues_adjust_sig,
       file = "./results/signficiant_ipr_domains.txt",
       row.names = FALSE,
       col.names = TRUE,
