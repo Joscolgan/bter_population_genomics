@@ -51,7 +51,13 @@ gene_to_go_mapping_file <- input
 ## file of significant genes (2 column file: i.e. gene id and pvalue) file:
 nsl_ranked_file <- "./input/nsl_input/nsl_scores_per_gene.tmp"
 
-output_directory <- "results/output_10_new"
+## Define node size:
+node_size <- 100
+
+output_directory <- paste("results/output_",
+                          node_size,
+                          "_ks",
+                          sep = "")
 if (file.exists(output_directory)) {
   stop("The output directory:", output_directory, ", already exists",
        "Let's avoid overwriting")
@@ -101,7 +107,6 @@ We filter out enriched terms.
 
 We do this for each of the three GO categories (ie. Biological process, Molcular Function, Cellular Component):
 
-
 ```{r}
 for (go_category in c("BP", "MF", "CC")) {
   # STEP TWO
@@ -116,7 +121,7 @@ for (go_category in c("BP", "MF", "CC")) {
                     allGenes    = topgo_genelist,
                     gene2GO     = gene_to_go_mapping,
                     annot       = annFUN.gene2GO,
-                    nodeSize    = 100) # Modify to reduce/increase stringency.
+                    nodeSize    = node_size) # Modify to reduce/increase stringency.
   # STEP THREE
   ## Calculate ks test using 'weight01' algorithm:
   result_weight_ks <- runTest(object    = my_go_data,
@@ -136,13 +141,13 @@ for (go_category in c("BP", "MF", "CC")) {
   result_weight_output$weight_ks <- as.numeric(result_weight_output$weight_ks)
   result_weight_output$weight_fisher <- as.numeric(result_weight_output$weight_fisher)
   result_weight_output$weight_ks_adjusted <- p.adjust(p = result_weight_output$weight_ks,
-                                                      method = c("fdr"))
+                                                      method = c("bonferroni"))
   result_weight_output$weight_fisher_adjusted <- p.adjust(p = result_weight_output$weight_fisher,
-                                                          method = c("fdr"))
+                                                          method = c("bonferroni"))
   ## Subset calls with significance higher than expected:
   result_weight_output_sig <- subset(x      = result_weight_output,
                                      subset = (Significant > Expected) &
-                                             (weight_ks < 0.05))
+                                             (weight_ks_adjusted < 0.05))
   ## Print to console one of the GO terms of interest to check the distribution of that GO term across ranked genes:
   print(showGroupDensity(object  = my_go_data,
                          whichGO = head(result_weight_output_sig$GO.ID,
@@ -171,7 +176,8 @@ for (go_category in c("BP", "MF", "CC")) {
                                           "sig.tsv",
                                           sep = "_")),
               row.names = FALSE,
-              sep       = "\t")
+              sep       = "\t",
+              quote = FALSE)
 }
 ```
 
