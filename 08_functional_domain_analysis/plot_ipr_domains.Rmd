@@ -1,0 +1,88 @@
+---
+title: "Bombus population genomics"
+output: plot_ipr_domains.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("lintr", "ggplot2", "ggpubr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+## Create output folder:
+dir.create(path = "./results/figures",
+           recursive = TRUE)
+
+```
+
+Read input file:
+
+```{r, message=FALSE}
+input <- "./results/input_for_plot.txt"
+
+input_df <- read.table(file = input,
+                             header = TRUE)
+
+## Convert underscore to blank space:
+input_df$ipr_description <- gsub("_",
+                                 " ",
+                                 input_df$ipr_description)
+
+## Log transform for plotting:
+input_df$pvalues_adjust <- -log(input_df$pvalues_adjust)
+```
+
+Generate plot:
+
+```{r, message=FALSE}
+## Generate plot:
+input_for_plot <- ggbarplot(input_df,
+                                          x = "ipr_description",
+                                          y = "pvalues_adjust",
+                                          position = position_dodge(0.1),
+                                          color = NULL,
+                                          palette = "jco",
+                                          sort.val = "asc",
+                                          sort.by.groups = FALSE,
+                                          ylab = "-log10(p)",
+                                          xlab = "InterPro term",
+                                          legend.title = "Functional domain enrichment",
+                                          lab.col = "black",
+                                          lab.size = 4,
+                                          lab.vjust = 0.5,
+                                          lab.hjust = 1,
+                                          legend = "top",
+                                          rotate = TRUE,
+                                          ggtheme = theme_minimal())
+
+## Make font bigger and bold:
+input_for_plot <- input_for_plot +
+        scale_y_continuous(expand = c(0, 0)) +
+        theme(axis.text = element_text(size = 15),
+              axis.title.x = element_text(size = 15,
+                                          face = "bold"),
+              axis.title.y = element_text(size = 15,
+                                          face = "bold"),
+              axis.text.y = element_text(size = 12,
+                                         face = "bold"),
+              axis.text.x = element_text(size = 12),
+              legend.position = "none") +
+        expand_limits(y = 20) +
+        geom_hline(yintercept = 1.301,
+                   linetype = "dashed",
+                   colour = "black")
+
+## Save picture:
+ggsave(file = "results/figures/enriched_functional_domains.png",
+       height = 12,
+       width = 14)
+```
