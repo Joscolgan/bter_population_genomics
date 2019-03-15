@@ -46,7 +46,15 @@ nuc_div_plot <- ggplot(data, aes(midpoint,
         geom_hline(yintercept = nuc_div_mean,
                    linetype = "dashed",
                    colour = "orange") +
-        theme_bw()
+        theme_bw() +
+                theme(axis.text = element_text(size = 15),
+              axis.title.x = element_text(size = 15,
+                                          face = "bold"),
+              axis.title.y = element_text(size = 15,
+                                          face = "bold"),
+              axis.text.y = element_text(size = 12,
+                                         face = "bold"),
+              axis.text.x = element_text(size = 12))
 
 nuc_div_plot + facet_wrap( ~ chrom,
                            ncol = 2)
