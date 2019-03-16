@@ -1,0 +1,49 @@
+---
+title: "Bombus population genomics"
+output: calculate_zscores.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("lintr",
+               "ggplot2",
+               "ggpubr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+## Create output folder:
+dir.create(path = "./results/figures",
+           recursive = TRUE)
+
+```
+
+Read in input data:
+
+```{r, message = FALSE}
+## Read in input file:
+data <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_100kb.txt",
+                   header = TRUE)
+
+## Calculate z-score for nucleotide diversity:
+data_nd_sd <- sd(data$nuc_diversity)*sqrt((length(data$nuc_diversity)-1)/(length(data$nuc_diversity)))
+data_nd_mean <- mean(data$nuc_diversity)
+
+data$nd_zscores <- (data$nuc_diversity - data_nd_mean) / data_nd_sd
+data$nd_pvalue2sided <- 2*pnorm(-abs(data$nd_zscores))
+
+## Calculate z-score for Tajima's D:
+data_td_sd <- sd(data$tajima_d)*sqrt((length(data$tajima_d)-1)/(length(data$tajima_d)))
+data_td_mean <- mean(data$tajima_d)
+
+data$td_zscores <- (data$tajima_d - data_td_mean) / data_td_sd
+data$td_pvalue2sided <- 2*pnorm(-abs(data$td_zscores))
+```
