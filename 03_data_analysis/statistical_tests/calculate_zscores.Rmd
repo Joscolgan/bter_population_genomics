@@ -47,3 +47,26 @@ data_td_mean <- mean(data$tajima_d)
 data$td_zscores <- (data$tajima_d - data_td_mean) / data_td_sd
 data$td_pvalue2sided <- 2*pnorm(-abs(data$td_zscores))
 ```
+
+Write the output to file:
+
+```{r, message = FALSE}
+## write to output
+write.table(x = data,
+            file = "./results/zscore_normalised.txt",
+            row.names = FALSE,
+            col.names = TRUE,
+            quote = FALSE,
+            sep = "\t")
+```
+
+Subset regions with significant high or low nucleotide diversity:
+
+```{r, message = FALSE}
+## Subset significant terms:
+data_nd_sig <- subset(data, nd_pvalue2sided < 0.05)
+data_td_sig <- subset(data, td_pvalue2sided < 0.05)
+
+## Save output:
+save(data, file = "./results/zscore_normalised.Rdata")
+```
