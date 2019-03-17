@@ -105,3 +105,4 @@ q + facet_wrap( ~ chrom, ncol = 2)
 ggsave(file = "results/new_test.png",
        width = 10,
        height = 10)
+```
