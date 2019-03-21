@@ -1,0 +1,24 @@
+mkdir data
+mkdir results
+mkdir code
+
+cd data
+mkdir cleaned_fastq
+cd cleaned_fastq
+ln -s ~/archive-SBCS-Wurmlab/tjcolgan/2017-11-18-Bter_n51_reanalysis/2017-11-18-combined_clean_data/*.gz .
+cd ../
+mkdir reference_files
+cd reference_files
+
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/429/565/GCF_000429565.1_ASM42956v1/GCF_000429565.1_ASM42956v1_genomic.fna.gz
+zcat GCF_000429565.1_ASM42956v1_genomic.fna.gz > GCF_000429565.1_ASM42956v1_genomic.fna
+~/src/bowtie2-2.2.5/bowtie2-build GCF_000429565.1_ASM42956v1_genomic.fna arse_genome
+cd ../../
+
+## Run bowtie2:
+for name in data/cleaned_fastq/2014_Bter_*.R1*gz;
+do
+pair_name="$(echo "$name" | cut -d '/' -f 3 | cut -d '.' -f 1 )";
+input_name="$(echo "$name" | cut -d '.' -f 1 )";
+echo "$input_name"; ~/src/bowtie2-2.2.5/bowtie2 -p 20 -X 1000 -x ./data/bowtie_indexes/arse_genome -1 "$name" -2 "$input_name".R2.cleaned.fastq.gz -S results/"$pair_name".sam ;
+done
