@@ -29,10 +29,19 @@ input_apis_vcf_gds_genofile <- snpgdsOpen(input_apis_vcf_gds)
 ## Extract genotype information and generate genotypic matrix:  
 input_apis_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_apis_vcf_gds_genofile,
                                                           "genotype"))
+                                                          
+## For performing PCA, it is recommended to perform LD pruning:
+snpset <- snpgdsLDpruning(input_apis_vcf_gds_genofile,
+                          ld.threshold = 0.1,
+                          autosome.only = FALSE)
+                          
+## Get all selected SNP ids:
+snpset.id <- unlist(unname(snpset))
 
 ## Perform PCA and store output in variable:  
-pca_apis      <- snpgdsPCA(input_apis_vcf_gds_genofile,
+pca_apis        <- snpgdsPCA(input_apis_vcf_gds_genofile,
                           num.thread = 20,
+                          snp.id = snpset.id,
                           autosome.only = FALSE)
 
 ## Calculate percentages for principal components:  
@@ -100,7 +109,7 @@ names_plot <- names_plot +
                                          face = "bold")) +
                  theme(legend.position = "none")
 
-ggsave(file = "apis_pca_test.png",
+ggsave(file = "apis_pca_pruned_0.1_test.png",
        width = 10,
        height = 10)
 ```
