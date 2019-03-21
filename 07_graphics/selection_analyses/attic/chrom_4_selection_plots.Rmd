@@ -1,0 +1,400 @@
+---
+title: "snp_heatmap_plots"
+author: "JoeColgan"
+date: "5 April 2018"
+output: html_document
+---
+
+The purpose of this scripts is to take genotype matrices for regions of the genome of interest and plot allele frequencies in the form of a heatmap. 
+
+```{r}
+## Load libraries:
+libraries <- c("devtools", "ggplot2", "ggmap", "SNPRelate", 
+               "reshape", "ggpubr", "gplots", "stringr", "gggenes")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+```
+
+1) Plot nsl values:
+
+```{r}
+## Set input file:
+input <- "NC_015765.1.nsl.out.100bins.norm"
+
+## Read in file:
+input_df <- read.table(input, header=F)
+
+## Rename columns:
+colnames(input_df) <- c("chrom", 
+                        "position",
+                        "frequency", 
+                        "sl1", 
+                        "sl0",
+                        "unstandardised_nsl", 
+                        "normalised_nsl", 
+                        "status")
+
+## Cut out chromosome name:
+chrom_name <- paste(str_split(input, "[.]", n=2)[[1]][1], ".1", sep="")
+
+## Add chromosome name:
+input_df$chrom <- chrom_name
+
+## Absolute values for normalised nsl values:
+input_df$normalised_nsl <- abs(input_df$normalised_nsl)
+
+## Create function for plotting regions with signatures of extended haplotype homozygosity:  
+chrom <- chrom_name
+start <- 746050
+end   <- 879060       
+flank <- 200000
+end_remove <- 4052
+
+## Define a region of interest and subset:
+region_of_interest <- input_df[input_df$chrom==chrom & 
+                          input_df$position > start - (flank * 0.8) &
+                          input_df$position < end + flank, ]
+
+region_to_remove_size <- 51242
+region_to_correct     <- region_of_interest[which(rownames(region_of_interest) > end_remove),]
+
+## From start, end and midpoint 
+region_to_correct$position    <- as.numeric(unlist(region_to_correct$position)) - region_to_remove_size
+
+## Remove shitebag sites:
+## Update original dataframe with corrected values:
+region_of_interest[match(rownames(region_to_correct), rownames(region_of_interest)), ] <- region_to_correct
+
+## Generate plot:
+new_plot <- ggplot(region_of_interest, aes(x=position, y=normalised_nsl)) +
+                xlab("Genomic coordinates (bp)") +
+                ylab("nSL values") +
+                geom_vline(xintercept = c(start, end), linetype="dashed", colour="blue") +
+                geom_rect(aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf),
+                   fill = "yellow", alpha = 0.008) +
+                geom_hline(yintercept = c(2), linetype="dashed", colour="orange") +
+                scale_x_continuous(labels = scales::comma, limits=c(600000, 1000000)) +                
+                geom_point(colour="black", size=3, alpha=0.5) +
+                theme_bw() 
+
+## Make the axes bigger:
+input_plot <- new_plot +
+                theme(axis.text=element_text(size=15),
+                axis.title=element_text(size=15,face="bold"),
+                axis.title.x=element_blank(),
+                axis.text.y = element_text(size=12))
+
+## Return plot:
+input_plot
+
+region_of_interest_highlight <- subset(region_of_interest, 
+                                       normalised_nsl > 2.56)
+
+## Alternative plot:
+## Generate plot:
+alt_plot <- ggplot(region_of_interest, aes(x=position, y=normalised_nsl)) +
+                xlab("Genomic coordinates (bp)") +
+                ylab("|nSL| values") +
+                #geom_vline(xintercept = c(start, end), linetype="dashed", colour="blue") +
+                #geom_rect(aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf),
+                #  fill = "yellow", alpha = 0.008) +
+                geom_hline(yintercept = c(2.56), linetype="dashed", colour="orange") +
+                scale_x_continuous(labels = scales::comma, limits=c(600000, 1000000)) +                          geom_rect(aes(xmin = 746050, xmax = 879060, ymin = -Inf, ymax = Inf),
+                   fill = "yellow", alpha = 0.008) +
+                geom_point(colour="black", size=3, alpha=0.5) +
+                geom_point(data=region_of_interest_highlight, 
+                           aes(x=position, y=normalised_nsl), 
+                        colour="red", size=3, alpha=0.5) +
+                theme_bw() 
+
+## Make the axes bigger:
+alt_plot <- alt_plot +
+                theme(axis.text=element_text(size=15),
+                axis.title=element_text(size=15,face="bold"),
+                axis.title.x=element_blank(),
+                axis.text.y = element_text(size=12))
+
+## Print to console:
+alt_plot
+```
+
+2) Plot nucleotide diversity:
+
+```{r}
+## Read in input file:
+nucdiv_input <- read.table("./nucdiv.combined.10000.df.filtered.txt", header=FALSE)
+
+## Update column names:
+colnames(nucdiv_input) <- c("chrom",
+                            "start",
+                            "end",
+                            "nuc_diversity",
+                            "tajimaD",
+                            "seg_sites")
+
+## Calculate averagee nucleotide diversity:
+mean_nucdiv <- mean(nucdiv_input$nuc_diversity)
+ 
+## Subset dataframe for region of interest:
+nucdiv_input_subset <- subset(nucdiv_input, 
+                            chrom=="NC_015765.1" & 
+                            start > 599999 &
+                            end < 879060 + 200000)
+
+## Calculate midpont:
+nucdiv_input_subset_to_correct <- subset(nucdiv_input_subset, rownames(nucdiv_input_subset) > 8214)
+
+## From start, end and midpoint 
+nucdiv_input_subset_to_correct$start    <- as.numeric(unlist(nucdiv_input_subset_to_correct$start)) - 50000
+
+nucdiv_input_subset_to_correct$end    <- as.numeric(unlist(nucdiv_input_subset_to_correct$end)) - 50000
+
+## Update original dataframe with corrected values:
+nucdiv_input_subset[match(rownames(nucdiv_input_subset_to_correct), rownames(nucdiv_input_subset)), ] <- nucdiv_input_subset_to_correct
+
+## Calculate midpoint of windows for plotting:
+nucdiv_input_subset$midpoint <- round((nucdiv_input_subset$start + nucdiv_input_subset$end)/2)
+
+## Plot: 
+nucdiv_plot <- ggplot(nucdiv_input_subset, aes(x=midpoint, y=nuc_diversity)) +
+                xlab("Genomic coordinates (bp)") +
+                ylab("Nucleotide diversity") +
+                geom_vline(xintercept = c(746050, 879060), linetype="dashed", colour="blue") +
+                geom_hline(yintercept = mean_nucdiv, linetype="dashed", colour="orange") +
+                geom_rect(aes(xmin = 746050, xmax = 879060, ymin = -Inf, ymax = Inf),
+                   fill = "yellow", alpha = 0.008) +
+                scale_x_continuous(labels = scales::comma, limits=c(600000, 1000000)) +
+                geom_point(colour="black", size=3) +
+                theme_bw() 
+
+## Make the axes bigger:
+nucdiv_plot <- nucdiv_plot +
+                theme(axis.text=element_text(size=12),
+                axis.title=element_text(size=15,face="bold"),
+                axis.title.x=element_blank(),
+                axis.text.x=element_blank(),
+                axis.ticks.x=element_blank())
+
+## Print plot:
+nucdiv_plot
+
+## Plot both graphs together:
+ggarrange(alt_plot, nucdiv_plot,
+          labels=c("A", "B"),
+          nrow=2, align="v")
+
+```
+
+3) Plot PCA and heatmap:
+
+```{r, echo=FALSE}
+## 
+input_vcf <- "NC_015765.1_746050_879060.new.recode.vcf"
+
+## Use the name of input to designate the name for the GDS file format.
+input_vcf_gds <- gsub(".vcf", ".gds", input_vcf)
+
+## Reformat VCF into GDS format
+snpgdsVCF2GDS(input_vcf, input_vcf_gds, method="biallelic.only")
+
+## Extract genotype information:
+input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
+
+## Extract genotype information and generate genotypic matrix:  
+input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile, "genotype"))
+
+## Perform PCA and store output in variable:  
+pca      <- snpgdsPCA(input_vcf_gds_genofile, 
+                      num.thread=2, 
+                      autosome.only=FALSE)
+
+## Calculate percentages for principal components:  
+pc_percent      <- pca$varprop*100
+
+## Print rounded up percentages:  
+print(round(pc_percent, 2))
+
+## Extract sample names from input:  
+sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile, "sample.id"))
+
+## Read in file containing treatment information. 
+## This file should contain 'treatment information' for each sample and be in the same order as each sample. 
+## i.e. the first treatment information would be assigned to the first sample, etc., etc.
+pop_code<-scan("./updated_site_list_for_plotting.txt", what=character())
+
+land_code <- scan("./updated_landuse_list_for_plotting.txt", what=character())
+
+## Generate a dataframe containing a column for:
+## 1) Sample name
+## 2) Treatment condition
+## 3) First principal component of interest
+## 4) Second principal component of interest
+tab <- data.frame(sample.id = factor(pop_code)[match(pca$sample.id, sample.id)],
+                  pop = factor(land_code)[match(pca$sample.id, sample.id)],
+                  EV1 = pca$eigenvect[,1],    # the first eigenvector
+                  EV2 = pca$eigenvect[,2],    # the second eigenvector
+                  stringsAsFactors = FALSE)
+## Renaming the sample.ids
+#new_names <- list()
+## Create a list:
+#for (name in sample.id){
+#                        new_names[name] <- paste(strsplit(name, "_")[[1]][5],"_",strsplit(name, "_")[[1]][6], sep="")
+#}
+
+## Unlist as a character string and update sample ids:
+#tab$sample.id <- as.character(unlist(new_names))
+## Add another column for site_id:
+#tab$site_id <- gsub("_.*", "", tab$sample.id)
+## Using the 'tab' dataframe, plot two principal components of interest using ggplot2:
+pca_plot <- ggplot(tab, aes(x=tab$EV1, y=tab$EV2, color = tab$pop, shape=tab$pop)) +
+                        geom_point(size=7) +
+                        geom_text(size=5, colour="black", aes(label=tab$sample.id))  +
+                        xlab(paste("PC1"," ",round(pc_percent[1], 2),"%")) +
+                        ylab(paste("PC2"," ",round(pc_percent[2], 2),"%")) + 
+                        scale_color_manual(values= c("light blue", "orange", "pink"))  +
+                        theme_minimal() +
+                        theme(legend.position="none")
+
+## Plot:
+pca_plot <- pca_plot +
+                theme(axis.text=element_text(size=15),
+                axis.title=element_text(size=15,face="bold"))
+
+##
+names_plot<- ggplot(tab, aes(x=tab$EV1, y=tab$EV2, color = tab$pop)) +
+        #geom_point(shape=16, size=4, alpha=0.4, show.legend = T) +
+        theme_minimal() +
+        xlab(paste("Principal component ", 1," ","(",round(pc_percent[1], 2), "%", ")", sep="")) +
+        ylab(paste("Principal component ", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) + 
+        geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$sample.id, color=tab$pop)) +
+        scale_color_manual(values= c("blue", "orange", "red"))
+
+## Plot:
+names_plot <- names_plot +
+                theme(axis.text=element_text(size=15),
+                axis.title=element_text(size=15,face="bold")) +
+                theme(legend.position="none")
+
+## Print to console:
+snpgdsClose(input_vcf_gds_genofile)
+```
+
+4) Plot heatmap to demonstrate representation of haplotypes within population:
+
+```{r}
+## Format change '2' to '1'
+input_vcf_gds_genofile_matrix[input_vcf_gds_genofile_matrix==2] <- 1
+## Read in sample names:
+#names <- scan("sample_names.txt", as.character())
+
+## Update rownames:
+rownames(input_vcf_gds_genofile_matrix) <- pop_code
+
+## Read in genomic coordinates:
+positions <- read.table("./NC_015765.1_746050_879060.SNP_positions.txt", header=F)
+
+## Correct the positions for ambiguous bases:
+for (number in 1:nrow(positions)){
+        if (positions$V2[number] > 814130){
+                positions$V2[number] <- positions$V2[number] - 51242
+        } else {
+                print("Nothing to do")
+        }
+}
+        
+## Subset positions:
+positions_to_plot <- positions$V2
+
+## Assign to colnames:
+colnames(input_vcf_gds_genofile_matrix) <- positions_to_plot
+#input_vcf_gds_genofile_matrix_subset <- input_vcf_gds_genofile_matrix[,250:350]
+                
+## Convert into dataframe:
+input_vcf_gds_genofile_matrix_subset_df <- as.data.frame(input_vcf_gds_genofile_matrix)
+
+## Reorder:
+dat<- input_vcf_gds_genofile_matrix
+
+row.order <- hclust(dist(dat))$order # clustering
+col.order <- hclust(dist(t(dat)))$order
+dat_new <- dat[row.order, col.order] # re-order matrix accoring to clustering
+dat_new_df <- as.data.frame(dat_new)
+
+dat_new_df$samples <- rownames(dat_new_df)
+
+## Convert heatmap2 into ggplot2 format:
+## Reshape:
+dat_new_melted <- melt(dat_new, id.vars = "samples")
+
+## Rename:
+colnames(dat_new_melted) <- c("samples", "variable", "value")
+
+## Adjust levels:
+dat_new_melted$samples<- factor(dat_new_melted$samples, levels=c(as.character(unlist(dat_new_melted$samples))))
+
+dat_new_melted$variable <- factor(dat_new_melted$variable, levels=c(sort(as.numeric(as.character(unlist((dat_new_melted$variable)))))))
+
+## Plot:
+heatmap_plot <- ggplot(dat_new_melted, aes(variable, samples)) +
+  geom_tile(aes(fill = value), color = "white") +
+  scale_fill_gradient(low = "black", high = "grey") +
+  ylab("Samples") +
+  xlab("Genomic coordinates (bp)") +
+  theme(legend.title = element_text(size = 15),
+        axis.text.y = element_text(size=6),
+        legend.text = element_text(size = 15),
+        plot.title = element_text(size=15),
+        axis.title=element_text(size=15,face="bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+        theme(legend.position="none") +
+        scale_x_discrete(breaks = levels(dat_new_melted$variable)[c(T, rep(F, 999))])
+
+```
+
+4) Generate an arrow plot of gene model:
+
+```{r}
+## Read in data file containing information on gene locations:
+data <- read.table(file="gggene_plots_input_format_chrom_4.txt", header = TRUE)
+
+## Turn off scientific notation:
+options(scipen=999)
+
+## Generate plot:
+arrow_plot<- ggplot(data, aes(xmin = start, xmax = end, y = molecule, fill = status, label=gene)) +
+        ylab("Chromosome") +
+  geom_gene_arrow(arrowhead_width = grid::unit(10, "mm"),
+                  arrowhead_height = grid::unit(10, "mm"),
+                  arrow_body_height = grid::unit(8,"mm")) +
+  geom_gene_label(align = "left", min.size = 6) +
+  facet_wrap(~ molecule, scales = "free", nrow = 1, shrink = FALSE) +
+  scale_x_continuous(labels = scales::comma, limits=c(600000, 1000000)) +
+  scale_fill_brewer(palette = "Set3") +
+        theme_genes() +
+        theme(axis.text=element_text(size=15),
+                axis.title=element_text(size=15,face="bold"),
+                axis.title.x=element_blank(),
+                axis.text.y = element_text(size=12)) +
+        theme(legend.position="none")
+
+```
+
+5) Generate a combined plot:
+
+```{r}
+## Plot together:
+ggarrange(arrow_plot, alt_plot, nucdiv_plot, heatmap_plot,
+          labels= c("A", "B", "C", "D"),
+          ncol = 1, 
+          nrow = 4, 
+          align="v")
+```
