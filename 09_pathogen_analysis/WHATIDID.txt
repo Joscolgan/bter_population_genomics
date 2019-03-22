@@ -22,3 +22,10 @@ pair_name="$(echo "$name" | cut -d '/' -f 3 | cut -d '.' -f 1 )";
 input_name="$(echo "$name" | cut -d '.' -f 1 )";
 echo "$input_name"; ~/src/bowtie2-2.2.5/bowtie2 -p 20 -X 1000 -x ./data/bowtie_indexes/arse_genome -1 "$name" -2 "$input_name".R2.cleaned.fastq.gz -S results/"$pair_name".sam ;
 done
+
+## Convert sam files to bam files:
+for name in results/*.sam;
+do
+new_name="$(echo "name" | cut -d '.' -f 1 )";
+~/src/samtools-1.2/samtools view -bS "$name" > "$new_name".bam;
+done
