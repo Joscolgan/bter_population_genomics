@@ -1,3 +1,5 @@
+module load qualimap
+
 mkdir data
 mkdir results
 mkdir code
@@ -11,6 +13,11 @@ mkdir reference_files
 cd reference_files
 
 wget ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/429/565/GCF_000429565.1_ASM42956v1/GCF_000429565.1_ASM42956v1_genomic.fna.gz
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/429/565/GCF_000429565.1_ASM42956v1/GCF_000429565.1_ASM42956v1_genomic.gff.gz
+gunzip GCF_000429565.1_ASM42956v1_genomic.gff.gz
+cd ../
+mkdir bowtie_indexes
+cd bowtie_indexes
 zcat GCF_000429565.1_ASM42956v1_genomic.fna.gz > GCF_000429565.1_ASM42956v1_genomic.fna
 ~/src/bowtie2-2.2.5/bowtie2-build GCF_000429565.1_ASM42956v1_genomic.fna arse_genome
 cd ../../
@@ -28,4 +35,19 @@ for name in results/*.sam;
 do
 new_name="$(echo "name" | cut -d '.' -f 1 )";
 ~/src/samtools-1.2/samtools view -bS "$name" > "$new_name".bam;
+done
+
+## Sort bam file:
+for name in results/*.bam; 
+do 
+new_name="$(echo "$name" | cut -d '.' -f 1 )";
+~/src/samtools-1.2/samtools sort "$name" "$new_name"_sorted;
+done
+
+## run qualimap:
+for name in results/*sorted.bam;
+do
+echo "$name";
+new_name="$(echo "$name" | cut -d '/' -f 2 | cut -d '.' -f 1 )";
+qualimap bamqc -bam "$name" -gff ./data/reference_files/GCF_000429565.1_ASM42956v1_genomic.gff -nt 20 -outdir results/"$new_name";
 done
