@@ -51,3 +51,32 @@ echo "$name";
 new_name="$(echo "$name" | cut -d '/' -f 2 | cut -d '.' -f 1 )";
 qualimap bamqc -bam "$name" -gff ./data/reference_files/GCF_000429565.1_ASM42956v1_genomic.gff -nt 20 -outdir results/"$new_name";
 done
+
+## Run variant calling:
+mkdir variant_calling
+cd variant_calling
+
+## Create symbolic link for input file:
+ln -s ../assembly/2014_Bter_A_D_21_400_thorax_TCCGGAGA-TATAGCCT_combined_sorted.bam .
+## Create index:
+~/src/samtools-1.2/samtools index 2014_Bter_A_D_21_400_thorax_TCCGGAGA-TATAGCCT_combined_sorted.bam 
+
+## Make a directory to house relevant reference files:
+mkdir reference
+zcat ../data/reference_files/GCF_000429565.1_ASM42956v1_genomic.fna.gz > GCF_000429565.1_ASM42956v1_genomic.fna
+~/src/samtools-1.2/samtools faidx reference/GCF_000429565.1_ASM42956v1_genomic.fna
+
+## Copy over file for running alignment:
+cp -p ../code/FISH-EyE-Cork-Team/Trout/Analyses_by_Joe/2018_vgll3_study/04_variant_calling/scripts/run_freebayes.sh .
+chmod +x run_freebayes.sh
+
+## Run freebayes:
+./run_freebayes.sh
+## Filter resulting VCF:
+vcftools --vcf freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.arseno_combined.vcf \
+--minQ 2016 \
+--remove-indels \
+--recode \
+--out freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.arseno_combined_remove_indels_minq_2016
+cd ../../
+
