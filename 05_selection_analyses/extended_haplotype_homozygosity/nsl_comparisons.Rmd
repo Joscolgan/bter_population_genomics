@@ -83,3 +83,15 @@ ggplot(data,
         geom_point() +
         theme_bw()
 ```
+Run lintr:
+```{r, message = FALSE}
+lintr::lint("./nsl_comparisons.Rmd")
+```
+Write output to file:
+
+```{r, message = FALSE}
+render("nsl_comparisons.Rmd",
+       output_format = "pdf_document")
+```
+
+
