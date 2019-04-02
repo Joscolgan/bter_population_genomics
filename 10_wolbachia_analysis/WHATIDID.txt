@@ -1,0 +1,85 @@
+mkdir code
+mkdir results
+
+while read line;
+do
+./bin/bowtie2 \ 
+--rg-id "$line" \
+--rg SM:"$line" \
+--rg LB:library1 \
+--rg PL:ILLUMINA \
+--rg DS:HiSeq2500 \
+--local \
+-p 20 \
+-X 1000 \
+-x ./data/Bter_chrom_10_genome \
+-1 ./input/"$line"_1.fastq.gz \
+-2 ./input/"$line"_2.fastq.gz \
+-S ./results/"$line".sam \
+--un-gz ./results/"$line"_unmapped.sam ;
+./bin/samtools view -bS results/"$line".sam > results/"$line".bam;
+rm results/"$line".sam;
+done < input/sample_list.txt
+
+## Intersect the coordinates of the bombus Wolbachia gene to identify if exist in other bee genomes:
+cd results
+for name in *.bam;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 )";
+intersectBed -a "$name" -b wolbach_coordinates_plus_100000.bed > "$new_name"_wolbachia_plus_100000.bam;
+done
+
+## Sort each bam and index:
+for name in *100*bam;
+do
+../bin/samtools sort "$name" -f "$name".sorted.bam;  ../bin/samtools index "$name".sorted.bam;
+done
+
+## Run depth:
+for name in *100000.bam.sorted.bam;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1 )";
+../bin/samtools depth "$name" > "$new_name"_depth.txt;
+done
+
+## Run freebayes:
+ ~/bin/freebayes \
+-f ../data/chrom_10.bter.fasta \
+--bam SRR8283909_wolbachia_plus_100000.bam.sorted.bam \
+--ploidy 2   \
+--report-genotype-likelihood-max   \
+--use-mapping-quality   \
+--genotype-qualities  \
+--use-best-n-alleles 4   \
+--haplotype-length 0   \
+--min-base-quality 3   \
+--min-mapping-quality 1   \
+--min-alternate-frac 0.25 \
+--min-coverage 1 \
+--use-reference-allele > freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.SRR8283909_wolbachia_plus_100000.vcf
+
+## Filter variants:
+for name in *.vcf; 
+do 
+new_name="$(echo "$name" | cut -d '.' -f 1,2 )";
+vcftools --vcf "$name" --remove-indels --recode --recode-INFO-all --minQ 20 --out "$new_name"_snps_only_minq20;
+done
+
+## Compress and create consensus sequences:
+for name in *.bgz;
+do
+new_name="$(echo "$name" | cut -d '.' -f 3 )";
+echo "$new_name";
+cat ../data/wolbach_coordinates_plus_100000_formated.fasta | bcftools consensus "$name" > "$new_name".fa;
+done
+
+## Extract coordinates where wolbachia gene and flanking regions are:
+for name in *fa;
+do
+fastaFromBed -fi "$name" -bed wolbach_coordinates_plus_100000.bed | seqtk seq -l 80 > "$name"_wolbachia_plus_100000.fna;
+done
+
+for name in *fa;
+do
+fastaFromBed -fi "$name" -bed wolbach_coordinates.bed | seqtk seq -l 80 > "$name"_wolbachia.fna;
+done
