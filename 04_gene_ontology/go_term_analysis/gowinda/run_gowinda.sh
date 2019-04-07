@@ -8,5 +8,5 @@ java -Xmx4G -jar src/Gowinda-1.12.jar \
 --simulations 10000000 \
 --min-significance 1 \
 --min-genes 10 \
---gene-definition gene \
+--gene-definition updownstream1000 \
 --threads 20
