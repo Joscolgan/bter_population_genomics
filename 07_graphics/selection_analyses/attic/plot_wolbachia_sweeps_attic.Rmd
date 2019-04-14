@@ -1,0 +1,276 @@
+---
+title: "Bombus population genomics"
+output: plot_wolbachia_sweep.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("devtools",
+               "ggplot2",
+               "ggmap",
+               "SNPRelate",
+               "reshape",
+               "ggpubr",
+               "gplots",
+               "stringr",
+               "gggenes")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+```
+
+This script plots nsl score, ihs score, population-scaled recombination rate, nucleotide diversity and Tajima's D estimates.
+
+```{r, message = FALSE}
+## Read in data:
+nsl_input <- "./input/nsl_output/NC_015771.1.nsl.out.100bins.norm.abs.bed.tmp"
+nsl_data <- read.table(file = nsl_input,
+                       col.names = c("chrom",
+                                     "position",
+                                     "position",
+                                     "nsl_score"))
+ihs_input <- "./input/ihs_output/NC_015771.1.ihs.out.100bins.norm.abs.bed.tmp"
+ihs_data <- read.table(file = ihs_input,
+                       col.names = c("chrom",
+                                     "position",
+                                     "position",
+                                     "ihs_score"))
+recomb_input <- "./input/recombination_rate/NC_015771.1.recode.vcf.ldhelmet.ldhelmet.post.txt.tmp.genetic_map.txt.recomb.txt"
+recomb_data <- read.table(file = recomb_input,
+                          header = TRUE)
+## Both nucleotide diversity and Tajima D are in the same input file:
+nuc_div_input <- "./input/nucleotide_diversity_output/bter_all_chrom_10kb.txt"
+nuc_div_data <- read.table(file = nuc_div_input,
+                           header = TRUE)
+```
+
+The gene of interest is an uncharacterised gene (LOC105666162), which codes for proteins with sequence similarity to proteins coded for by Wolbachia-like bacteria. The gene is located on chromosome 11:
+NC_015771.1 (1755259..1765481)
+
+```{r, message=FALSE}
+## Assign the coordinates of the gene to variables plus 100kb 
+## up and downstream of the gene:
+chrom <- "NC_015771.1"
+start <- 1749721 - 100000
+end <- 1776527 + 100000
+```
+
+Subset the regions of interest:
+
+```{r, message=FALSE}
+## Subset nsl values for plotting:
+nsl_input_subset <- subset(nsl_data,
+                            position > start &
+                            position < end)
+
+## subset sites above 2.56 to highlight on plot:
+nsl_snps_highlight <- subset(nsl_input_subset,
+                            nsl_score > 2.56)
+
+## Subset ihs values for plotting:
+ihs_input_subset <- subset(ihs_data,
+                            position > start &
+                            position < end)
+
+ihs_snps_highlight <- subset(ihs_input_subset,
+                            ihs_score > 2.89)
+```
+
+Generate plot of EHH:
+
+```{r, message = FALSE}
+## Plot nsl values:
+nsl_plot <- ggplot(nsl_input_subset,
+                   aes(x = position,
+                       y = nsl_score)) +
+                xlab("Genomic coordinates (bp)") +
+                ylab("|nsl| value") +
+                geom_rect(aes(xmin = 1749721,
+                              xmax = 1776527,
+                              ymin = -Inf,
+                              ymax = Inf),
+                          fill = "light blue",
+                          alpha = 0.008) +
+        geom_hline(yintercept = c(2.56),
+                   linetype = "dashed",
+                   colour = "orange") +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end)) +
+                geom_point(colour = "black",
+                           size = 3,
+                           alpha = 0.5) +
+                geom_point(data = nsl_snps_highlight,
+                           aes(x = position,
+                               y = nsl_score),
+                           colour = "blue",
+                           size = 3,
+                           alpha = 0.5) +
+                theme_bw() +
+                theme(axis.title.x = element_blank(),
+                      axis.text.x = element_blank(),
+                      axis.ticks.x = element_blank(),
+                      axis.title.y = element_text(size = 15,
+                                                 face = "bold",
+                                                 colour = "black")) +
+        theme(plot.margin = unit(c(1, 1, 0, 1), "cm"))
+```
+
+Generate the ihs plot:
+
+```{r, message = FALSE}
+ihs_plot <- ggplot(ihs_input_subset,
+                   aes(x = position,
+                       y = ihs_score)) +
+                xlab("Genomic coordinates (bp)") +
+                ylab("|ihs| value") +
+                geom_rect(aes(xmin = 1749721,
+                              xmax = 1776527,
+                              ymin = -Inf,
+                              ymax = Inf),
+                          fill = "light blue",
+                          alpha = 0.008) +
+        geom_hline(yintercept = c(2.89),
+                   linetype = "dashed",
+                   colour = "orange") +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end)) +
+                geom_point(colour = "black",
+                           size = 3,
+                           alpha = 0.5) +
+                geom_point(data = ihs_snps_highlight,
+                           aes(x = position,
+                               y = ihs_score),
+                           colour = "blue",
+                           size = 3,
+                           alpha = 0.5) +
+                theme_bw() +
+        theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,
+                           face = "bold",
+                           colour = "black")) +
+        theme(plot.margin = unit(c(1, 1, 0, 1), "cm")) +
+        theme_nothing()
+```
+
+Plot recombination rate for the region:
+
+```{r, message = FALSE}
+## Subset region of genome to plot:
+recomb_data_subset <- subset(recomb_data,
+                            start.pos > start &
+                            start.pos < end)
+
+recomb_plot <- ggplot(recomb_data_subset,
+                      aes(x = start.pos,
+                          y = recomb.rate.perbp)) +
+        geom_point()
+
+## plot recombination rate across the genome:
+ggplot(recomb_data,
+       aes(x = start.pos,
+           y = recomb.rate.perbp)) +
+        geom_point()
+```
+
+Subset genomic region to plot nucleotide diversity:
+
+```{r, message = FALSE}
+## Subset genomic region of interest:
+nuc_div_subset <- subset(nuc_div_data,
+                         chrom == "NC_015771.1" &
+                         start > 1655259 &
+                         end < 1865481)
+
+## Calculate mean nucleotide diversity:
+nucdiv_median <- median(nuc_div_data$nuc_diversity)
+
+
+nuc_div_plot <- ggplot(nuc_div_subset,
+                       aes(x = midpoint,
+                           y = nuc_diversity)) +
+        geom_point(colour = "black",
+                   size = 4,
+                   alpha = 0.75) +
+        xlab("Genomic coordinates (bp)") +
+        ylab("Nucleotide diversity") +
+        geom_vline(xintercept = c(start + 100000,
+                                  end - 100000),
+                   linetype = "dashed",
+                   colour = "blue") +
+        geom_hline(yintercept = c(nucdiv_median),
+                   linetype = "dashed",
+                   colour = "orange") +
+                geom_rect(aes(xmin = 1749721,
+                              xmax = 1776527,
+                      ymin = -Inf,
+                      ymax = Inf),
+                  fill = "light blue",
+                  alpha = 0.008) +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end)) +
+        theme_bw()
+
+
+nuc_div_plot <- nuc_div_plot +
+        theme(axis.text = element_text(size = 15),
+              axis.title = element_text(size = 15,
+                                        face = "bold"))
+
+## Plot Tajima's D:
+tajima_plot <- ggplot(nuc_div_subset,
+                      aes(x = midpoint,
+                          y = tajima_d)) +
+        geom_point()
+```
+
+Read in SNP genotype matrix:
+
+```{r, message=FALSE}
+## Load previously generated arrow and heatmap plots:
+load(file = "results/plots/wolbachia_arrow_plot.Rdata")
+load(file = "results/plots/wolbachia_snp_plot.Rdata")
+```
+
+Generate combined plots:
+
+```{r, message=FALSE}
+## Generate a combined plot:
+ggarrange(arrow_plot,
+          nsl_plot,
+          nuc_div_plot,
+          heatmap_plot,
+          nrow = 4,
+          ncol = 1,
+          labels = c("A",
+                     "B",
+                     "C",
+                     "D"),
+          heights = c(1,
+                     1.8,
+                     2,
+                     3),
+          align = "hv")
+
+## Save:
+ggsave(file = "results/wolbachia_combined_plot.png",
+       width = 10,
+       height = 10)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./plot_wolbachia_sweeps_attic.Rmd")
+```
