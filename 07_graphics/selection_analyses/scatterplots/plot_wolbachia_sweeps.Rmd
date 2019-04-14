@@ -5,6 +5,8 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 
+## Load libraries:
+
 ```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("devtools",
@@ -28,7 +30,8 @@ for (lib in libraries) {
 }
 ```
 
-This script plots nsl score, ihs score, population-scaled recombination rate, nucleotide diversity and Tajima's D estimates.
+This script plots nsl score and nucleotide diversity estimates. It also loads an arrow-plot showing the 
+distribution of gene locations in the region of interest. It also loads a SNP heatmap showing the presence of shared haplotypes amongst individuals.
 
 ```{r, message = FALSE}
 ## Read in data:
@@ -38,15 +41,6 @@ nsl_data <- read.table(file = nsl_input,
                                      "position",
                                      "position",
                                      "nsl_score"))
-ihs_input <- "./input/ihs_output/NC_015771.1.ihs.out.100bins.norm.abs.bed.tmp"
-ihs_data <- read.table(file = ihs_input,
-                       col.names = c("chrom",
-                                     "position",
-                                     "position",
-                                     "ihs_score"))
-recomb_input <- "./input/recombination_rate/NC_015771.1.recode.vcf.ldhelmet.ldhelmet.post.txt.tmp.genetic_map.txt.recomb.txt"
-recomb_data <- read.table(file = recomb_input,
-                          header = TRUE)
 ## Both nucleotide diversity and Tajima D are in the same input file:
 nuc_div_input <- "./input/nucleotide_diversity_output/bter_all_chrom_10kb.txt"
 nuc_div_data <- read.table(file = nuc_div_input,
@@ -75,14 +69,6 @@ nsl_input_subset <- subset(nsl_data,
 ## subset sites above 2.56 to highlight on plot:
 nsl_snps_highlight <- subset(nsl_input_subset,
                             nsl_score > 2.56)
-
-## Subset ihs values for plotting:
-ihs_input_subset <- subset(ihs_data,
-                            position > start &
-                            position < end)
-
-ihs_snps_highlight <- subset(ihs_input_subset,
-                            ihs_score > 2.89)
 ```
 
 Generate plot of EHH:
