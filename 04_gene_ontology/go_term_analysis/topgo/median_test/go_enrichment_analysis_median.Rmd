@@ -52,17 +52,18 @@ gene_to_go_mapping_file <- input
 nsl_ranked_file <- "./input/nsl_input/median_counts_per_gene.txt"
 
 ## Define node size:
-node_size <- 50
+node_size <- 20
 
-output_directory <- paste("results/output_",
+output_directory <- paste("results/median/output_",
                           node_size,
-                          "_median_ks",
+                          "_ks",
                           sep = "")
 if (file.exists(output_directory)) {
   stop("The output directory:", output_directory, ", already exists",
        "Let's avoid overwriting")
 } else {
-  dir.create(output_directory)
+  dir.create(output_directory,
+             recursive = TRUE)
 }
 ```
 
@@ -141,33 +142,12 @@ for (go_category in c("BP", "MF", "CC")) {
   result_weight_output$weight_ks <- as.numeric(result_weight_output$weight_ks)
   result_weight_output$weight_fisher <- as.numeric(result_weight_output$weight_fisher)
   result_weight_output$weight_ks_adjusted <- p.adjust(p = result_weight_output$weight_ks,
-                                                      method = c("BH"))
+                                                      method = c("bonferroni"))
   result_weight_output$weight_fisher_adjusted <- p.adjust(p = result_weight_output$weight_fisher,
-                                                          method = c("BH"))
+                                                          method = c("bonferroni"))
   ## Subset calls with significance higher than expected:
   result_weight_output_sig <- subset(x      = result_weight_output,
                                      subset = (Significant > Expected))
-  ## Print to console one of the GO terms of interest to check the distribution of that GO term across ranked genes:
-  print(showGroupDensity(object  = my_go_data,
-                         whichGO = head(result_weight_output_sig$GO.ID,
-                                        n = 1),
-                         ranks   = TRUE,
-                         rm.one  = FALSE))
-  ## Print out all GO terms of interest:
-  for (go_term in 1:nrow(result_weight_output_sig)){
-          output_name <- head(result_weight_output_sig$GO.ID,
-                              n = go_term)
-          output_name <- paste("./",
-                               output_name,
-                               ".pdf",
-                               sep = "")
-          pdf()
-          print(showGroupDensity(object  = my_go_data,
-                         whichGO = result_weight_output_sig$GO.ID[go_term],
-                         ranks   = TRUE,
-                         rm.one  = FALSE))
-          dev.off()
-  }
   ## Write to output:
   write.table(x         = result_weight_output_sig,
               file      = file.path(output_directory,
@@ -184,5 +164,5 @@ Run lintr:
 
 ```{r, message = FALSE}
 ## Check style:
-lintr::lint(file = "./go_enrichment_analysis_median.Rmd")
+lintr::lint(file = "./GO_enrichment_ks_rank_test.Rmd")
 ```
