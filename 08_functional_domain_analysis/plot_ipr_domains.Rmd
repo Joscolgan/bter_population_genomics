@@ -21,14 +21,13 @@ for (lib in libraries) {
 ## Create output folder:
 dir.create(path = "./results/figures",
            recursive = TRUE)
-
 ```
 
 Read input file:
 
 ```{r, message=FALSE}
+## Read in input file for plots:
 input <- "./results/input_for_plot.txt"
-
 input_df <- read.table(file = input,
                              header = TRUE)
 
@@ -46,26 +45,24 @@ Generate plot:
 ```{r, message=FALSE}
 ## Generate plot:
 input_for_plot <- ggbarplot(input_df,
-                                          x = "ipr_description",
-                                          y = "pvalues_adjust",
-                                          position = position_dodge(0.1),
-                                          color = NULL,
-                                          palette = "jco",
-                                          sort.val = "asc",
-                                          sort.by.groups = FALSE,
-                                          ylab = "-log10(p)",
-                                          xlab = "InterPro term",
-                                          legend.title = "Functional domain enrichment",
-                                          lab.col = "black",
-                                          lab.size = 4,
-                                          lab.vjust = 0.5,
-                                          lab.hjust = 1,
-                                          legend = "top",
-                                          rotate = TRUE,
-                                          ggtheme = theme_minimal())
-
-## Make font bigger and bold:
-input_for_plot <- input_for_plot +
+                            x = "ipr_description",
+                            y = "pvalues_adjust",
+                            position = position_dodge(0.1),
+                            fill = "grey",
+                            color = "black",
+                            palette = "jco",
+                            sort.val = "asc",
+                            sort.by.groups = FALSE,
+                            ylab = "-log10(p)",
+                            xlab = "InterPro term",
+                            legend.title = "Functional domain enrichment",
+                            lab.col = "black",
+                            lab.size = 4,
+                            lab.vjust = 0.5,
+                            lab.hjust = 1,
+                            legend = "top",
+                            rotate = TRUE,
+                            ggtheme = theme_minimal()) +
         scale_y_continuous(expand = c(0, 0)) +
         theme(axis.text = element_text(size = 15),
               axis.title.x = element_text(size = 15,
@@ -76,7 +73,7 @@ input_for_plot <- input_for_plot +
                                          face = "bold"),
               axis.text.x = element_text(size = 12),
               legend.position = "none") +
-        expand_limits(y = 20) +
+        expand_limits(y = 10) +
         geom_hline(yintercept = 1.301,
                    linetype = "dashed",
                    colour = "black")
@@ -86,3 +83,11 @@ ggsave(file = "results/figures/enriched_functional_domains.png",
        height = 12,
        width = 14)
 ```
+
+Check script using lintr
+
+```{r, message = FALSE}
+lintr::lint(file = "./plot_ipr_domains.Rmd")
+```
+
+
