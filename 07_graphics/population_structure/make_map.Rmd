@@ -1,0 +1,107 @@
+---
+title: "Bombus population genomics"
+output: make_map.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+The purpose of this script is to generate a map of Great Britain and highlight sampling sites.
+The output of the script is an image (.png or .pdf) file.
+
+The first step involves installing and loading libraries:
+```{r, message = FALSE}
+install.packages(c("cowplot",
+                   "googleway",
+                   "ggplot2",
+                   "ggrepel",
+                   "ggspatial",
+                   "libwgeom",
+                   "sf",
+                   "rnaturalearth",
+                   "rnaturalearthdata",
+                   "rgeos"))
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+```
+
+Load data for plotting from the world:
+
+```{r, message = FALSE}
+library("ggplot2")
+theme_set(theme_bw())
+library("sf")
+library("rnaturalearth")
+library("rnaturalearthdata")
+world <- ne_countries(scale = "medium",
+                      returnclass = "sf")
+class(world)
+```
+
+For plotting of collection sites, read in input file containing coordinates:
+
+```{r, message = FALSE}
+## Read in data:
+data_points <- read.csv(file = "input/input_for_maps.csv",
+                        header = TRUE)
+```
+
+Generate map:
+
+```{r, message = FALSE}
+test <- ggplot(data = world) +
+geom_sf() +
+geom_text(data = world_points,
+          aes(x = "Longitude",
+              y = "Latitude",
+              label = name),
+    color = "darkblue",
+    fontface = "bold",
+    check_overlap = FALSE) +
+annotate(geom = "text",
+         x = 0,
+         y = 55,
+         label = "North Sea",
+    fontface = "italic",
+    color = "grey22",
+    size = 10) +
+        geom_point(data = data_points,
+                   aes(x = Longitude,
+                       y = Latitude,
+                       fill = Latitude),
+                   shape = 24,
+                   size = 8) +
+coord_sf(xlim = c(-6, 2),
+         ylim = c(57, 50),
+         expand = FALSE) +
+        xlab("Longitude") +
+        ylab("Latitude") +
+        annotation_scale(location = "bl", width_hint = 0.5)
+
+## Update colour:
+test + scale_fill_distiller(palette = "Blues") +
+        theme(text = element_text(size = 20))
+```
+
+Save image to file:
+
+```{r, message = FALSE}
+## Save to file:
+dir.create(path = "./results")
+ggsave(file = "./results/map_of_britain.png",
+       height = 15,
+       width = 10)
+```
+
+Run lintr:
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./make_map.Rmd")
+```
