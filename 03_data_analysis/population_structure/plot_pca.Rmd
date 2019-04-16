@@ -94,7 +94,9 @@ pop_code_df <- read.table(file = "input/population_information.txt",
 ## Rename columns:
 colnames(pop_code_df) <- c("sample",
                            "site_number",
-                           "landuse")
+                           "landuse",
+                           "original_site_number",
+                           "latitude")
 
 ## 
 pop_code <- pop_code_df$landuse
@@ -106,8 +108,8 @@ pop_code <- pop_code_df$landuse
 ## 4) Second principal component of interest
 tab <- data.frame(sample.id = pca$sample.id,
                   pop = factor(pop_code)[match(pca$sample.id, sample_id)],
-                  EV1 = pca$eigenvect[,1],    # the first eigenvector
-                  EV2 = pca$eigenvect[,2],    # the second eigenvector
+                  EV1 = pca$eigenvect[,2],    # the first eigenvector
+                  EV2 = pca$eigenvect[,3],    # the second eigenvector
                   stringsAsFactors = FALSE)
 
 ## Rename the samples for plotting:  
@@ -124,6 +126,9 @@ tab$sample.id <- as.character(unlist(new_names))
 
 ## Add another column for site_id:
 tab$site_id <- pop_code_df$site_number
+
+## Add column for latitude:
+tab$latitude <- pop_code_df$latitude
 
 ## Check status of whether there are two or one individual per site:
 new_site_id <- vector()
@@ -147,13 +152,15 @@ tab$site_id <- new_site_id
 names_plot<- ggplot(tab,
                     aes(x = tab$EV1,
                         y = tab$EV2,
-                        color = tab$pop)) +
+                        #color = tab$pop,
+                        fill = tab$latitude)) +
         #geom_point(shape = 16, size=4, alpha=0.4, show.legend = T) +
         theme_minimal() +
         xlab(paste("Principal component", 1," ","(",round(pc_percent[1], 2), "%", ")", sep="")) +
         ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep="")) + 
-        geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
-        scale_color_manual(values= c("blue", "orange", "red"))
+        geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$latitude)) +
+        scale_fill_distiller(palette = "Blues")
+        #scale_color_manual(values= c("blue", "orange", "red"))
 
 ## Adjust the size of the labels:
 names_plot <- names_plot +
@@ -163,9 +170,13 @@ names_plot <- names_plot +
                     theme(legend.position = "none")
 
 ## Plot:
-ggsave(file = "pca_plot_PC1_PC2.pruned.0.1.png",
+ggsave(file = "pca_plot_PC2_PC3_test_pruned_0_1.png",
        width = 10,
        height = 10)
+
+## Save plot as R object:
+save(names_plot,
+     file = "./results/pc_2_3_plot.Rdata")
 
 ## Plot together:
 ggarrange(names_n46_plot, 
