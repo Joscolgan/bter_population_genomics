@@ -9,21 +9,10 @@ The following script investigates the relationship between the length of a gene 
 This script outputs scatterplots.
 
 ```{r, message = FALSE}
-## Load libraries; install from scratch if needed
-libraries <- c("ggpubr", "lintr", "ggplot2", "rmarkdown")
-for (lib in libraries) {
-    if (require(package = lib, character.only = TRUE)) {
-        print("Successful")
-    } else {
-        print("Installing")
-        source("https://bioconductor.org/biocLite.R")
-        library(lib, character.only = TRUE )
-    }
-}
-```
-Read in input files:
+library(rmarkdown)
+render("nsl_comparisons.Rmd",
+       output_format = "pdf_document")
 
-```{r, message = FALSE}
 ## Read in input file:
 data <- read.table(file = "./input_for_R.tmp", 
                    header = FALSE)
@@ -45,6 +34,7 @@ cor.test(data$length,
 
 ## Plot length vs. median nsl per gene:
 require(ggplot2)
+options(scipen=999)
 ## Generate scatterplot:
 ggplot(data,
        aes(x = length,
@@ -58,14 +48,32 @@ ggplot(data,
 cor.test(data$length,
          data$nsl_score)
 
+## Subset top 1%:
+top_one_percent <- subset(data,
+                          nsl_score > quantile(data$nsl_score, 0.99))
+
+## Correlation between gene length and max nsl score per gene:
+cor.test(top_one_percent$length,
+         top_one_percent$nsl_score)
+
 ## Generate scatterplot:
 ggplot(data,
-       aes(x = length,
-           y = nsl_score)) +
-        xlab("Gene length (bp)") +
-        ylab("|nsl| score") +
+       aes(x = nsl_score,
+           y = length)) +
+        ylab("Gene length (bp)") +
+        xlab("|nsl| score") +
         geom_point() +
-        theme_bw()
+        theme_bw() +
+        geom_point(data = top_one_percent,
+                   aes(x = nsl_score,
+                       y = length),
+                   colour = "red")
+
+## Save:
+ggsave(file = "gene_length_nsl_score.pdf",
+       width = 10,
+       height = 10,
+       dpi = 600)
 ```
 
 Explore relationship between gene length and gene ontology term numbers:
@@ -98,15 +106,3 @@ ggplot(data,
         geom_point() +
         theme_bw()
 ```
-Run lintr:
-```{r, message = FALSE}
-lintr::lint("./nsl_comparisons.Rmd")
-```
-Write output to file:
-
-```{r, message = FALSE}
-render("nsl_comparisons.Rmd",
-       output_format = "pdf_document")
-```
-
-
