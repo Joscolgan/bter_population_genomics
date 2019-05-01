@@ -180,6 +180,50 @@ for (go_category in c("BP", "MF", "CC")) {
               quote = FALSE)
 }
 ```
+Visualise gene ontology term:
+```{r, message = FALSE}
+print(showGroupDensity(object  = my_go_data,
+        whichGO = result_weight_output_sig$GO.ID[7],
+                         ranks   = TRUE,
+                         rm.one  = FALSE))
+
+## Subset genes annotated with 'behaviour':
+behavioural_genes <- genesInTerm(my_go_data,
+                                 result_weight_output_sig$GO.ID[7])
+
+## Subset 'behaviour' genes and plot:
+behavioual_genes_df <- subset(nsl_ranked, locus %in% as.character(unlist(behavioural_genes)))
+
+## Generate scatterplot with 'behavioural' genes annotated:
+ggplot(nsl_ranked,
+       aes(x = nsl_score,
+           y = length)) +
+        ylab("Gene length (bp)") +
+        xlab("|nsl| score") +
+        geom_point(alpha = 0.5) +
+        theme_bw() +
+        geom_point(data = behavioual_genes_df,
+                   aes(x = nsl_score,
+                       y = length),
+                   colour = "blue",
+                   alpha = 0.9)
+
+ggplot(data = nsl_ranked,
+       aes(x = nsl_score)) +
+        geom_histogram() 
+
+## Read in all data:
+all_snps <- read.table(file = "./input/combined_nsl_input_for_calculating_top_one.txt",
+                       header = FALSE)
+## Take the absolute values for nsl score:
+all_snps$V7 <- abs(all_snps$V7)
+
+head(all_snps)
+ggplot(data = all_snps,
+       aes(x = V7)) +
+        geom_histogram()
+```
+
 
 Run lintr:
 
