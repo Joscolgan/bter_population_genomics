@@ -1,0 +1,157 @@
+
+
+```{r, message = FALSE}
+require(ggplot2)
+data <- read.table(file = "./input/test_input_for_r.txt",
+                   header = FALSE)
+
+## Assign column names:
+colnames(data) <- c("chrom",
+                    "position",
+                    "nsl_score",
+                    "annotation")
+
+ggplot(data = data,
+       aes(x = nsl_score)) +
+        geom_histogram(data = genic_variants_df,
+                       aes(fill = "genic variants"),
+                       colour = "black") +
+        geom_histogram(data = intergenic_variants_df,
+                       aes(fill = "intergenic variants"),
+                       colour = "black") +
+        geom_histogram(data = updwn_stream_variants_df,
+                       aes(fill = "updwn stream variants"),
+                       colour = "black") +
+        theme_bw() +
+        scale_fill_manual(values = c("orange", "yellow", "brown"))
+
+```
+
+Subdivide SNPs by annotation type:
+
+```{r, message = FALSE}
+updwn_stream_variants <- grep("stream",
+                              data$annotation,
+                              value = FALSE)
+
+updwn_stream_variants_df <- subset(data,
+                                   rownames(data) %in% updwn_stream_variants)
+
+intergenic_variants <- grep("intergenic",
+                            data$annotation,
+                            value = FALSE)
+
+intergenic_variants_df <- subset(data,
+                                 rownames(data) %in% intergenic_variants)
+
+non_genic <- c(updwn_stream_variants, intergenic_variants)
+
+genic_variants_df <- subset(data,
+                                 !(rownames(data) %in% non_genic))
+
+non_genic <- c(updwn_stream_variants, intergenic_variants)
+
+intronic_variants <- grep("intron",
+                              data$annotation,
+                              value = FALSE)
+
+intronic_variants_df <- subset(data,
+                               rownames(data) %in% intronic_variants)
+
+utr_variants <- grep("UTR",
+                     data$annotation,
+                     value = FALSE)
+
+utr_variants_df <- subset(data,
+                          rownames(data) %in% utr_variants)
+
+splice_variants <- grep("splice",
+                     data$annotation,
+                     value = FALSE)
+
+splice_variants_df <- subset(data,
+                          rownames(data) %in% splice_variants)
+
+## Combine all:
+non_coding <- c(updwn_stream_variants,
+               intergenic_variants,
+               intronic_variants,
+               utr_variants,
+               splice_variants)
+
+genic_variants_df <- subset(data,
+                            !(rownames(data) %in% non_coding))
+
+## Generate plot:
+ggplot(data = data,
+       aes(x = nsl_score)) +
+        geom_histogram(data = intronic_variants_df,
+                       aes(fill = "intronic variants"),
+                       colour = "black") +
+        geom_histogram(data = intergenic_variants_df,
+                       aes(fill = "intergenic variants"),
+                       colour = "black") +
+        geom_histogram(data = updwn_stream_variants_df,
+                       aes(fill = "up/downstream variants"),
+                       colour = "black") +
+        geom_histogram(data = utr_variants_df,
+                       aes(fill = "untranslated regions"),
+                       colour = "black") +
+        geom_histogram(data = genic_variants_df,
+                       aes(fill = "coding variants"),
+                       colour = "black") +
+        geom_histogram(data = splice_variants_df,
+                       aes(fill = "splice variants"),
+                       colour = "black") +
+        theme_bw() +
+        ylab("Number of SNPs") +
+        xlab("|nsl| score") +
+        scale_fill_manual(values = c("orange",
+                                     "yellow",
+                                     "white",
+                                     "grey",
+                                     "brown",
+                                     "pink")) +
+        guides(fill = guide_legend(title = "Variant type")) +
+        theme(legend.position = "bottom")
+
+```
+
+Plot by gene:
+
+```{r, message = FALSE}
+## Read in nsl score per gene for plotting:
+genes <- read.table(file = "./input/input_for_R.tmp",
+                    col.names = c("locus",
+                                  "gene_length",
+                                  "median_nsl_score",
+                                  "nsl_score",
+                                  "go_terms"))
+
+genes <- genes[order(-genes$nsl_score), ]
+
+## Subset top 1%:
+top_one_percent <- subset(genes,
+                          genes$nsl_score > quantile(data$nsl_score, 0.99))
+
+## Plot:
+ggplot(data = genes,
+       aes(x = nsl_score),
+       color = "blue") +
+        xlim(0, 6) +
+        geom_histogram(bins = 100,
+                       aes(x = nsl_score),
+                       fill = "light blue",
+                       colour = "black") +
+        geom_histogram(data = top_one_percent,
+                       bins = 100,
+                       aes(x = nsl_score),
+                       fill = "orange",
+                       colour = "black") +
+        theme_bw() +
+        ylab("Number of genes") +
+        xlab("|nsl| score") +
+        scale_color_manual(values = c("light blue",
+                                      "orange"))
+
+```
