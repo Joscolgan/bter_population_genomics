@@ -10,16 +10,13 @@ The output of the script is an image (.png or .pdf) file.
 
 The first step involves installing and loading libraries:
 ```{r, message = FALSE}
-install.packages(c("cowplot",
-                   "googleway",
-                   "ggplot2",
-                   "ggrepel",
-                   "ggspatial",
-                   "libwgeom",
-                   "sf",
-                   "rnaturalearth",
-                   "rnaturalearthdata",
-                   "rgeos"))
+libraries <- c("ggplot2",
+               "ggrepel",
+               "ggspatial",
+               "sf",
+               "rnaturalearth",
+               "rnaturalearthdata",
+               "rgeos")
 for (lib in libraries) {
         if (require(package = lib, character.only = TRUE)) {
                 print("Successful")
@@ -30,19 +27,21 @@ for (lib in libraries) {
                 library(lib, character.only = TRUE )
         }
 }
+
+## Save to file:
+dir.create(path = "./results")
 ```
 
 Load data for plotting from the world:
 
 ```{r, message = FALSE}
-library("ggplot2")
+## Set theme:
 theme_set(theme_bw())
-library("sf")
-library("rnaturalearth")
-library("rnaturalearthdata")
+
+## Load image of the world:
 world <- ne_countries(scale = "medium",
                       returnclass = "sf")
-class(world)
+world_points <- st_centroid(world)
 ```
 
 For plotting of collection sites, read in input file containing coordinates:
@@ -56,37 +55,38 @@ data_points <- read.csv(file = "input/input_for_maps.csv",
 Generate map:
 
 ```{r, message = FALSE}
-test <- ggplot(data = world) +
-geom_sf() +
-geom_text(data = world_points,
-          aes(x = "Longitude",
-              y = "Latitude",
-              label = name),
-    color = "darkblue",
-    fontface = "bold",
-    check_overlap = FALSE) +
-annotate(geom = "text",
-         x = 0,
-         y = 55,
-         label = "North Sea",
-    fontface = "italic",
-    color = "grey22",
-    size = 10) +
+britain_map <- ggplot(data = world) +
+        geom_sf() +
+        geom_text(data = world_points,
+                  aes(x = "Longitude",
+                      y = "Latitude",
+                      label = name),
+                  color = "darkblue",
+                  fontface = "bold",
+                  check_overlap = FALSE) +
+        annotate(geom = "text",
+                 x = 0,
+                 y = 55,
+                 label = "North Sea",
+                 fontface = "italic",
+                 color = "grey22",
+                 size = 10) +
         geom_point(data = data_points,
                    aes(x = Longitude,
                        y = Latitude,
                        fill = Latitude),
                    shape = 24,
                    size = 8) +
-coord_sf(xlim = c(-6, 2),
-         ylim = c(57, 50),
-         expand = FALSE) +
+        coord_sf(xlim = c(-6, 2),
+                 ylim = c(57, 50),
+                 expand = FALSE) +
         xlab("Longitude") +
         ylab("Latitude") +
-        annotation_scale(location = "bl", width_hint = 0.5)
+        annotation_scale(location = "bl",
+                         width_hint = 0.5)
 
 ## Update colour:
-test + scale_fill_distiller(palette = "Blues") +
+britain_map <- britain_map + scale_fill_distiller(palette = "Blues") +
         theme(text = element_text(size = 20))
 ```
 
@@ -94,10 +94,13 @@ Save image to file:
 
 ```{r, message = FALSE}
 ## Save to file:
-dir.create(path = "./results")
 ggsave(file = "./results/map_of_britain.png",
        height = 15,
        width = 10)
+
+## Save image as an R object:
+save(britain_map,
+     file = "./results/map_of_britain.Rdata")
 ```
 
 Run lintr:
