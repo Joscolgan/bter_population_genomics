@@ -91,8 +91,8 @@ genic_variants_df <- subset(data,
                             !(rownames(data) %in% non_coding))
 
 ## Generate plot:
-ggplot(data = data,
-       aes(x = nsl_score)) +
+variant_histogram <- ggplot(data = data,
+                            aes(x = nsl_score)) +
         geom_histogram(data = intronic_variants_df,
                        aes(fill = "intronic variants"),
                        colour = "black") +
@@ -130,6 +130,10 @@ ggsave(file = "./results/histogram_snp_by_variant_type.pdf",
        dpi = 600,
        height = 10,
        width = 12)
+
+## Save object:
+save(data = variant_histogram,
+     file = "./results/histogram_snp_by_variant_type.Rdata")
 ```
 
 Plot by gene:
@@ -148,12 +152,13 @@ genes <- genes[order(-genes$nsl_score), ]
 
 ## Subset top 1%:
 top_one_percent <- subset(genes,
-                          genes$nsl_score > quantile(data$nsl_score, 0.99))
+                          genes$nsl_score > quantile(data$nsl_score,
+                                                     0.99))
 
 ## Plot:
-ggplot(data = genes,
-       aes(x = nsl_score),
-       color = "blue") +
+gene_histogram <- ggplot(data = genes,
+                        aes(x = nsl_score),
+                        color = "blue") +
         geom_histogram(bins = 100,
                        aes(x = nsl_score),
                        fill = "light blue",
@@ -176,6 +181,10 @@ ggsave(file = "./results/histogram_gene_by_nsl_score.pdf",
        dpi = 600,
        height = 8,
        width = 8)
+
+## Save object:
+save(data = gene_histogram,
+     file = "./results/histogram_gene_by_nsl_score.Rdata")
 ```
 
 Run lintr:
