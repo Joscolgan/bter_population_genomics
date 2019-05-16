@@ -27,7 +27,9 @@ Read in data
 ## Plot raw nsl values:
 ## Use dataframe list (zoo.files):
 ## Reformat chromosome name:
-raw_nsl_values <- read.table("./input/combined_genome_wide_new_norm_files.txt", header=FALSE)
+#raw_nsl_values <- read.table("./input/combined_genome_wide_new_norm_files.txt", header=FALSE)
+raw_nsl_values <- read.table("./input/nsl_output/combined_nsl_input_for_calculating_top_one.txt",
+                             header = FALSE)
 ```
 
 Update the name of each chromosome for plotting:
@@ -54,9 +56,9 @@ raw_nsl_values$V1 <- gsub("NC_015778.1", 17, raw_nsl_values$V1)
 raw_nsl_values$V1 <- gsub("NC_015779.1", 18, raw_nsl_values$V1)
 
 ## Subset columns for plotting:
-raw_nsl_values_df <- raw_nsl_values[,c(1,2,9)]
+raw_nsl_values_df <- raw_nsl_values[, c(1,2,4)]
 raw_nsl_values_df$SNP<- rownames(raw_nsl_values_df)
-raw_nsl_values_df$V9 <- abs(raw_nsl_values_df$V9)
+raw_nsl_values_df$V4 <- abs(raw_nsl_values_df$V4)
 
 ## Update column names:
 colnames(raw_nsl_values_df) <- c("CHR", "BP", "P", "SNP")
@@ -71,92 +73,83 @@ input_for_manhattan_rw <- raw_nsl_values_df %>%
   
   # Compute chromosome size
   group_by(CHR) %>% 
-  summarise(chr_len=max(BP)) %>% 
+  summarise(chr_len = max(BP)) %>% 
   
   # Calculate cumulative position of each chromosome
-  mutate(tot=cumsum(chr_len)-chr_len) %>%
+  mutate(tot = cumsum(chr_len) - chr_len) %>%
   select(-chr_len) %>%
   
   # Add this info to the initial dataset
-  left_join(raw_nsl_values_df, ., by=c("CHR"="CHR")) %>%
+  left_join(raw_nsl_values_df, ., by = c("CHR" = "CHR")) %>%
   
   # Add a cumulative position of each SNP
   arrange(CHR, BP) %>%
-  mutate( BPcum=BP+tot)
+  mutate( BPcum = BP + tot)
 
 ```
 
 
 ```{r}
 ## Generate plot:
-axisdf = input_for_manhattan_rw %>% group_by(CHR) %>% summarize(center=( max(BPcum) + min(BPcum) ) / 2 )
+axisdf <- input_for_manhattan_rw %>% group_by(CHR) %>% summarize(center=( max(BPcum) + min(BPcum) ) / 2 )
 
 ## Need to create dataframe containing two columns:
 ## Column 1: Chromosome (CHR) name  - created as a character value
 ## Column 2: center, which consists of the chromosome size
 
 ## Sort by chromosome number:
-axisdf$CHR<- sort(as.numeric(axisdf$CHR))
-axisdf <- axisdf[order(axisdf$CHR), ]
-axisdf$CHR <- as.character(axisdf$CHR)
-
-## Add chromosome size:
-axisdf$center <- c(17153651,
-                        13603873,
-                        14656165,
-                        14241696,
-                        11918102,
-                        12724418,
-                        18145390,
-                        9733834,
-                        15655298,
-                        13618662,
-                        17228712,
-                        12868931,
-                        9884808,
-                        11649563,
-                        11467329,
-                        5274633,
-                        3558169,
-                        3466108)
-
-chrom_order <- as.character(sort(unique(as.numeric(axisdf$CHR))))
-
+#axisdf$CHR<- sort(as.numeric(axisdf$CHR))
+#axisdf <- axisdf[order(axisdf$CHR), ]
+#axisdf$CHR <- as.character(axisdf$CHR)
 ```
 
 
-```{r}
-manhattan_raw_plot<- ggplot(input_for_manhattan_rw, aes(x=BPcum, y=P)) +
-    
+```{r, message = FALSE}
+manhattan_raw_plot<- ggplot(input_for_manhattan_rw,
+                            aes(x = BPcum,
+                                y = P)) +
             # Show all points
             #geom_point( aes(color=CHR), alpha=0.8, size=1.3) +
-            geom_point( aes(color= as.factor(CHR)), alpha=0.4, size=1.3) +
+            geom_point( aes(color = as.factor(CHR)),
+                        alpha = 0.4,
+                        size = 1.3) +
             scale_color_manual(values = rep(c("blue", "orange"), 22 )) +
             
             # custom X axis:
-            scale_x_continuous( label = axisdf$CHR, breaks= axisdf$center ) +
+            scale_x_continuous( label = axisdf$CHR,
+                                breaks = axisdf$center ) +
             scale_y_continuous(expand = c(0, 0) ) +     # remove space between plot area and x axis
-            geom_hline(yintercept = c(2.56), linetype="dashed", colour="black") +
+            geom_hline(yintercept = c(2.56),
+                       linetype = "dashed",
+                       colour = "black") +
             xlab("Chromosome") +
             ylab("-log10(P)") +
             # Custom the theme:
             theme_bw() +
             theme( 
-              legend.position="none",
+              legend.position = "none",
               panel.border = element_blank(),
               panel.grid.major.x = element_blank(),
               panel.grid.minor.x = element_blank()
     )
 
 ## Increase the size of the font:
-manhattan_raw_plot <- manhattan_raw_plot +         theme(axis.text=element_text(size=15),
-                axis.title=element_text(size=15,face="bold"),
-                axis.text.y = element_text(size=12),
-                axis.text.x = element_text(size=10))
+manhattan_raw_plot <- manhattan_raw_plot +
+                theme(axis.text = element_text(size = 15),
+                axis.title = element_text(size = 15,
+                                          face ="bold"),
+                axis.text.y = element_text(size = 12),
+                axis.text.x = element_text(size = 10))
 
 ## Print to console:
 manhattan_raw_plot
 
+## Save image
+ggsave(manhattan_raw_plot,
+       file = "results/manhattan_plot.png",
+       dpi = 600,
+       height = 10,
+       width = 15)
 ```
 
 Plot alongside a barchart of GO terms enriched within nSL-annotated SNPs:
@@ -300,4 +293,3 @@ ipr_bar_plot + geom_hline(yintercept = 1.301, linetype="dashed", colour="black")
 ggarrange(bar_plot, ipr_bar_plot,
                     ncol=1, nrow = 2, align = "v")
 ```
-
