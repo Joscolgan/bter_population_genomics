@@ -1,0 +1,60 @@
+---
+title: "Bombus population genomics"
+output: combine_map_pca_plot.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+This script loads R objects containing:
+1) A map of Britain detailing collection sites (highlighted by latitude);
+2) A principal component analysis of sites (highlighted by landuse type)
+3) A principal component analysis of sites (highlighted by latitude)
+
+```{r, message = FALSE}
+# Load libraries; install from scratch if needed
+libraries <- c("ggplot2",
+               "ggpubr",
+               "lintr")
+for (lib in libraries) {
+    if (require(package = lib, character.only = TRUE)) {
+        print("Successful")
+    } else {
+        print("Installing")
+        source("https://bioconductor.org/biocLite.R")
+        library(lib, character.only = TRUE )
+    }
+}
+## Create output directory:
+dir.create("results")
+```
+Next step is to load input files (R objects)
+
+```{r, message = FALSE}
+## Load objects:
+load(file = "./results/map_of_britain.Rdata")
+load(file = "./results/pca_plots.Rdata")
+
+## Combine and plot together:
+ggarrange(britain_map,
+          ggarrange(lat_plot,
+                    landuse_plot,
+          ncol = 1,
+          nrow = 2,
+          labels = c("B", "C")),
+          labels = c("A"),
+          ncol = 2,
+          nrow = 1)
+
+## Save combined plot to file:
+ggsave(file = "./results/combined_plot.png",
+        dpi = 600,
+        width = 15,
+        height = 10)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "./combine_plots.Rmd")
+
+```
