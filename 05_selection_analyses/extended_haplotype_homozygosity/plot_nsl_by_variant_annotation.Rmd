@@ -94,19 +94,19 @@ genic_variants_df <- subset(data,
 variant_histogram <- ggplot(data = data,
                             aes(x = nsl_score)) +
         geom_histogram(data = intronic_variants_df,
-                       aes(fill = "intronic variants"),
+                       aes(fill = "intronic"),
                        colour = "black") +
         geom_histogram(data = updwn_stream_variants_df,
-                       aes(fill = "up/downstream variants"),
+                       aes(fill = "up/downstream"),
                        colour = "black") +
         geom_histogram(data = intergenic_variants_df,
-                       aes(fill = "intergenic variants"),
+                       aes(fill = "intergenic"),
                        colour = "black") +
         geom_histogram(data = utr_variants_df,
-                       aes(fill = "untranslated regions"),
+                       aes(fill = "UTR"),
                        colour = "black") +
         geom_histogram(data = genic_variants_df,
-                       aes(fill = "coding variants"),
+                       aes(fill = "coding"),
                        colour = "black") +
         geom_histogram(data = splice_variants_df,
                        aes(fill = "splice variants"),
@@ -121,9 +121,9 @@ variant_histogram <- ggplot(data = data,
                                      "brown",
                                      "pink")) +
         guides(fill = guide_legend(title = "Variant type")) +
-        theme(legend.position = "bottom") +
+        theme(legend.position = "right") +
         theme(text = element_text(size = 20,
-                                  face = "bold"))
+                                  face = "plain"))
 
 ## Save plot:
 ggsave(file = "./results/histogram_snp_by_variant_type.pdf",
@@ -134,6 +134,81 @@ ggsave(file = "./results/histogram_snp_by_variant_type.pdf",
 ## Save object:
 save(data = variant_histogram,
      file = "./results/histogram_snp_by_variant_type.Rdata")
+```
+
+Plot using only top one percent SNPs:
+
+```{r, message = FALSE}
+data_sig <- subset(data, nsl_score > 2.56)
+        
+updwn_stream_sig_df <- subset(data_sig,
+                                   rownames(data_sig) %in% updwn_stream_variants)
+
+intergenic_sig_df <- subset(data_sig,
+                            rownames(data_sig) %in% intergenic_variants)
+
+genic_sig_df <- subset(data_sig,
+                       !(rownames(data_sig) %in% non_genic))
+
+intronic_sig_df <- subset(data_sig,
+                          rownames(data_sig) %in% intronic_variants)
+
+utr_sig_df <- subset(data_sig,
+                     rownames(data_sig) %in% utr_variants)
+
+splice_sig_df <- subset(data_sig,
+                        rownames(data_sig) %in% splice_variants)
+
+genic_sig_df <- subset(data_sig,
+                       !(rownames(data_sig) %in% non_coding))
+
+## Generate plot:
+variant_sig_histogram <- ggplot(data = data_sig,
+                            aes(x = nsl_score)) +
+        geom_histogram(data = intronic_sig_df,
+                       aes(fill = "intronic"),
+                       colour = "black") +
+        geom_histogram(data = updwn_stream_sig_df,
+                       aes(fill = "up/downstream"),
+                       colour = "black") +
+        geom_histogram(data = intergenic_sig_df,
+                       aes(fill = "intergenic"),
+                       colour = "black") +
+        geom_histogram(data = utr_sig_df,
+                       aes(fill = "UTR"),
+                       colour = "black") +
+        geom_histogram(data = genic_sig_df,
+                       aes(fill = "coding"),
+                       colour = "black") +
+        geom_histogram(data = splice_sig_df,
+                       aes(fill = "splice variants"),
+                       colour = "black") +
+        theme_bw() +
+        ylab("Number of SNPs") +
+        xlab("|nsl| score") +
+        scale_fill_manual(values = c("orange",
+                                     "yellow",
+                                     "white",
+                                     "grey",
+                                     "brown",
+                                     "pink")) +
+        guides(fill = guide_legend(title = "Variant type")) +
+        theme(legend.position = "right") +
+        theme(text = element_text(size = 20,
+                                  face = "plain"))
+
+## Plot both together:
+ggarrange(variant_histogram,
+          variant_sig_histogram,
+          labels = c("A", "B"),
+          ncol = 2,
+          nrow = 1,
+          common.legend = TRUE)
+
+ggsave(file = "./combined_plot_test.png",
+       dpi = 600,
+       height = 10,
+       width = 10)
 ```
 
 Plot by gene:
@@ -173,8 +248,8 @@ gene_histogram <- ggplot(data = genes,
         xlab("|nsl| score") +
         scale_color_manual(values = c("light blue",
                                       "orange")) +
-        theme(text = element_text(size = 10,
-                                  face = "bold"))
+        theme(text = element_text(size = 20,
+                                  face = "plain"))
 
 ## Save plot to file:
 ggsave(file = "./results/histogram_gene_by_nsl_score.pdf",
@@ -185,6 +260,22 @@ ggsave(file = "./results/histogram_gene_by_nsl_score.pdf",
 ## Save object:
 save(data = gene_histogram,
      file = "./results/histogram_gene_by_nsl_score.Rdata")
+```
+
+Combine the SNP and gene histograms:
+
+```{r, message = FALSE}
+ggarrange(variant_histogram,
+          gene_histogram,
+          labels = c("A", "B"),
+          ncol = 2,
+          nrow = 1,
+          common.legend = TRUE)
+
+## Save to file:
+ggsave(file = "./results/combined_test_plot.png",
+       height = 6,
+       width = 10)
 ```
 
 Run lintr:
