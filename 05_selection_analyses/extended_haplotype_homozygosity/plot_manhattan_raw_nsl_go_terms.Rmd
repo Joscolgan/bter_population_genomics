@@ -293,3 +293,4 @@ ipr_bar_plot + geom_hline(yintercept = 1.301, linetype="dashed", colour="black")
 ggarrange(bar_plot, ipr_bar_plot,
                     ncol=1, nrow = 2, align = "v")
 ```
+
