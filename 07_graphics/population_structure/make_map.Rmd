@@ -76,18 +76,20 @@ britain_map <- ggplot(data = world) +
                        y = Latitude,
                        fill = Latitude),
                    shape = 24,
-                   size = 8) +
+                   size = 10) +
         coord_sf(xlim = c(-6, 2),
                  ylim = c(57, 50),
                  expand = FALSE) +
         xlab("Longitude") +
         ylab("Latitude") +
         annotation_scale(location = "bl",
-                         width_hint = 0.5)
+                         width_hint = 0.5) +
+        theme(legend.position = "none")
 
 ## Update colour:
-britain_map <- britain_map + scale_fill_distiller(palette = "Blues") +
-        theme(text = element_text(size = 20))
+britain_map <- britain_map + 
+               scale_fill_distiller(palette = "Blues") +
+               theme(text = element_text(size = 20))
 ```
 
 Save image to file:
@@ -104,6 +106,7 @@ save(britain_map,
 ```
 
 Run lintr:
+
 ```{r, message = FALSE}
 ## Run lintr:
 lintr::lint(file = "./make_map.Rmd")
