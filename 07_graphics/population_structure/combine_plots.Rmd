@@ -36,18 +36,15 @@ load(file = "./results/pca_plots.Rdata")
 
 ## Combine and plot together:
 ggarrange(britain_map,
-          ggarrange(lat_plot,
-                    landuse_plot,
-          ncol = 1,
-          nrow = 2,
-          labels = c("B", "C")),
-          labels = c("A"),
+          lat_plot,
           ncol = 2,
-          nrow = 1)
+          nrow = 1,
+          align = "hv",
+          widths = c(1, 1),
+          labels = c("A", "B"))
 
 ## Save combined plot to file:
 ggsave(file = "./results/combined_plot.png",
-        dpi = 600,
         width = 15,
         height = 10)
 ```
