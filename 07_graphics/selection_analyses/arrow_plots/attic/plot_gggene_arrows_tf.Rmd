@@ -36,18 +36,17 @@ for (lib in libraries) {
 }
 
 ## Read in file for plotting:
-input <- "./input/gggenes_input/tf_input_for_gggenes.txt"
+input <- "./input/gggenes_input/wolbachia_input_for_gggenes.txt"
 data <- read.table(file = input,
                    header = TRUE)
 
 ## Assign values to start and end positions:
-start_position <- 671541
-end_position <- 851541
+start_position <- 1649722
+end_position <- 1876527
 
 ## Turn off scientific notation:
 options(scipen = 999)
 
-##
 data$direction <- ifelse(data$strand == "forward", 1, -1)
 
 ## Plot:
@@ -79,7 +78,7 @@ arrow_plot <- ggplot(data, aes(xmin = as.numeric(start),
 
 ## Combine plot:
 save(arrow_plot,
-       file = "./results/plots/tf_arrow_plot.Rdata")
+       file = "./results/plots/wolbachia_arrow_plot.Rdata")
 ```
 
 Run lintr
