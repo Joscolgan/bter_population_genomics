@@ -1,4 +1,8 @@
-
+---
+title: "Bombus population genomics"
+output: ibd_plot.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
 
 ## Introduction:
 This script loads an R object and plots a correlation plot of values estimated through an 'identity-by-descent' (IBD) analysis. The output is a saved .png image.
