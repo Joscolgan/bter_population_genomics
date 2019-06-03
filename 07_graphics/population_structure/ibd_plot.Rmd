@@ -43,9 +43,7 @@ ggsave(file = "results/ibs_correlation_plot.png",
        width = 10)
 
 ## Plot IBD kinship coefficients:
-head(ibd_coeff_mle)
 ibd_coeff_mle_fo_melt <- ibd_coeff_mle[, c(1, 2, 6)]
-
 
 ## Update the name of samples for plotting:
 new_id1 <- vector()
@@ -95,6 +93,24 @@ kinship_plot <- kinship_plot +
 ggsave(file = "./results/kinship_matrix.png",
        height = 10,
        width = 10)
+```
+
+Generate a combined plot:
+
+```{r, message = FALSE}
+## Generate a combined plot:
+require(ggpubr)
+ggarrange(kinship_plot,
+          plot,
+          ncol = 2,
+          nrow = 1,
+          labels = c("A", "B"),
+          align = "hv")
+
+## Save plot:
+ggsave(file = "./results/combined_IBS_IBD.png",
+       height = 6,
+       width = 9)
 ```
 
 Run lintr:
