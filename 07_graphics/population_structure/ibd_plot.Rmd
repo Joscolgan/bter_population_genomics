@@ -1,0 +1,44 @@
+
+
+## Introduction:
+This script loads an R object and plots a correlation plot of values estimated through an 'identity-by-descent' (IBD) analysis. The output is a saved .png image.
+
+```{r, message = FALSE}
+## Load R object:
+load( file = "./results/pca_plots.Rdata")
+```
+
+Generate correlation plot:
+
+```{r, message = FALSE}
+require(ggplot2)
+require(reshape2)
+## Updated column names:
+colnames(input_for_melt) <- as.character(unlist(new_names))
+rownames(input_for_melt) <- as.character(unlist(new_names))
+input_for_melt_melted <- melt(input_for_melt)
+
+## Generate plot:
+plot <- ggplot(data = input_for_melt_melted,
+               aes(x = Var1,
+                   y = Var2,
+                   fill = value)) +
+        xlab("Samples") +
+        ylab("Samples") +
+        geom_tile(colour = "black") +
+        theme(axis.text.x = element_text(angle = 90,
+                                         hjust = 1),
+              axis.title = element_text(size = 15,
+                                      face = "bold")) +
+        scale_fill_gradient(low = "yellow", high = "black")
+
+plot <- plot + guides(fill=guide_legend(title = "r-value"))
+
+## Print to console:
+plot
+
+## Save image:
+ggsave(file = "results/ibd_correlation_plot.png",
+       height = 10,
+       width = 10)
+```
