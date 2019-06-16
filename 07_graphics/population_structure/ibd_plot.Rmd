@@ -105,15 +105,15 @@ Generate a combined plot:
 require(ggpubr)
 ggarrange(ibs_plot,
           kinship_plot,
-          ncol = 2,
-          nrow = 1,
+          ncol = 1,
+          nrow = 2,
           labels = c("A", "B"),
           align = "hv")
 
 ## Save plot:
 ggsave(file = "./results/combined_IBS_IBD.png",
-       height = 6,
-       width = 15)
+       height = 12,
+       width = 10)
 ```
 
 Run lintr:
