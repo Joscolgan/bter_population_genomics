@@ -39,11 +39,11 @@ dir.create("results")
 ## Step One: Input results from kallisto
 
 We use raw, non-normalised estimated counts.
-```{r} 
+```{r, message = FALSE} 
 ## Set paths to folders containing output files from kallisto
 paths <- list()
-paths$sample_batch_info <- "input/kallisto_rna_temp/01_quantified/sample_information.txt"
-paths$kallisto_output   <- "input/kallisto_rna_temp/01_quantified"
+paths$sample_batch_info <- "input/kallisto_rna_temp/worker_male_datasets/sample_information.txt"
+paths$kallisto_output   <- "input/kallisto_rna_temp/worker_male_datasets"
 
 # Set relative paths:
 paths$kallisto_files_relative <- grep(x = list.files(paths$kallisto_output,
@@ -79,7 +79,8 @@ samples_information <- read.table(file = paths$sample_batch_info,
                                   header = FALSE,
                                   col.names = c("sample_name",
                                                 "life_stage",
-                                                "tissue"),
+                                                "tissue",
+                                                "sex"),
                                   row.names = 1)
 
 ## Make sure 'CON' is the reference:
@@ -93,13 +94,14 @@ if (FALSE == all(samples$life_stage %in% rownames(samples_information))) {
 }
 samples_information
 ```
+
 ## Step Three: Import kallisto quantification files using Tximport
 
 We used kallisto to obtain estimated counts for each transcript in each condition. 
 We load these raw counts into R for DEseq using tximport. 
 Because we do a gene-level analysis first, transcript abundances are summarised per gene during import.
 
-```{r}
+```{r, message = FALSE}
 # Read in file corresponding to transcripts to gene ids
 #ensembl <- useMart(biomart = "metazoa_mart",
 #                  host = "jul2018-metazoa.ensembl.org",
@@ -109,11 +111,11 @@ Because we do a gene-level analysis first, transcript abundances are summarised 
 #                            mart = ensembl)
 
 transcript_to_gene <- read.table(file = "./input/kallisto_lewis_temp/01_quantified/rna_and_corresponding_gene_ids.txt",
-                                 col.names = c("transcript", "locus"))
+                                 col.names = c("TXNAME","GENEID"))
 
 # Use tximport on kallisto files 
 ## Counts are estimated counts from kallisto:
-txi_counts <- tximport(paths$kallisto_files,
+stages_txi_counts <- tximport(paths$kallisto_files,
                        type    = "kallisto",
                        tx2gene = transcript_to_gene,
                        countsFromAbundance = "no")
