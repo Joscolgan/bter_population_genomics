@@ -1,8 +1,4 @@
----
-title: "Bombus population genomics"
-output: ibd_plot.html
-author: Joe Colgan, Yannick Wurm http://wurmlab.com
----
+
 
 ## Introduction:
 This script loads an R object and plots a correlation plot of values estimated through an 'identity-by-descent' (IBD) analysis. The output is a saved .png image.
@@ -23,7 +19,7 @@ rownames(input_for_melt) <- as.character(unlist(new_names))
 input_for_melt_melted <- melt(input_for_melt)
 
 ## Generate plot:
-plot <- ggplot(data = input_for_melt_melted,
+ibs_plot <- ggplot(data = input_for_melt_melted,
                aes(x = Var1,
                    y = Var2,
                    fill = value)) +
@@ -34,12 +30,13 @@ plot <- ggplot(data = input_for_melt_melted,
                                          hjust = 1),
               axis.title = element_text(size = 15,
                                       face = "bold")) +
-        scale_fill_gradient(low = "yellow", high = "black")
+        scale_fill_gradient(low = "yellow", high = "black") +
+        theme(axis.title = element_blank())
 
-plot <- plot + guides(fill = guide_legend(title = "r-value"))
+ibs_plot <- ibs_plot + guides(fill = guide_legend(title = "r value"))
 
 ## Print to console:
-plot
+ibs_plot
 
 ## Save image:
 ggsave(file = "results/ibs_correlation_plot.png",
@@ -88,10 +85,12 @@ kinship_plot <- ggplot(data = ibd_coeff_mle_fo_melted,
                                          hjust = 1),
               axis.title = element_text(size = 15,
                                       face = "bold")) +
-        scale_fill_gradient(low = "yellow", high = "black")
+        scale_fill_gradient(low = "yellow", high = "black") +
+        theme(axis.title = element_blank())
 
 kinship_plot <- kinship_plot +
-        guides(fill = guide_legend(title = "kinship coefficient"))
+        guides(fill = guide_legend(title = "kinship coefficient")) 
+
 
 ## Save to file:
 ggsave(file = "./results/kinship_matrix.png",
@@ -104,8 +103,8 @@ Generate a combined plot:
 ```{r, message = FALSE}
 ## Generate a combined plot:
 require(ggpubr)
-ggarrange(kinship_plot,
-          plot,
+ggarrange(ibs_plot,
+          kinship_plot,
           ncol = 2,
           nrow = 1,
           labels = c("A", "B"),
@@ -114,7 +113,7 @@ ggarrange(kinship_plot,
 ## Save plot:
 ggsave(file = "./results/combined_IBS_IBD.png",
        height = 6,
-       width = 9)
+       width = 15)
 ```
 
 Run lintr:
