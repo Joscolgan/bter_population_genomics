@@ -42,8 +42,8 @@ We use raw, non-normalised estimated counts.
 ```{r, message = FALSE} 
 ## Set paths to folders containing output files from kallisto
 paths <- list()
-paths$sample_batch_info <- "input/kallisto_rna_temp/worker_male_datasets/sample_information.txt"
-paths$kallisto_output   <- "input/kallisto_rna_temp/worker_male_datasets"
+paths$sample_batch_info <- "./input/kallisto_rna_temp/worker_male_datasets/sample_information.txt"
+paths$kallisto_output   <- "./input/kallisto_rna_temp/worker_male_datasets/"
 
 # Set relative paths:
 paths$kallisto_files_relative <- grep(x = list.files(paths$kallisto_output,
@@ -78,7 +78,7 @@ samples     <- data.frame(treatment = names(paths$kallisto_files))
 samples_information <- read.table(file = paths$sample_batch_info,
                                   header = FALSE,
                                   col.names = c("sample_name",
-                                                "life_stage",
+                                                "lIfe_stage",
                                                 "tissue",
                                                 "sex"),
                                   row.names = 1)
@@ -88,7 +88,7 @@ samples_information$life_stage <- relevel(x = samples_information$life_stage,
                                          ref = "undetermined_worker")
 
 # sanity check
-if (FALSE == all(samples$life_stage %in% rownames(samples_information))) {
+if (FALSE == all(samples$sex %in% rownames(samples_information))) {
     kill("we have a problem - sample names from files and
          from batch descriptor file  dont match up")
 }
@@ -101,7 +101,7 @@ We used kallisto to obtain estimated counts for each transcript in each conditio
 We load these raw counts into R for DEseq using tximport. 
 Because we do a gene-level analysis first, transcript abundances are summarised per gene during import.
 
-```{r, message = FALSE}
+```{r}
 # Read in file corresponding to transcripts to gene ids
 #ensembl <- useMart(biomart = "metazoa_mart",
 #                  host = "jul2018-metazoa.ensembl.org",
@@ -122,5 +122,5 @@ stages_txi_counts <- tximport(paths$kallisto_files,
 
 # Save object for use in other scripts
 dir.create(path = "results/count_estimates/")
-save(txi_counts, file = "results/count_estimates/harrison_txi_count_estimates.Rdata")
+save(stages_txi_counts, file = "results/count_estimates/harrison_txi_count_estimates.Rdata")
 ```
