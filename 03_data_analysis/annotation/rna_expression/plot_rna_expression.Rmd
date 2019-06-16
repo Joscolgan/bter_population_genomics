@@ -1,0 +1,141 @@
+---
+title: "Bombus population genomics"
+output: plot_rna_expression.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+This script takes gene-level counts calculated by tximport from kallisto estimated counts as input and
+generates a line plot for a user-defined subset of genes. The output of the script is a PDF image.
+
+```{r, message = FALSE}
+require(ggplot2)
+```
+
+## Load input data:
+Read in data for two datasets:
+1. The "Harrison" dataset consists of gene-level counts for 27 libraries consisting of different bumblebee life-cycle stages.
+2. The "Lewis" datasets contains representative tissues of male and female germline and somatic tissues, respectively.
+The gene level counts for each dataset are stored in R objects.
+
+```{r, message = FALSE}
+## Load R objects:
+load(file = "./results/count_estimates/harrison_txi_count_estimates.Rdata")
+```
+
+## Read in a list of genes of interest:
+
+```{r, message = FALSE}
+## Genes of interest:
+genes_of_interest <- scan(file = "./data/genes_of_interest.txt",
+                          as.character())
+
+## Read in sample information:
+sample_information <- read.table(file = "./input/kallisto_rna_temp/01_quantified/sample_information.txt",
+                                 col.names = c("sample",
+                                               "life_stage",
+                                               "tissue"))
+
+```
+Subset gene-level counts for genes of interest:
+
+```{r, message = FALSE}
+## Subset:
+txi_counts_df <- txi_counts$counts
+genes_of_interest_df <- subset(txi_counts_df,
+                               row.names(txi_counts_df) %in% genes_of_interest)
+
+genes_of_interest_df_trans <- as.data.frame(t(genes_of_interest_df))
+genes_of_interest_df_trans$status <- as.character(unlist(sample_information$life_stage))
+
+## Remove unscore from status terms:
+genes_of_interest_df_trans$status <- gsub("_", " ", genes_of_interest_df_trans$status)
+```
+
+Generate a basic plot:
+```{r, message = FALSE}
+require(reshape2)
+genes_of_interest_df_melt <- melt(genes_of_interest_df_trans)
+
+## This identifies one gene that needs to be removed:
+genes_of_interest %in% genes_of_interest_df_melt$variable
+genes_of_interest_new <- c(genes_of_interest[1:32], genes_of_interest[34:53])
+
+genes_of_interest_df_melt$variable <- factor(genes_of_interest_df_melt$variable,
+                                                     levels = genes_of_interest_new)
+
+life_stages_plot <- ggplot(data = genes_of_interest_df_melt,
+                           aes(x = variable,
+                               y = value,
+                               color = status),
+                           alpha = 0.8) +
+        geom_point() +
+        ylab("Raw estimated counts") +
+        xlab("Locus ID") +
+        theme_bw() +
+        theme(axis.title = element_text(face = "bold"),
+              legend.position = "bottom",
+                axis.text.x = element_text(angle = 90, hjust = 1)) +
+        scale_color_brewer(palette = "Paired")
+```
+
+Also have a look in the germline and soma:
+
+```{r, message = FALSE}
+## Read in datasets from Lewis:
+load(file = "./results/count_estimates/lewis_txi_count_estimates.Rdata")
+## Subset:
+txi_counts_df <- txi_counts$counts
+genes_of_interest_df <- subset(txi_counts_df,
+                               row.names(txi_counts_df) %in% genes_of_interest)
+
+sample_information <- read.table(file = "./input/kallisto_lewis_temp/01_quantified/sample_information.txt",
+                                 col.names = c("sample", "sex", "tissue"))
+
+genes_of_interest_df_trans <- as.data.frame(t(genes_of_interest_df))
+genes_of_interest_df_trans$tissue <- paste(as.character(unlist(sample_information$sex)),
+                                           "-",
+        as.character(unlist(sample_information$tissue),
+                     sep = ""))
+
+## Remove unscore from status terms:
+genes_of_interest_df_trans$tissue <- gsub("_", " ", genes_of_interest_df_trans$tissue)
+```
+
+Generate a basic plot:
+```{r, message = FALSE}
+require(reshape2)
+genes_of_interest_df_melt <- melt(genes_of_interest_df_trans)
+
+## This identifies one gene that needs to be removed:
+genes_of_interest %in% genes_of_interest_df_melt$variable
+genes_of_interest_new <- c(genes_of_interest[1:32], genes_of_interest[34:53])
+
+genes_of_interest_df_melt$variable <- factor(genes_of_interest_df_melt$variable,
+                                                     levels = genes_of_interest_new)
+
+tissue_plot <- ggplot(data = genes_of_interest_df_melt,
+                      aes(x = variable,
+                          y = value,
+                          color = tissue),
+                      alpha = 0.8) +
+        geom_point() +
+        ylab("Raw estimated counts") +
+        xlab("Locus ID") +
+        theme_bw() +
+        theme(axis.title = element_text(face = "bold"),
+              legend.position = "bottom",
+                axis.text.x = element_text(angle = 90, hjust = 1)) +
+        scale_color_brewer(palette = "Reds")
+```
+
+Generate a combined plot:
+
+```{r, message = FALSE}
+
+
+
+
+
+
+```
