@@ -10,6 +10,8 @@ generates a line plot for a user-defined subset of genes. The output of the scri
 
 ```{r, message = FALSE}
 require(ggplot2)
+require(reshape2)
+require(lintr)
 ```
 
 ## Load input data:
@@ -31,111 +33,79 @@ genes_of_interest <- scan(file = "./data/genes_of_interest.txt",
                           as.character())
 
 ## Read in sample information:
-sample_information <- read.table(file = "./input/kallisto_rna_temp/01_quantified/sample_information.txt",
+sample_information <- read.table(file = "./input/kallisto_rna_temp/worker_male_datasets/sample_information.txt",
                                  col.names = c("sample",
                                                "life_stage",
-                                               "tissue"))
+                                               "tissue",
+                                               "sex"))
 
 ```
+
 Subset gene-level counts for genes of interest:
 
 ```{r, message = FALSE}
-## Subset:
-txi_counts_df <- txi_counts$counts
-genes_of_interest_df <- subset(txi_counts_df,
-                               row.names(txi_counts_df) %in% genes_of_interest)
+## Subset genes of interest:
+stage_txi_counts_df <- stages_txi_counts$counts
+genes_of_interest_df <- subset(stage_txi_counts_df,
+                               row.names(stage_txi_counts_df) %in% genes_of_interest)
 
+## Add annotation for plotting:
 genes_of_interest_df_trans <- as.data.frame(t(genes_of_interest_df))
-genes_of_interest_df_trans$status <- as.character(unlist(sample_information$life_stage))
+genes_of_interest_df_trans$life_stage <- as.character(unlist(sample_information$life_stage))
+genes_of_interest_df_trans$tissue <- as.character(unlist(sample_information$tissue))
+genes_of_interest_df_trans$sex <- as.character(unlist(sample_information$sex))
 
 ## Remove unscore from status terms:
-genes_of_interest_df_trans$status <- gsub("_", " ", genes_of_interest_df_trans$status)
+genes_of_interest_df_trans$life_stage <- gsub("_", " ", genes_of_interest_df_trans$life_stage)
 ```
 
-Generate a basic plot:
+Generate a scatterplot:
+
 ```{r, message = FALSE}
 require(reshape2)
+## Convert dataframe:
 genes_of_interest_df_melt <- melt(genes_of_interest_df_trans)
 
 ## This identifies one gene that needs to be removed:
 genes_of_interest %in% genes_of_interest_df_melt$variable
-genes_of_interest_new <- c(genes_of_interest[1:32], genes_of_interest[34:53])
+genes_of_interest_new <- c(genes_of_interest[1:32],
+                           genes_of_interest[34:53])
 
+## Correct the order of how the genes are plotted:
 genes_of_interest_df_melt$variable <- factor(genes_of_interest_df_melt$variable,
                                                      levels = genes_of_interest_new)
 
+## Generate plot:
 life_stages_plot <- ggplot(data = genes_of_interest_df_melt,
                            aes(x = variable,
-                               y = value,
-                               color = status),
-                           alpha = 0.8) +
-        geom_point() +
-        ylab("Raw estimated counts") +
+                               y = value)) +
+        scale_fill_manual(name = "Life stage",
+                            values = c("Brown",
+                                       "Orange",
+                                       "Grey",
+                                       "Blue")) +
+        geom_point(aes(fill = status),
+                   colour = "black",
+                   pch = 21,
+                   alpha = 0.8,
+                   size = 5) +
+        ylab("Length-scaled TPM") +
         xlab("Locus ID") +
         theme_bw() +
         theme(axis.title = element_text(face = "bold"),
               legend.position = "bottom",
-                axis.text.x = element_text(angle = 90, hjust = 1)) +
-        scale_color_brewer(palette = "Paired")
+                axis.text.x = element_text(angle = 90,
+                                           hjust = 1))
+
+## Save image:
+ggsave(file = "./results/rna_expression_chrom_1.png",
+       height = 10,
+       width = 10)
 ```
 
-Also have a look in the germline and soma:
+Run lintr to check style guide:
 
 ```{r, message = FALSE}
-## Read in datasets from Lewis:
-load(file = "./results/count_estimates/lewis_txi_count_estimates.Rdata")
-## Subset:
-txi_counts_df <- txi_counts$counts
-genes_of_interest_df <- subset(txi_counts_df,
-                               row.names(txi_counts_df) %in% genes_of_interest)
-
-sample_information <- read.table(file = "./input/kallisto_lewis_temp/01_quantified/sample_information.txt",
-                                 col.names = c("sample", "sex", "tissue"))
-
-genes_of_interest_df_trans <- as.data.frame(t(genes_of_interest_df))
-genes_of_interest_df_trans$tissue <- paste(as.character(unlist(sample_information$sex)),
-                                           "-",
-        as.character(unlist(sample_information$tissue),
-                     sep = ""))
-
-## Remove unscore from status terms:
-genes_of_interest_df_trans$tissue <- gsub("_", " ", genes_of_interest_df_trans$tissue)
-```
-
-Generate a basic plot:
-```{r, message = FALSE}
-require(reshape2)
-genes_of_interest_df_melt <- melt(genes_of_interest_df_trans)
-
-## This identifies one gene that needs to be removed:
-genes_of_interest %in% genes_of_interest_df_melt$variable
-genes_of_interest_new <- c(genes_of_interest[1:32], genes_of_interest[34:53])
-
-genes_of_interest_df_melt$variable <- factor(genes_of_interest_df_melt$variable,
-                                                     levels = genes_of_interest_new)
-
-tissue_plot <- ggplot(data = genes_of_interest_df_melt,
-                      aes(x = variable,
-                          y = value,
-                          color = tissue),
-                      alpha = 0.8) +
-        geom_point() +
-        ylab("Raw estimated counts") +
-        xlab("Locus ID") +
-        theme_bw() +
-        theme(axis.title = element_text(face = "bold"),
-              legend.position = "bottom",
-                axis.text.x = element_text(angle = 90, hjust = 1)) +
-        scale_color_brewer(palette = "Reds")
-```
-
-Generate a combined plot:
-
-```{r, message = FALSE}
-
-
-
-
-
-
+## Run lintr:
+lintr::lint(file = "./plot_rna_expression.Rmd")
 ```
