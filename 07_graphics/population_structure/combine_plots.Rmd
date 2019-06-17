@@ -34,6 +34,12 @@ Next step is to load input files (R objects)
 load(file = "./results/map_of_britain.Rdata")
 load(file = "./results/pca_plots.Rdata")
 
+## Correct the font size of axes:
+lat_plot <- lat_plot + theme(axis.text = element_text(size = 10,
+                                          face = "plain"),
+                             axis.title = element_text(size = 15,
+                                           face = "bold"))
+
 ## Combine and plot together:
 ggarrange(britain_map,
           lat_plot,
