@@ -23,6 +23,7 @@ require(ggplot2)
 require(reshape2)
 require(lintr)
 require(ggpubr)
+require(ggrepel)
 ```
 
 ## Load input data:
@@ -69,6 +70,18 @@ data_subset_df <- subset(data_subset,
                          position > region_start &
                                  position < region_end)
 
+## Read in variant to plot by:
+variants <- read.table(file = "./input/plot_snp_distance/gene_of_interests_variants.txt",
+                       col.names = c("chrom",
+                                     "position",
+                                     "specific_variant",
+                                     "general_variant",
+                                     "locus"))
+
+## Add variant and locus information:
+data_subset_df$variant <- variants$general_variant
+data_subset_df$variant <- gsub("_", " ", data_subset_df$variant)
+data_subset_df$locus <- variants$locus
 ```
 
 Generate plot:
@@ -83,27 +96,51 @@ distance_plot <- ggplot(data_subset,
                             y = distance)) +
         xlab("Genomic position (bp)") +
         ylab("Distance between SNPs (bp)") +
-        geom_point(aes(fill = "blue"),
-                   colour = "black",
-                   pch = 21,
+        geom_point(colour = "black",
                    size = 3) +
         geom_point(data = data_subset_df,
-                   aes(fill = "grey"),
+                   aes(fill = variant),
                    colour = "black",
                    pch = 21,
                    size = 3,
                    alpha = 0.8) +
-        scale_fill_manual(name = "status",
+        geom_label_repel(data = data_subset_df,
+                      aes(label = locus),
+                      size = 2) +
+        scale_fill_manual(name = "Variant type",
                           values = c("blue",
-                                     "grey")) +
+                                     "grey",
+                                     "brown",
+                                     "orange",
+                                     "black")) +
         theme_bw() +
-        theme(axis.title.x = element_blank(),
+        theme(axis.title.x = element_text(size = 12,
+                                          face = "bold"),
               axis.title.y = element_text(size = 12,
                                          face = "bold"),
-                axis.text.x = element_blank(),
+                axis.text.x = element_text(size = 10,
+                                           face = "plain"),
               axis.text.y = element_text(size = 10,
                                          face = "plain"),
-              legend.position = "none")
+              legend.position = "top")
+
+## Include a previously generated arrow plot:
+load(file = "./input/arrow_plot/chrom_1_arrow_plot.Rdata")
+
+## plot together:
+ggarrange(arrow_plot,
+          distance_plot,
+          ncol = 1,
+          nrow = 2,
+          labels = c("A", "B"),
+          heights = c(0.75,
+                     3),
+          align = "hv")
+
+## Save to file:
+ggsave(file = "results/plot_of_distance.png",
+       height = 8,
+       width = 12)
 
 ## Generate allele frequency plot:
 allele_freq_plot <- ggplot(data_subset,
@@ -135,25 +172,21 @@ allele_freq_plot <- ggplot(data_subset,
                                          face = "plain"),
               legend.position = "none")
 
-## Include a previously generated arrow plot:
-load(file = "./input/arrow_plot/chrom_1_arrow_plot.Rdata")
-
 ## plot together:
 ggarrange(arrow_plot,
-          distance_plot,
           allele_freq_plot,
           ncol = 1,
-          nrow = 3,
-          labels = c("A", "B", "C"),
-          heights = c(1,
-                     1.8,
-                     2),
+          nrow = 2,
+          labels = c("A", "B"),
+          heights = c(0.75,
+                     3),
           align = "hv")
 
 ## Save to file:
-ggsave(file = "results/plot_of_distance_and_allele_frequencies.png",
+ggsave(file = "results/plot_of_allele_frequencies.png",
        height = 8,
        width = 12)
+
 ```
 
 Run lintr:
