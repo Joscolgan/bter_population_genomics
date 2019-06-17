@@ -1,0 +1,165 @@
+---
+title: "Bombus population genomics"
+output: plot_distance_between_snps.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+This script takes one input file:
+1) A tab-delimited file as input containing four columns:
+- Chromosome name
+- Genomic position (bp)
+- Reference allele frequency (presented as a percentage)
+- Alternate allele frequency (presented as a percentage)
+Using a user-defined genomic region, it parses the region and generates two plots:
+1) The first is a plot of physical distance between consecutive SNPs.
+2) The second is a plot of alternate allele frequencies.
+The script outputs either the two plots individually or generates a combined plot using [ggpubr](http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/).
+
+## Load libraries:
+
+```{r, message = FALSE}
+require(ggplot2)
+require(reshape2)
+require(lintr)
+require(ggpubr)
+```
+
+## Load input data:
+
+```{r, message = FALSE}
+## Read in data:
+data <- read.table(file = "./input/plot_snp_distance/input_for_plot.txt",
+                   col.names = c("chrom",
+                                 "position",
+                                 "ref_freq",
+                                 "alt_freq"))
+```
+
+Subset region of interest:
+
+```{r, message = FALSE}
+## Define genomic positions for region to parse:
+chrom_of_interest <- "NC_015762.1"
+start <- 362267 - 100000
+end <- 560366 + 100000
+
+## Subset region of interest:
+data_subset <- subset(data, chrom == chrom_of_interest &
+                              position > start &
+                              position < end)
+
+## Calculate the distance between consecutive SNPs:
+distance <- vector()
+for (number in 1:nrow(data_subset)){
+        higher_number <- number + 1
+        distance[number] <- data_subset$position[higher_number] -
+                data_subset$position[number]
+}
+distance <- c(0, distance[-length(distance)])
+
+## Add distance to dataframe:
+data_subset$distance <- distance
+
+## Subset of region of interest to highlight:
+region_start <- 362267
+region_end <- 560366
+
+data_subset_df <- subset(data_subset,
+                         position > region_start &
+                                 position < region_end)
+
+```
+
+Generate plot:
+
+```{r, message = FALSE}
+## Turn of scientific notation:
+options(scipen = 999)
+
+## Generate distance plot:
+distance_plot <- ggplot(data_subset,
+                        aes(x = position,
+                            y = distance)) +
+        xlab("Genomic position (bp)") +
+        ylab("Distance between SNPs (bp)") +
+        geom_point(aes(fill = "blue"),
+                   colour = "black",
+                   pch = 21,
+                   size = 3) +
+        geom_point(data = data_subset_df,
+                   aes(fill = "grey"),
+                   colour = "black",
+                   pch = 21,
+                   size = 3,
+                   alpha = 0.8) +
+        scale_fill_manual(name = "status",
+                          values = c("blue",
+                                     "grey")) +
+        theme_bw() +
+        theme(axis.title.x = element_blank(),
+              axis.title.y = element_text(size = 12,
+                                         face = "bold"),
+                axis.text.x = element_blank(),
+              axis.text.y = element_text(size = 10,
+                                         face = "plain"),
+              legend.position = "none")
+
+## Generate allele frequency plot:
+allele_freq_plot <- ggplot(data_subset,
+                        aes(x = position,
+                            y = alt_freq)) +
+        xlab("Genomic position (bp)") +
+        ylab("Frequency of alternate allele") +
+        geom_point(aes(fill = "blue"),
+                   colour = "black",
+                   pch = 21,
+                   size = 3) +
+        geom_point(data = data_subset_df,
+                   aes(fill = "grey"),
+                   colour = "black",
+                   pch = 21,
+                   size = 3,
+                   alpha = 0.8) +
+        scale_fill_manual(name = "status",
+                          values = c("blue",
+                                     "grey")) +
+        theme_bw() +
+        theme(axis.title.x = element_text(size = 12,
+                                         face = "bold"),
+              axis.title.y = element_text(size = 12,
+                                         face = "bold"),
+                axis.text.x = element_text(size = 10,
+                                         face = "plain"),
+              axis.text.y = element_text(size = 10,
+                                         face = "plain"),
+              legend.position = "none")
+
+## Include a previously generated arrow plot:
+load(file = "./input/arrow_plot/chrom_1_arrow_plot.Rdata")
+
+## plot together:
+ggarrange(arrow_plot,
+          distance_plot,
+          allele_freq_plot,
+          ncol = 1,
+          nrow = 3,
+          labels = c("A", "B", "C"),
+          heights = c(1,
+                     1.8,
+                     2),
+          align = "hv")
+
+## Save to file:
+ggsave(file = "results/plot_of_distance_and_allele_frequencies.png",
+       height = 8,
+       width = 12)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./plot_distance_between_snps.Rmd")
+```
+
