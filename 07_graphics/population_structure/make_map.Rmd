@@ -70,13 +70,18 @@ britain_map <- ggplot(data = world) +
                  label = "North Sea",
                  fontface = "italic",
                  color = "grey22",
-                 size = 10) +
+                 size = 8) +
         geom_point(data = data_points,
                    aes(x = Longitude,
                        y = Latitude,
                        fill = Latitude),
-                   shape = 24,
-                   size = 10) +
+                   shape = 21,
+                   size = 5) +
+        geom_label_repel(data = data_points,
+                         aes(x = Longitude,
+                             y = Latitude,
+                             label = site_number_for_plots),
+                         size = 4) +
         coord_sf(xlim = c(-6, 2),
                  ylim = c(57, 50),
                  expand = FALSE) +
@@ -87,9 +92,11 @@ britain_map <- ggplot(data = world) +
         theme(legend.position = "none")
 
 ## Update colour:
-britain_map <- britain_map + 
-               scale_fill_distiller(palette = "Blues") +
-               theme(text = element_text(size = 20))
+britain_map <- britain_map +
+               theme(axis.text = element_text(size = 10,
+                                              face = "plain"),
+                     axis.title = element_text(size = 15,
+                                               face = "bold"))
 ```
 
 Save image to file:
