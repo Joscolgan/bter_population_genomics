@@ -21,7 +21,6 @@ libraries <- c("gdsfmt",
                "SNPRelate",
                "ggplot2",
                "ggpubr",
-               "lintr",
                "reshape2")
 for (lib in libraries) {
     if (require(package = lib, character.only = TRUE)) {
@@ -170,11 +169,13 @@ landuse_plot <- ggplot(tab,
         ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep = "")) +
 #geom_text(size = 6, position = position_jitter(width = 0.04, height = 0.04),
         geom_text(size = 5,
-        aes(label = tab$site_id, color = tab$pop)) +
+        aes(label = tab$site_id,
+            color = tab$pop)) +
         scale_color_manual(values = c("blue", "orange", "red")) +
-              theme(axis.text=element_text(size = 20),
-                    axis.title=element_text(size = 20,
-                                            face = "plain")) +
+        theme(axis.text = element_text(size = 10,
+              face = "plain"),
+              axis.title = element_text(size = 15,
+              face = "bold")) +
                     theme(legend.position = "none")
 ## Plot:
 ggsave(file = landuse_output,
@@ -194,11 +195,14 @@ lat_plot <- ggplot(tab,
             ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep = "")) +
             #geom_text(size = 6, position = position_jitter(width = 0.04, height = 0.04),
             #geom_text(size = 6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$latitude)) +
-            geom_text(size = 5, aes(label=tab$site_id, color=tab$latitude)) +
-            scale_fill_distiller(palette = "Blues") +
-            theme(axis.text = element_text(size = 20),
-            axis.title = element_text(size = 20,
-            face = "plain")) +
+            geom_text(size = 5,
+                     aes(label = tab$site_id,
+                         color = tab$latitude)) +
+#scale_fill_distiller(palette = "Blues") +
+            theme(axis.text = element_text(size = 10,
+                  face = "plain"),
+                  axis.title = element_text(size = 15,
+                  face = "bold")) +
             theme(legend.position = "none")
 
 ## Plot:
