@@ -100,7 +100,7 @@ life_stages_plot <- ggplot(data = genes_of_interest_df_melt,
 ## Save image:
 ggsave(file = "./results/rna_expression_chrom_1.png",
        height = 10,
-       width = 10)
+       width = 12)
 ```
 
 Run lintr to check style guide:
