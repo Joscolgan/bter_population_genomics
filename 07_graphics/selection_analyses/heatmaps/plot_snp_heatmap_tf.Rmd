@@ -5,7 +5,10 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
-
+This script takes a VCF as input and using the software package [SNPRelate](https://bioconductor.org/packages/release/bioc/html/SNPRelate.html) generates a genotype matrix. Using this matrix, the script performs hierarchical clustering before generating a heatmap plot using [ggplot2](https://ggplot2.tidyverse.org/), which displays the reference and alternate alleles that each individual has for a specific genomic region of interest.  
+This script generates two outputs:
+- A heatmap plot saved to file (format can be altered - .png, .pdf, jpeg)  
+- A saved R object for use with a secondary script for generating a combined plot.  
 
 ## Load libraries:
 
@@ -119,12 +122,13 @@ heatmap_plot <- ggplot(dat_new_melted_ordered,
                   ylab("Samples") +
                   xlab("Genomic position (bp)") +
 theme(legend.title = element_text(size = 15),
-        axis.text.y = element_text(size = 6),
+        axis.text.y = element_text(size = 8),
         legend.text = element_text(size = 15),
         plot.title = element_text(size = 15),
         axis.title = element_text(size = 15,
                                 face = "bold"),
-        axis.text.x = element_text(angle = 45,
+        axis.text.x = element_text(size = 8,
+                                   angle = 45,
                                    hjust = 1)) +
         theme(legend.position = "none") +
         scale_x_discrete(breaks = levels(dat_new_melted_ordered$variable)[c(T,
