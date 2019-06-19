@@ -78,14 +78,18 @@ Generate plot of EHH:
 nsl_plot <- ggplot(nsl_input_subset,
                    aes(x = position,
                        y = nsl_score)) +
-                xlab("Genomic coordinates (bp)") +
+                xlab("Genomic position (bp)") +
                 ylab("|nsl| value") +
-                geom_rect(aes(xmin = 1749721,
-                              xmax = 1776527,
+                geom_rect(aes(xmin = 1725000,
+                              xmax = 1800000,
                               ymin = -Inf,
                               ymax = Inf),
                           fill = "light blue",
                           alpha = 0.008) +
+        geom_vline(xintercept = c(1725000,
+                                  1800000),
+                   linetype = "dashed",
+                   colour = "blue") +
         geom_hline(yintercept = c(2.56),
                    linetype = "dashed",
                    colour = "orange") +
@@ -98,21 +102,19 @@ nsl_plot <- ggplot(nsl_input_subset,
                            aes(x = position,
                                y = nsl_score),
                            colour = "blue",
+                           pch = 21,
                            size = 3,
                            alpha = 0.5) +
                 theme_bw() +
-                theme(axis.title.x = element_blank(),
-                      axis.text.x = element_blank(),
-                      axis.ticks.x = element_blank(),
-                      axis.title.y = element_text(size = 12,
-                                                 face = "bold",
-                                                 colour = "black")) +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title.y = element_text(size = 15,
+                                          face = "bold"),
+              axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank()) +
         theme(plot.margin = unit(c(1, 1, 0, 1), "cm"))
-
-nsl_plot <- nsl_plot +
-        theme(axis.text = element_text(size = 12),
-              axis.title = element_text(size = 12,
-                                        face = "bold"))
+        
 ```
 
 Subset genomic region to plot nucleotide diversity:
@@ -134,29 +136,27 @@ nuc_div_plot <- ggplot(nuc_div_subset,
         geom_point(colour = "black",
                    size = 4,
                    alpha = 0.75) +
-        xlab("Genomic coordinates (bp)") +
+        xlab("Genomic position (bp)") +
         ylab("Nucleotide diversity") +
-        geom_vline(xintercept = c(start + 100000,
-                                  end - 100000),
+        geom_vline(xintercept = c(1725000,
+                                  1800000),
                    linetype = "dashed",
                    colour = "blue") +
         geom_hline(yintercept = c(nucdiv_median),
                    linetype = "dashed",
                    colour = "orange") +
-                geom_rect(aes(xmin = 1749721,
-                              xmax = 1776527,
+                geom_rect(aes(xmin = 1725000,
+                              xmax = 1800000,
                       ymin = -Inf,
                       ymax = Inf),
                   fill = "light blue",
                   alpha = 0.008) +
         scale_x_continuous(labels = scales::comma,
                            limits = c(start, end)) +
-        theme_bw()
-
-
-nuc_div_plot <- nuc_div_plot +
-        theme(axis.text = element_text(size = 12),
-              axis.title = element_text(size = 12,
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
                                         face = "bold"))
 ```
 
@@ -173,8 +173,8 @@ Generate combined plots:
 ```{r, message=FALSE}
 ## Generate a combined plot:
 ggarrange(arrow_plot,
-          nsl_plot,
           nuc_div_plot,
+          nsl_plot,
           heatmap_plot,
           nrow = 4,
           ncol = 1,
@@ -182,21 +182,21 @@ ggarrange(arrow_plot,
                      "B",
                      "C",
                      "D"),
-          heights = c(1,
-                     1.8,
+          heights = c(0.7,
                      2,
+                     1.8,
                      3),
           align = "hv")
 
 ## Save:
 ggsave(file = "results/wolbachia_combined_plot.png",
        width = 10,
-       height = 10)
+       height = 12)
 ```
 
 Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "./plot_wolbachia_sweeps_attic.Rmd")
+lintr::lint(file = "./plot_wolbachia_sweeps.Rmd")
 ```
