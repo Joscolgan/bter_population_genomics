@@ -34,9 +34,12 @@ dir.create(path = "./results/figures",
 ```
 
 
-```{r, echo=FALSE}
-## Define input
-input_vcf <- "./input/vcf_input/regions_of_interest/wolbachia_gene_coordinates.snp_positions.recode.vcf"
+```{r, echo = FALSE}
+## Define path to input files:
+input_path <- "./input/vcf_input/regions_of_interest/"
+input_vcf <- paste(input_path,
+                   "wolbachia_gene_coordinates.snp_positions.recode.vcf",
+                   sep = "")
 ## Use the name of input to designate the name for the GDS file format.
 input_vcf_gds <- gsub("recode.vcf",
                       "recode.gds",
@@ -48,7 +51,8 @@ snpgdsVCF2GDS(input_vcf,
 ## Extract genotype information:
 input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
 ## Extract genotype information and generate genotypic matrix:  
-input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile, "genotype"))
+input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
+                                                      "genotype"))
 ## Perform PCA and store output in variable:  
 pca      <- snpgdsPCA(input_vcf_gds_genofile,
                       num.thread = 2,
@@ -70,12 +74,16 @@ Plot heatmap to demonstrate representation of haplotypes within population:
 ## Format change '2' to '1'
 input_vcf_gds_genofile_matrix[input_vcf_gds_genofile_matrix == 2] <- 1
 ## Read in sample names:
-names <- scan("./input/vcf_input/regions_of_interest/sample_names.txt",
+names <- scan(paste(input_path,
+                    "sample_names.txt",
+                    sep = ""),
               as.character())
 ##
 rownames(input_vcf_gds_genofile_matrix) <- names
 ## Read in genomic coordinates:
-positions <- read.table("./input/vcf_input/regions_of_interest/wolbachia_gene_coordinates.snp_positions.txt",
+positions <- read.table(paste(input_path,
+                              "wolbachia_gene_coordinates.snp_positions.txt",
+                              sep = ""),
                         header = FALSE)
 positions_to_plot <- positions$V2
 ## Assign to colnames:
@@ -107,7 +115,6 @@ dat_new_melted_ordered$samples <- factor(dat_new_melted_ordered$samples,
 
 dat_new_melted_ordered$variable <- factor(as.character(dat_new_melted_ordered$variable),
                                           levels = c(unique(as.character(unlist(dat_new_melted_ordered$variable)))))
-                                
 
 ## Plot:
 heatmap_plot <- ggplot(dat_new_melted_ordered,
