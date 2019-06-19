@@ -125,7 +125,7 @@ heatmap_plot <- ggplot(dat_new_melted_ordered,
                   ylab("Samples") +
                   xlab("Genomic coordinates (bp)") +
 theme(legend.title = element_text(size = 15),
-        axis.text.y = element_text(size = 6),
+        axis.text.y = element_text(size = 8),
         legend.text = element_text(size = 15),
         plot.title = element_text(size = 15),
         axis.title = element_text(size = 15,
