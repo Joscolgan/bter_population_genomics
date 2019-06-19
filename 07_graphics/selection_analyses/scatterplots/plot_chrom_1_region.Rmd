@@ -1,9 +1,19 @@
 ---
 title: "Bombus population genomics"
-output: plot_tackykinin_sweep.html
+output: plot_chrom_1_sweep.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
+## Introduction:
+This script takes four tab-delimited files as input:
+1) A file containing absolute nsl scores assigned to each SNP in the British population.
+2) A file containing absolute iHS scores assigned to each SNP in the British population. Both the nsl and iHS scores were calculated by [selscan](https://github.com/szpiech/selscan).
+3) A file containing population-scaled recombination rate as calculaed by [ldhelmet](https://sourceforge.net/projects/ldhelmet/).
+4) A file containing nucleotide diversity estimates for sliding windows of 10kb as calculated by [popgenome](https://cran.r-project.org/web/packages/PopGenome/index.html).
+The input files are used to generate individual scatterplots using [ggplot2](https://ggplot2.tidyverse.org/).
+The script also loads arrow-plots and heatmaps generated as output by other scripts.
+The scripts generates a combined multiple graph using [ggpubr](https://rpkgs.datanovia.com/ggpubr/index.html), which is output to file.
+Code style is checked using [lintr](https://cran.r-project.org/web/packages/lintr/index.html).
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -39,7 +49,7 @@ ihs_data <- read.table(file = "./input/ihs_output/NC_015762.1.ihs.out.100bins.no
                                      "position",
                                      "position",
                                      "ihs_score"))
-recomb_data <- read.table(file = "./input/recombination_rate/NC_015762.1.recode.vcf.ldhelmet.ldhelmet.post.txt.tmp.genetic_map.txt.recomb.txt",
+recomb_data <- read.table(file = "./input/recombination_rate/NC_015762.1.input_for_genetic_map.txt",
                           header = TRUE)
 ## Both nucleotide diversity and Tajima D are in the same input file:
 nuc_div_data <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_10kb.txt",
@@ -53,7 +63,7 @@ This region of interest contains 53 genes.
 ## up and downstream of the gene:
 chrom <- "NC_015762.1"
 start <- 362267 - 100000
-end <- 560366 + 100000
+end <- 566568 + 100000
 ```
 
 Subset the regions of interest:
@@ -65,7 +75,7 @@ nsl_input_subset <- subset(nsl_data,
                             position < end)
 
 ## subset sites above 2.56 to highlight on plot:
-nsl_snps_highlight <- subset(nsl_input_subset, 
+nsl_snps_highlight <- subset(nsl_input_subset,
                             nsl_score > 2.56)
 
 ## Subset ihs values for plotting:
@@ -73,7 +83,7 @@ ihs_input_subset <- subset(ihs_data,
                             position > start &
                             position < end)
 
-ihs_snps_highlight <- subset(ihs_input_subset, 
+ihs_snps_highlight <- subset(ihs_input_subset,
                             ihs_score > 2.89)
 ```
 
@@ -86,7 +96,7 @@ nsl_plot <- ggplot(nsl_input_subset,
                 xlab("Genomic coordinates (bp)") +
                 ylab("|nsl| value") +
                 geom_rect(aes(xmin = 362267,
-                              xmax = 560366,
+                              xmax = 566568,
                               ymin = -Inf,
                               ymax = Inf),
                           fill = "light blue",
@@ -94,92 +104,45 @@ nsl_plot <- ggplot(nsl_input_subset,
         geom_hline(yintercept = c(2.56),
                    linetype = "dashed",
                    colour = "orange") +
+        geom_vline(xintercept = c(start + 100000,
+                                  end - 100000),
+                   linetype = "dashed",
+                   colour = "blue") +
         scale_x_continuous(labels = scales::comma,
                            limits = c(start, end)) +
                 geom_point(colour = "black",
                            size = 3,
                            alpha = 0.5) +
-                geom_point(data = nsl_snps_highlight, 
+                geom_point(data = nsl_snps_highlight,
                            aes(x = position,
                                y = nsl_score),
                            colour = "blue",
+                           pch = 21,
                            size = 3,
-                           alpha = 0.5) +
-                theme_bw() +
-                theme(axis.title.x = element_blank(),
-                      axis.text.x = element_blank(),
-                      axis.ticks.x = element_blank(),
-                      axis.title.y = element_text(size = 15,
-                                                 face = "bold",
-                                                 colour = "black")) +
-        theme(plot.margin = unit(c(1,1,0,1), "cm"))
-```
-
-Generate the ihs plot:
-
-```{r, message = FALSE}
-ihs_plot <- ggplot(ihs_input_subset,
-                   aes(x = position,
-                       y = ihs_score)) +
-                xlab("Genomic coordinates (bp)") +
-                ylab("|ihs| value") +
-                geom_rect(aes(xmin = 362267,
-                              xmax = 560366,
-                              ymin = -Inf,
-                              ymax = Inf),
-                          fill = "light blue",
-                          alpha = 0.008) +
-        geom_hline(yintercept = c(2.89),
-                   linetype = "dashed",
-                   colour = "orange") +
-        scale_x_continuous(labels = scales::comma,
-                           limits = c(start, end)) +
-                geom_point(colour = "black",
-                           size = 3,
-                           alpha = 0.5) +
-                geom_point(data = ihs_snps_highlight, 
-                           aes(x = position,
-                               y = ihs_score),
-                           colour = "blue",
-                           size = 3,
-                           alpha = 0.5) +
-                theme_bw() +
-                theme(axis.title.x = element_blank(),
-                      axis.text.x = element_blank(),
-                      axis.ticks.x = element_blank(),
-                      axis.title.y = element_text(size = 15,
-                                                 face = "bold",
-                                                 colour = "black")) +
-        theme(plot.margin = unit(c(1,1,0,1), "cm"))
-```
-
-Plot recombination rate for the region:
-
-```{r, message = FALSE}
-## Subset region of genome to plot:
-recomb_data_subset <- subset(recomb_data,
-                            start.pos > start &
-                            start.pos < end)
-
-recomb_plot <- ggplot(recomb_data_subset,
-                      aes(x = start.pos,
-                          y = recomb.rate.perbp)) +
-               geom_point()
+                           alpha = 0.8) +
+               theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title.y = element_text(size = 15,
+                                          face = "bold"),
+              axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank())
 ```
 
 Subset genomic region to plot nucleotide diversity:
 
 ```{r, message = FALSE}
-## 
+## Subset region:
 nuc_div_subset <- subset(nuc_div_data,
-                         chrom=="NC_015762.1" &
+                         chrom == "NC_015762.1" &
                          start > 362267 - 100000 &
-                         end < 560366 + 100000)
+                         end < 566568 + 100000)
 
 ## Calculate mean nucleotide diversity:
 nucdiv_median <- median(nuc_div_data$nuc_diversity)
 
-
+## Generate plot:
 nuc_div_plot <- ggplot(nuc_div_subset,
                        aes(x = midpoint,
                            y = nuc_diversity)) +
@@ -196,17 +159,16 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                    linetype = "dashed",
                    colour = "orange") +
                 geom_rect(aes(xmin = 362267,
-                              xmax = 560366,
+                              xmax = 566568,
                       ymin = -Inf,
                       ymax = Inf),
                   fill = "light blue",
                   alpha = 0.008) +
         scale_x_continuous(labels = scales::comma,
                            limits = c(start, end)) +
-        theme_bw() 
-
-nuc_div_plot <- nuc_div_plot +
-        theme(axis.text = element_text(size = 15),
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
               axis.title = element_text(size = 15,
                                         face = "bold"))
 ```
@@ -224,8 +186,8 @@ Generate combined plots:
 ```{r, message=FALSE}
 ## Generate a combined plot:
 ggarrange(arrow_plot,
-          nsl_plot,
           nuc_div_plot,
+          nsl_plot,
           heatmap_plot,
           nrow = 4,
           ncol = 1,
@@ -234,7 +196,7 @@ ggarrange(arrow_plot,
                      "C",
                      "D"),
           heights = c(1,
-                     1.8,
+                     2.2,
                      2,
                      3),
           align = "hv")
@@ -242,6 +204,13 @@ ggarrange(arrow_plot,
 ## Save:
 ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
        width = 10,
-       height = 10)
+       height = 12)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./plot_chrom_1_region.Rmd")
 
 ```
