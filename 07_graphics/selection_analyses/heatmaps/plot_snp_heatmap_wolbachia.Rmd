@@ -122,17 +122,19 @@ heatmap_plot <- ggplot(dat_new_melted_ordered,
                   geom_tile(aes(fill = value), colour = "white") +
                   scale_fill_gradient(low = "black", high = "grey") +
                   ylab("Samples") +
-                  xlab("Genomic coordinates (bp)") +
+                  xlab("Genomic position (bp)") +
 theme(legend.title = element_text(size = 15),
-        axis.text.y = element_text(size = 6),
+        axis.text.y = element_text(size = 8),
         legend.text = element_text(size = 15),
         plot.title = element_text(size = 15),
         axis.title = element_text(size = 15,
                                 face = "bold"),
-        axis.text.x = element_text(angle = 45,
+        axis.text.x = element_text(size = 8,
+                                   angle = 45,
                                    hjust = 1)) +
         theme(legend.position = "none") +
-        scale_x_discrete(breaks = levels(dat_new_melted_ordered$variable)[c(T, rep(F, 9))])
+        scale_x_discrete(breaks = levels(dat_new_melted_ordered$variable)[c(T,
+                                                                            rep(F, 20))])
 ```
 
 Save the heatmap to output:
