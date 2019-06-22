@@ -277,17 +277,25 @@ save(data = gene_histogram,
      file = "./results/histogram_gene_by_nsl_score.Rdata")
 ```
 
+Read in Manhattan plot to generate a multiple image plot:
+```{r, message = FALSE}
+## Load manhattan plot:
+load(file = "./results/manhattan_plot.RData")
+```
+
 Combine the SNP and gene histograms:
 
 ```{r, message = FALSE}
 ## Generate a combined plot:
-ggarrange(variant_histogram,
+ggarrange(manhattan_plot,
+          ggarrange(variant_histogram,
           gene_histogram,
-          labels = c("A", "B"),
-          ncol = 1,
+          labels = c("B", "C"),
+          ncol = 2,
+          common.legend = TRUE),
+          labels = c("A"),
           nrow = 2,
           align = "hv")
-
 ## Save to file:
 ggsave(file = "./results/combined_test_plot.png",
        height = 10,
