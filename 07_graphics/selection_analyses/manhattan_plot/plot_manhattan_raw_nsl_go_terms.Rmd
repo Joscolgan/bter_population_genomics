@@ -23,7 +23,7 @@ for (lib in libraries) {
         } else {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
-                biocLite(pkgs = lib)
+                chbiocLite(pkgs = lib)
                 library(lib, character.only = TRUE )
         }
 }
@@ -153,6 +153,10 @@ manhattan_plot <- ggplot(don, aes(x = BPcum,
       axis.title = element_text(size = 15,
                               face = "bold"))
 
+## Save the plot as an R object:
+save(manhattan_plot,
+     file = "./results/manhattan_plot.RData")
+
 ## Save the plot to file:
 ggsave(file = "./manhattan_plot.png",
        height = 8,
@@ -164,5 +168,4 @@ Run lintr:
 ```{r, message = FALSE}
 ## Run lintr:
 lintr::lint(file = "./plot_manhattan_raw_nsl_go_terms.Rmd")
-
 ```
