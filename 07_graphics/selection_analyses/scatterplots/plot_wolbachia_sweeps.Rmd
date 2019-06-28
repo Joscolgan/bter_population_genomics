@@ -138,10 +138,11 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                    alpha = 0.75) +
         xlab("Genomic position (bp)") +
         ylab("Nucleotide diversity") +
-        geom_vline(xintercept = c(1725000,
-                                  1800000),
-                   linetype = "dashed",
-                   colour = "blue") +
+        geom_line() +
+        #geom_vline(xintercept = c(1725000,
+        #                          1800000),
+        #           linetype = "dashed",
+        #           colour = "blue") +
         geom_hline(yintercept = c(nucdiv_median),
                    linetype = "dashed",
                    colour = "orange") +
@@ -183,15 +184,15 @@ ggarrange(arrow_plot,
                      "C",
                      "D"),
           heights = c(0.7,
-                     2,
-                     1.8,
-                     3),
+                     1.5,
+                     1.5,
+                     1.5),
           align = "hv")
 
 ## Save:
 ggsave(file = "results/wolbachia_combined_plot.png",
        width = 10,
-       height = 12)
+       height = 7)
 ```
 
 Run lintr:
