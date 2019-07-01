@@ -91,18 +91,18 @@ colnames(input_vcf_gds_genofile_matrix) <- positions_to_plot
 
 ## Convert into dataframe:
 input_vcf_gds_genofile_matrix_subset_df <- as.data.frame(input_vcf_gds_genofile_matrix)
-dat <- input_vcf_gds_genofile_matrix
+dat <- input_vcf_gds_genofile_matrix[, c(100:200)]
 row_order <- hclust(dist(dat))$order # clustering
-col_order <- hclust(dist(t(dat)))$order
-dat_new <- dat[row_order, col_order] # re-order matrix accoring to clustering
+col_order <- hclust(dist(t(input_vcf_gds_genofile_matrix_subset_df)))$order
+dat_new <- input_vcf_gds_genofile_matrix_subset_df[row_order, ] # re-order matrix accoring to clustering
 dat_new_df <- as.data.frame(dat_new)
 dat_new_df$samples <- rownames(dat_new_df)
 ## Convert heatmap2 into ggplot2 format:
 ## Reshape:
-dat_new_melted <- melt(dat_new,
+dat_new_melted <- melt(dat_new_df,
                        id.vars = "samples")
 
-dat_new_melted_ordered <- dat_new_melted[order(dat_new_melted$X2), ]
+dat_new_melted_ordered <- dat_new_melted[order(dat_new_melted$variable), ]
 
 ## Rename:
 colnames(dat_new_melted_ordered) <- c("samples",
