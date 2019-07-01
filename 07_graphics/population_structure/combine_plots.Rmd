@@ -34,11 +34,38 @@ Next step is to load input files (R objects)
 load(file = "./results/map_of_britain.Rdata")
 load(file = "./results/pca_plots.Rdata")
 
-## Correct the font size of axes:
-lat_plot <- lat_plot + theme(axis.text = element_text(size = 10,
-                                          face = "plain"),
-                             axis.title = element_text(size = 15,
-                                           face = "bold"))
+## Read in data:
+data_points <- read.csv(file = "input/input_for_maps.csv",
+                        header = TRUE)
+
+## Update latitude plot with points:
+lat_plot <- ggplot(tab,
+            aes(x = tab$EV1,
+                y = tab$EV2)) +
+            xlab(paste("Principal component",
+                       1,
+                       " ",
+                       "(",
+                       round(pc_percent[1],
+                             2), "%", ")",
+                       sep = "")) +
+            ylab(paste("Principal component",
+                       2,
+                       " ",
+                       "(",
+                       round(pc_percent[2],
+                             2), "%", ")",
+                       sep = "")) +
+        geom_point(size = 5,
+                aes(color = latitude,
+                    fill = latitude)) +
+        geom_label_repel(aes(label = site_id)) +
+        theme_minimal() +
+            theme(axis.text = element_text(size = 10,
+                  face = "plain"),
+                  axis.title = element_text(size = 15,
+                  face = "bold")) +
+            theme(legend.position = "none")
 
 ## Combine and plot together:
 ggarrange(britain_map,
@@ -50,7 +77,13 @@ ggarrange(britain_map,
           labels = c("A", "B"))
 
 ## Save combined plot to file:
-ggsave(file = "./results/combined_plot.png",
+ggsave(file = "./results/figure_1_map_plus_pca.png",
+        width = 15,
+        height = 10)
+
+## Save as PDF:
+ggsave(file = "./results/figure_1_map_plus_pca.pdf",
+       dpi = 600,
         width = 15,
         height = 10)
 ```
@@ -59,5 +92,4 @@ Run lintr:
 
 ```{r, message = FALSE}
 lintr::lint(file = "./combine_plots.Rmd")
-
 ```
