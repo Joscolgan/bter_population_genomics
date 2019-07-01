@@ -57,24 +57,27 @@ arrow_plot <- ggplot(data, aes(xmin = as.numeric(start),
                               label = gene,
                               forward = direction)) +
         xlim(start_position, end_position) +
-  geom_gene_arrow(arrowhead_width = grid::unit(10, "mm"),
-                  arrowhead_height = grid::unit(10, "mm"),
-                  arrow_body_height = grid::unit(8, "mm")) +
+  #geom_gene_arrow(arrowhead_width = grid::unit(10, "mm"),
+  #                arrowhead_height = grid::unit(10, "mm"),
+  #                arrow_body_height = grid::unit(8, "mm")) +
+        geom_gene_arrow(arrowhead_height = unit(3, "mm"), arrowhead_width = unit(1, "mm")) +
+
   geom_gene_label(align = "left",
                   min.size = 6) +
   facet_wrap(~ molecule,
              scales = "free",
              nrow = 1,
              shrink = FALSE) +
-  scale_fill_brewer(palette = "Set3") +
+  scale_fill_brewer(palette = "blues") +
         theme_genes() +
         theme(axis.title.y = element_blank(),
-              axis.text.y = element_text(size = 10,
-                                          face = "bold"),
+              axis.text.y = element_blank(),
               axis.title.x = element_blank(),
               axis.text.x = element_blank(),
               axis.ticks.x = element_blank(),
               legend.position = "none")
+
+## Remove forward and revese
 
 ## Combine plot:
 save(arrow_plot,
