@@ -54,8 +54,8 @@ NC_015771.1 (1755259..1765481)
 ## Assign the coordinates of the gene to variables plus 100kb 
 ## up and downstream of the gene:
 chrom <- "NC_015771.1"
-start <- 1749721 - 100000
-end <- 1776527 + 100000
+start <- 1749721 - 200000
+end <- 1776527 + 200000
 ```
 
 Subset the regions of interest:
@@ -75,9 +75,12 @@ Generate plot of EHH:
 
 ```{r, message = FALSE}
 ## Plot nsl values:
+nsl_input_subset$high_nsl <- nsl_input_subset$nsl_score > 2.56
 nsl_plot <- ggplot(nsl_input_subset,
                    aes(x = position,
-                       y = nsl_score)) +
+                       y = nsl_score,
+                       color = high_nsl,
+                       fill = high_nsl)) +
                 xlab("Genomic position (bp)") +
                 ylab("|nsl| value") +
                 geom_rect(aes(xmin = 1725000,
@@ -85,36 +88,27 @@ nsl_plot <- ggplot(nsl_input_subset,
                               ymin = -Inf,
                               ymax = Inf),
                           fill = "light blue",
-                          alpha = 0.008) +
-        geom_vline(xintercept = c(1725000,
-                                  1800000),
-                   linetype = "dashed",
-                   colour = "blue") +
+                          alpha = 0.008,
+                          color = NA) +
         geom_hline(yintercept = c(2.56),
                    linetype = "dashed",
                    colour = "orange") +
         scale_x_continuous(labels = scales::comma,
                            limits = c(start, end)) +
-                geom_point(colour = "black",
-                           size = 3,
+                geom_point(size = 3,
                            alpha = 0.5) +
-                geom_point(data = nsl_snps_highlight,
-                           aes(x = position,
-                               y = nsl_score),
-                           colour = "blue",
-                           pch = 21,
-                           size = 3,
-                           alpha = 0.5) +
-                theme_bw() +
+                theme_bw() + scale_color_manual(values = c("black", "blue")) +
         theme(axis.text = element_text(size = 10,
                                        face = "plain"),
               axis.title.y = element_text(size = 15,
                                           face = "bold"),
               axis.title.x = element_blank(),
               axis.text.x = element_blank(),
-              axis.ticks.x = element_blank()) +
-        theme(plot.margin = unit(c(1, 1, 0, 1), "cm"))
-        
+              legend.position = "none",
+              axis.ticks.x = element_blank()) 
+        #theme(plot.margin = unit(c(1, 1, 0, 1), "cm"))
+
+nsl_plot
 ```
 
 Subset genomic region to plot nucleotide diversity:
@@ -123,8 +117,8 @@ Subset genomic region to plot nucleotide diversity:
 ## Subset genomic region of interest:
 nuc_div_subset <- subset(nuc_div_data,
                          chrom == "NC_015771.1" &
-                         start > 1655259 &
-                         end < 1865481)
+                         start > 1549721 &
+                         end < 1976527)
 
 ## Calculate mean nucleotide diversity:
 nucdiv_median <- median(nuc_div_data$nuc_diversity)
@@ -134,11 +128,10 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                        aes(x = midpoint,
                            y = nuc_diversity)) +
         geom_point(colour = "black",
-                   size = 4,
+                   size = 0,
                    alpha = 0.75) +
         xlab("Genomic position (bp)") +
         ylab("Nucleotide diversity") +
-        geom_line() +
         #geom_vline(xintercept = c(1725000,
         #                          1800000),
         #           linetype = "dashed",
@@ -152,13 +145,16 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                       ymax = Inf),
                   fill = "light blue",
                   alpha = 0.008) +
+                geom_line() +
         scale_x_continuous(labels = scales::comma,
-                           limits = c(start, end)) +
+                           limits = c(start, end),
+                           position = "top") +
         theme_bw() +
         theme(axis.text = element_text(size = 10,
                                        face = "plain"),
               axis.title = element_text(size = 15,
-                                        face = "bold"))
+                                        face = "bold"),
+              axis.title.x = element_blank())
 ```
 
 Read in SNP genotype matrix:
@@ -190,7 +186,7 @@ ggarrange(arrow_plot,
           align = "hv")
 
 ## Save:
-ggsave(file = "results/wolbachia_combined_plot.png",
+ggsave(file = "results/wolbachia_combined_plot_test.png",
        width = 10,
        height = 7)
 ```
