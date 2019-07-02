@@ -18,7 +18,7 @@ Code style is checked using [lintr](https://cran.r-project.org/web/packages/lint
 ```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("ggplot2",
-               "SNPRelate", 
+               "SNPRelate",
                "reshape2",
                "ggpubr",
                "stringr",
@@ -114,12 +114,6 @@ nsl_plot <- ggplot(nsl_input_subset,
         geom_hline(yintercept = c(2.56),
                    linetype = "dashed",
                    colour = "orange") +
-        geom_vline(xintercept = c(start + 100000,
-                                  end - 100000),
-                   linetype = "dashed",
-                   colour = "blue") +
-        scale_x_continuous(labels = scales::comma,
-                           limits = c(start, end)) +
                 geom_point(colour = "black",
                            size = 3,
                            alpha = 0.5) +
@@ -157,14 +151,11 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                        aes(x = midpoint,
                            y = nuc_diversity)) +
         geom_point(colour = "black",
-                   size = 4,
+                   size = 0,
                    alpha = 0.75) +
+        geom_line() +
         xlab("Genomic coordinates (bp)") +
         ylab("Nucleotide diversity") +
-        geom_vline(xintercept = c(start + 100000,
-                                  end - 100000),
-                   linetype = "dashed",
-                   colour = "blue") +
         geom_hline(yintercept = c(nucdiv_median),
                    linetype = "dashed",
                    colour = "orange") +
@@ -175,12 +166,14 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                   fill = "light blue",
                   alpha = 0.008) +
         scale_x_continuous(labels = scales::comma,
-                           limits = c(start, end)) +
+                           limits = c(start, end),
+                           position = "top") +
         theme_bw() +
         theme(axis.text = element_text(size = 10,
                                        face = "plain"),
               axis.title = element_text(size = 15,
-                                        face = "bold"))
+                                        face = "bold"),
+              axis.title.x = element_blank())
 ```
 
 Plot nucleotide diversity across 100kb chunks:
@@ -228,16 +221,16 @@ ggarrange(arrow_plot,
                      "B",
                      "C",
                      "D"),
-          heights = c(1,
-                     2.2,
-                     2,
-                     3),
+          heights = c(0.7,
+                     1.5,
+                     1.5,
+                     1.5),
           align = "hv")
 
 ## Save:
 ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
        width = 10,
-       height = 12)
+       height = 8)
 ```
 
 Run lintr:
@@ -245,5 +238,4 @@ Run lintr:
 ```{r, message = FALSE}
 ## Run lintr:
 lintr::lint(file = "./plot_chrom_1_region.Rmd")
-
 ```
