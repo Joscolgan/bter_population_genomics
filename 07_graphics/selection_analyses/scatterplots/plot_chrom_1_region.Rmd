@@ -183,19 +183,18 @@ Plot nucleotide diversity across 100kb chunks:
 nuc_div_data_100kb$is_low <- nuc_div_data_100kb$seg_sites <= 20
 
 ## Plot 100kb chunks:
-ggplot(data = nuc_div_data_100kb) +
+region_histo_plot <- ggplot(data = nuc_div_data_100kb) +
         geom_histogram(aes(x = seg_sites,
                            fill = is_low),
                        bins = 100) +
         xlab("Number of segregating sites") +
-        ylab("Genomic regions") +
         theme_bw() +
         theme(legend.position = "none",
               axis.title = element_text(size = 15,
                                         face = "bold"),
               axis.text = element_text(size = 10,
                                        face = "plain")) +
-        scale_fill_manual(values = c("grey",
+        scale_fill_manual(values = c("orange",
                                      "blue"))
 ```
 
@@ -230,6 +229,36 @@ ggarrange(arrow_plot,
 ## Save:
 ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
        width = 10,
+       height = 8)
+```
+
+Alternative plot:
+
+```{r, message = FALSE}
+## Generate a combined plot:
+ggarrange(region_histo_plot,
+          labels = c("A"),
+          ggarrange(arrow_plot,
+          nuc_div_plot,
+          nsl_plot,
+          heatmap_plot,
+          nrow = 4,
+          ncol = 1,
+          labels = c("B",
+                     "C",
+                     "D",
+                     "E"),
+          heights = c(0.7,
+                     1.5,
+                     1.5,
+                     1.5),
+          align = "hv"),
+          ncol = 2,
+          nrow = 1)
+
+## Save:
+ggsave(file = "results/large_sweep_chrom_one_combined_plot_alt.png",
+       width = 12,
        height = 8)
 ```
 
