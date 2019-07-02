@@ -52,8 +52,18 @@ ihs_data <- read.table(file = "./input/ihs_output/NC_015762.1.ihs.out.100bins.no
 recomb_data <- read.table(file = "./input/recombination_rate/NC_015762.1.input_for_genetic_map.txt",
                           header = TRUE)
 ## Both nucleotide diversity and Tajima D are in the same input file:
-nuc_div_data <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_10kb.txt",
+nuc_div_data_10kb <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_10kb.txt",
                            header = TRUE)
+
+nuc_div_data_100kb <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_100kb_filtered.txt",
+                           col.names = c("chrom",
+                                         "start",
+                                         "end",
+                                         "nucleotide_diversity",
+                                         "tajima_d",
+                                         "seg_sites",
+                                         "midpoint"))
+
 ```
 
 This region of interest contains 53 genes.
@@ -134,13 +144,13 @@ Subset genomic region to plot nucleotide diversity:
 
 ```{r, message = FALSE}
 ## Subset region:
-nuc_div_subset <- subset(nuc_div_data,
+nuc_div_subset <- subset(nuc_div_data_10kb,
                          chrom == "NC_015762.1" &
                          start > 362267 - 100000 &
                          end < 566568 + 100000)
 
 ## Calculate mean nucleotide diversity:
-nucdiv_median <- median(nuc_div_data$nuc_diversity)
+nucdiv_median <- median(nuc_div_data_10kb$nuc_diversity)
 
 ## Generate plot:
 nuc_div_plot <- ggplot(nuc_div_subset,
@@ -171,6 +181,29 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                                        face = "plain"),
               axis.title = element_text(size = 15,
                                         face = "bold"))
+```
+
+Plot nucleotide diversity across 100kb chunks:
+
+```{r, message = FALSE}
+## Add column containing information on status:
+nuc_div_data_100kb$is_low <- nuc_div_data_100kb$seg_sites <= 20
+
+## Plot 100kb chunks:
+ggplot(data = nuc_div_data_100kb) +
+        geom_histogram(aes(x = seg_sites,
+                           fill = is_low),
+                       bins = 100) +
+        xlab("Number of segregating sites") +
+        ylab("Genomic regions") +
+        theme_bw() +
+        theme(legend.position = "none",
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain")) +
+        scale_fill_manual(values = c("grey",
+                                     "blue"))
 ```
 
 Load previously generated arrow plot:
