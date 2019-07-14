@@ -48,5 +48,10 @@ ggarrange(manhattan_plot,
 ## Save image:
 ggsave(file = "results/figures/combined_manhattan.png",
        height = 10,
-       width = 10)
+       width = 12)
+```
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./make_combined_manhattan_plot.Rmd")
 ```
