@@ -230,6 +230,10 @@ ggarrange(arrow_plot,
 ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
        width = 10,
        height = 8)
+
+## Save as an R object:
+save(nuc_div_plot,
+     file = "./results/large_sweep_chrom_one_combined_plot.Rdata")
 ```
 
 Alternative plot:
