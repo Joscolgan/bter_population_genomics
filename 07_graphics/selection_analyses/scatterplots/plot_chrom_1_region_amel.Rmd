@@ -1,0 +1,227 @@
+---
+title: "Bombus population genomics"
+output: plot_chrom_1_sweep.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+This script takes four tab-delimited files as input:
+1) A file containing absolute nsl scores assigned to each SNP in the British population.
+2) A file containing absolute iHS scores assigned to each SNP in the British population. Both the nsl and iHS scores were calculated by [selscan](https://github.com/szpiech/selscan).
+3) A file containing population-scaled recombination rate as calculaed by [ldhelmet](https://sourceforge.net/projects/ldhelmet/).
+4) A file containing nucleotide diversity estimates for sliding windows of 10kb as calculated by [popgenome](https://cran.r-project.org/web/packages/PopGenome/index.html).
+The input files are used to generate individual scatterplots using [ggplot2](https://ggplot2.tidyverse.org/).
+The script also loads arrow-plots and heatmaps generated as output by other scripts.
+The scripts generates a combined multiple graph using [ggpubr](https://rpkgs.datanovia.com/ggpubr/index.html), which is output to file.
+Code style is checked using [lintr](https://cran.r-project.org/web/packages/lintr/index.html).
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("ggplot2",
+               "SNPRelate",
+               "reshape2",
+               "ggpubr",
+               "stringr",
+               "gggenes")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+```
+
+This script plots nsl score, ihs score, population-scaled recombination rate, nucleotide diversity and Tajima's D estimates.
+
+```{r, message = FALSE}
+## Both nucleotide diversity and Tajima D are in the same input file:
+nuc_div_data_10kb_apis <- read.table(file = "./vcf/chroms/apis_all_chrom_10kb_genome_wide.txt",
+                           header = TRUE)
+```
+
+Plot nucleotide diversity across the chromosome:
+
+```{r, message = FALSE}
+## Plot scatterplot:
+ggplot(data = nuc_div_data_10kb_apis,
+       aes(y = nuc_diversity,
+           x = midpoint)) +
+        geom_point()
+
+## Plot Tajima's D:
+ggplot(data = nuc_div_data_10kb_apis,
+       aes(y = tajima_d,
+           x = midpoint)) +
+        geom_point()
+```
+
+This region of interest contains 53 genes.
+
+```{r, message=FALSE}
+## Assign the coordinates of the gene to variables plus 100kb 
+## up and downstream of the gene:
+chrom <- "NC_037638.1"
+region_one_start <- 20537332 - 100000
+region_one_end <- 20625795 + 100000
+
+region_two_start <- 24977996 - 100000 
+region_two_end <- 25136877 + 100000
+```
+
+Subset genomic region to plot nucleotide diversity:
+
+```{r, message = FALSE}
+## Subset region:
+nuc_div_subset_one <- subset(nuc_div_data_10kb_apis,
+                         chrom == "NC_037638.1" &
+                         start > region_one_start &
+                         end < region_one_end)
+
+nuc_div_subset_two <- subset(nuc_div_data_10kb_apis,
+                         chrom == "NC_037638.1" &
+                         start > region_two_start &
+                         end < region_two_end)
+
+## Calculate mean nucleotide diversity:
+nucdiv_median <- median(nuc_div_data_10kb_apis$nuc_diversity)
+
+## Generate plot:
+region_one_plot <- ggplot(nuc_div_subset_one,
+                       aes(x = midpoint,
+                           y = nuc_diversity)) +
+        geom_point(colour = "black",
+                   size = 0,
+                   alpha = 0.75) +
+        geom_line() +
+        xlab("Genomic coordinates (bp)") +
+        ylab("Nucleotide diversity") +
+        geom_hline(yintercept = c(nucdiv_median),
+                   linetype = "dashed",
+                   colour = "orange") +
+        geom_rect(aes(xmin = 20537332,
+                      xmax = 20625795,
+                      ymin = -Inf,
+                      ymax = Inf),
+                  fill = "yellow",
+                  alpha = 0.008) +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(region_one_start,
+                                      region_one_end),
+                           position = "top") +
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.title.x = element_blank())
+
+
+region_two_plot <- ggplot(nuc_div_subset_two,
+                       aes(x = midpoint,
+                           y = nuc_diversity)) +
+        geom_point(colour = "black",
+                   size = 0,
+                   alpha = 0.75) +
+        geom_line() +
+        xlab("Genomic coordinates (bp)") +
+        ylab("Nucleotide diversity") +
+        geom_hline(yintercept = c(nucdiv_median),
+                   linetype = "dashed",
+                   colour = "orange") +
+        geom_rect(aes(xmin = 24977996,
+                      xmax = 25136877,
+                      ymin = -Inf,
+                      ymax = Inf),
+                  fill = "yellow",
+                  alpha = 0.008) +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(region_two_start,
+                                      region_two_end),
+                           position = "top") +
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.title.x = element_blank())
+
+```
+
+Generate combined plot:
+```{r, message = FALSE}
+ggarrange(region_one_plot,
+          region_two_plot,
+          labels = c("A", "B"),
+          ncol = 2,
+          nrow = 1)
+```
+
+Load previously generated arrow plot:
+
+```{r, message = FALSE}
+## Load arrow plot:
+load(file = "./input_for_plot/results/plots/chrom_1_arrow_plot_region_1.Rdata")
+load(file = "./input_for_plot/results/plots/chrom_1_arrow_plot_region_2.Rdata")
+load(file = "./results/plots/chrom_1_snp_plot.Rdata")
+```
+
+Generate combined plots:
+
+```{r, message=FALSE}
+## Generate a combined plot:
+ggarrange(arrow_plot_one,
+          region_one_plot,
+          nrow = 2,
+          ncol = 1,
+          labels = c("A",
+                     "B"),
+          heights = c(0.7,
+                     1.5),
+          align = "hv")
+
+## Save:
+ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
+       width = 10,
+       height = 8)
+```
+
+Alternative plot:
+
+```{r, message = FALSE}
+## Generate a combined plot:
+ggarrange(region_histo_plot,
+          labels = c("A"),
+          ggarrange(arrow_plot,
+          nuc_div_plot,
+          nsl_plot,
+          heatmap_plot,
+          nrow = 4,
+          ncol = 1,
+          labels = c("B",
+                     "C",
+                     "D",
+                     "E"),
+          heights = c(0.7,
+                     1.5,
+                     1.5,
+                     1.5),
+          align = "hv"),
+          ncol = 2,
+          nrow = 1)
+
+## Save:
+ggsave(file = "results/large_sweep_chrom_one_combined_plot_alt.png",
+       width = 12,
+       height = 8)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./plot_chrom_1_region.Rmd")
+```
