@@ -65,7 +65,8 @@ Subset regions with significant high or low nucleotide diversity:
 ```{r, message = FALSE}
 ## Subset significant terms:
 data_nd_sig <- subset(data, nd_pvalue2sided < 0.05)
-data_td_sig <- subset(data, td_pvalue2sided < 0.05)
+data_td_sig <- subset(data, tajima_d > 0 &
+                      td_pvalue2sided < 0.05)
 
 ## Save output:
 save(data, file = "./results/zscore_normalised.Rdata")
