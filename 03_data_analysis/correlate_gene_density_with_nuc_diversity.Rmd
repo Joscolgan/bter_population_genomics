@@ -1,0 +1,111 @@
+---
+title: "Bombus population genomics"
+output: correlate_gene_density_with_nuc_diversity.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+# Introduction:
+This script takes in an tab-delimited input file containing two columns:
+1) Number of segregating sites.
+2) Number of genes present.
+The output is a scatterplot.  
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("lintr",
+               "ggplot2",
+               "ggpubr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+## Create output folder:
+dir.create(path = "./results/figures",
+           recursive = TRUE)
+```
+
+Read in input file:
+
+```{r, message = FALSE}
+data <- read.table(file = "./results/input_for_r.txt",
+                   col.names = c("chrom",
+                                 "start",
+                                 "end",
+                                 "nuc_div",
+                                 "gene_density",
+                                 "intronic_snps"))
+
+## Subset region of interest:
+region_of_interest <- subset(data,
+                             chrom == "NC_015762.1" &
+                                     start > 250000 &
+                                     end < 650000)
+
+## Check correlation:
+cor.test(x = data$gene_density,
+         y = data$nuc_div,
+         method = "pearson")
+
+cor.test(x = data$gene_density,
+         y = data$intronic_snps,
+         method = "pearson")
+
+## Plot:
+gene_density <- ggplot(data = data,
+       aes(x = gene_density,
+           y = nuc_div)) +
+        geom_point(color = "light blue",
+                   alpha = 0.5) +
+        geom_point(data = region_of_interest,
+                   aes(x = gene_density,
+                       y = nuc_div),
+                   color = "black",
+                   alpha = 0.8)  +
+        ylab("Nucleotide diversity (Pi/100kb)") +
+        xlab("Gene Density (Genes/100kb)") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+
+## Add correlation coeffiecient to plot:
+gene_density <- gene_density + stat_cor(method = "pearson",
+                        label.x = 15,
+                        label.y = 0.0035)
+
+intron_density <- ggplot(data = data,
+       aes(x = gene_density,
+           y = intronic_snps)) +
+        geom_point(color = "light blue",
+                   alpha = 0.5) +
+        geom_point(data = region_of_interest,
+                   aes(x = gene_density,
+                       y = intronic_snps),
+                   color = "black",
+                   alpha = 0.8)  +
+        ylab("Intronic SNP Density (SNPs/100kb)") +
+        xlab("Gene Density (Genes/100kb)") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+
+## Add correlation coeffiecient to plot:
+intron_density <- intron_density + stat_cor(method = "pearson",
+                        label.x = 15,
+                        label.y = 1000)
+```
+
+Run lintr:
+```{r, message = FALSE}
+lintr::lint(file = "./correlate_gene_density_with_nuc_diversity.Rmd")
+```
