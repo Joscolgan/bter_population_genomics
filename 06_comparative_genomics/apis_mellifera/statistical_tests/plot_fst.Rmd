@@ -1,0 +1,269 @@
+```{r, message = FALSE}
+#Load libraries; install from scratch if needed
+libraries <- c("ggplot2",
+"PopGenome",
+"stringr",
+"lintr",
+"reshape2",
+"ggpubr")
+for (lib in libraries) {
+    if (require(package = lib, character.only = TRUE)) {
+        print("Successful")
+    } else {
+        print("Installing")
+        source("https://bioconductor.org/biocLite.R")
+        library(lib, character.only = TRUE )
+    }
+}
+```
+
+Read in input file:
+
+```{r, message = FALSE}
+input <- read.table(file = "./other_population_comparisons.txt",
+                    header = FALSE)
+colnames(input) <- c("chrom",
+                     "position",
+                     "african_vs_asian",
+                     "african_vs_eEurope",
+                     "african_vs_wEurope",
+                     "asia_vs_eEurope",
+                     "asia_vs_wEurope",
+                     "eEurope_vs_wEurope")
+
+## Subset genomic regions of interest:
+region_1 <- subset(input,
+                   position > (20537332 - 100000) &
+                           position < (20625795 + 100000))
+region_1$chrom <- NULL
+
+region_1_melt <- melt(region_1, id.vars = "position")
+
+## plot:
+region_1_plot <- ggplot(data = region_1_melt,
+       aes(x = position,
+           y = value,
+           alpha = 0.5,
+           color = variable)) +
+        geom_point()
+
+
+## Subset genomic regions of interest:
+region_2 <- subset(input,
+                   position > (25036596 - 100000) &
+                           position < (25143386 + 100000))
+region_2$chrom <- NULL
+
+region_2_melt <- melt(region_2, id.vars = "position")
+
+## plot:
+african_vs_asian_region_1 <- ggplot(data = region_1,
+       aes(x = position,
+           y = african_vs_asian,
+           alpha = 0.5,
+           color = african_vs_asian)) +
+        geom_point() +
+        xlab("Genomic position (bp)") +
+        ylab("Fst") +
+        labs(colour = "Fst") +
+        ggtitle("A vs O: Region 1") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+
+
+african_vs_asian_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = african_vs_asian,
+           alpha = 0.5,
+           color = african_vs_asian)) +
+        geom_point() +
+        xlab("Genomic position (bp)") +
+        ylab("Fst") +
+        labs(colour = "Fst") +
+        ggtitle("A vs O: Region 2") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+
+african_vs_eEurope_region_1 <- ggplot(data = region_1,
+       aes(x = position,
+           y = african_vs_eEurope,
+           alpha = 0.5,
+           color = african_vs_eEurope)) +
+        geom_point() +
+        xlab("Genomic position (bp)") +
+        ylab("Fst") +
+        labs(colour = "Fst") +
+        ggtitle("A vs M: Region 1") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+
+african_vs_eEurope_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = african_vs_eEurope,
+           alpha = 0.5,
+           color = african_vs_eEurope)) +
+        geom_point() +
+        xlab("Genomic position (bp)") +
+        ylab("Fst") +
+        labs(colour = "Fst") +
+        ggtitle("A vs M: Region 2") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+
+african_vs_wEurope_region_1 <- ggplot(data = region_1,
+       aes(x = position,
+           y = african_vs_wEurope,
+           alpha = 0.5,
+           color = african_vs_wEurope)) +
+        geom_point() +
+        xlab("Genomic position (bp)") +
+        ylab("Fst") +
+        labs(colour = "Fst") +
+        ggtitle("A vs C: Region 1") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+
+african_vs_wEurope_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = african_vs_wEurope,
+           alpha = 0.5,
+           color = african_vs_wEurope)) +
+        geom_point() +
+        xlab("Genomic position (bp)") +
+        ylab("Fst") +
+        labs(colour = "Fst") +
+        ggtitle("A vs C: Region 2") +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain"))
+```
+
+Plot together:
+
+```{r, message = FALSE}
+ggarrange(african_vs_asian_region_1,
+          african_vs_eEurope_region_1,
+          african_vs_wEurope_region_1,
+          african_vs_asian_region_2,
+          african_vs_eEurope_region_2,
+          african_vs_wEurope_region_2,
+          nrow = 2,
+          ncol = 3,
+          align = "hv",
+          common.legend = TRUE)
+
+## Save:
+ggsave(file = "./results/plot_fst.png",
+       height = 10,
+       width = 15)
+```
+
+
+african_vs_eEurope_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = african_vs_eEurope,
+           alpha = 0.5,
+           color = african_vs_eEurope)) +
+        geom_point()
+
+african_vs_wEurope_region_1 <- ggplot(data = region_1,
+       aes(x = position,
+           y = african_vs_wEurope,
+           alpha = 0.5,
+           color = african_vs_wEurope)) +
+        geom_point()
+
+african_vs_wEurope_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = african_vs_wEurope,
+           alpha = 0.5,
+           color = african_vs_wEurope)) +
+        geom_point()
+
+asia_vs_eEurope_region_1 <- ggplot(data = region_1,
+       aes(x = position,
+           y = asia_vs_eEurope,
+           alpha = 0.5,
+           color = asia_vs_eEurope)) +
+        geom_point()
+
+asia_vs_eEurope_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = asia_vs_eEurope,
+           alpha = 0.5,
+           color = asia_vs_eEurope)) +
+        geom_point()
+
+asia_vs_wEurope_region_1 <- ggplot(data = region_1,
+       aes(x = position,
+           y = asia_vs_wEurope,
+           alpha = 0.5,
+           color = asia_vs_wEurope)) +
+        geom_point()
+
+asia_vs_wEurope_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = asia_vs_wEurope,
+           alpha = 0.5,
+           color = asia_vs_wEurope)) +
+        geom_point()
+
+eEurope_vs_wEurope_region_1 <- ggplot(data = region_1,
+       aes(x = position,
+           y = eEurope_vs_wEurope,
+           alpha = 0.5,
+           color = eEurope_vs_wEurope)) +
+        geom_point()
+
+eEurope_vs_wEurope_region_2 <- ggplot(data = region_2,
+       aes(x = position,
+           y = eEurope_vs_wEurope,
+           alpha = 0.5,
+           color = eEurope_vs_wEurope)) +
+        geom_point()
+```
+
+Plot together:
+
+```{r, message = FALSE}
+ggarrange(african_vs_asian_region_1,
+          african_vs_asian_region_2,
+          african_vs_eEurope_region_1,
+          african_vs_eEurope_region_2,
+          african_vs_wEurope_region_1,
+          african_vs_wEurope_region_2,
+          asia_vs_eEurope_region_1,
+          asia_vs_eEurope_region_2,
+          asia_vs_wEurope_region_1,
+          asia_vs_wEurope_region_2,
+          eEurope_vs_wEurope_region_1,
+          eEurope_vs_wEurope_region_2,
+          align = "hv",
+          nrow = 6,
+          ncol = 2,
+          common.legend = TRUE)
+
+## Save:
+ggsave(file = "./results/plot_fst_other_populations.png",
+       height = 10,
+       width = 8)
+
+```
+
