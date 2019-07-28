@@ -1,0 +1,121 @@
+---
+title: "Bombus population genomics"
+output: interpro_enrichment_nsl.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+This script takes a tab-delimited text file as input containing four columns:
+1. Gene ID (locus)
+2. |iHS| score
+3. |nSL| score
+4. List of interproscan domains, which was obtained from ensembl.
+This scripts performs a wilcoxon test to identify interpro functional domains significantly enriched in genes with high |nsl| values.
+This script outputs a tab-delimited text file containing two columns:
+1. interpro domain accession ID
+2. Bonferroni-adjusted p-value
+This output file can be used to plot a barchart of enriched interpro domains.
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("lintr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+```
+
+Read in input files:
+
+```{r}
+## Read data from file:
+nsl_interpro_database <- read.table("./input/nsl/interproscan_input_plus_nsl_top_scores_per_gene.txt",
+                                    col.names = c("locus",
+                                                  "nsl",
+                                                  "length",
+                                                  "interpros"),
+                                    fill = TRUE)
+
+## Ensure nsl and ihs scores are numeric:
+nsl_interpro_database$nsl <- as.numeric(as.character(nsl_interpro_database$nsl))
+# we suppose that all values of 0 mean NO nsl was calculated
+nsl_interpro_database_nozero <- na.omit(nsl_interpro_database)
+nsl_interpro_database$nsl_corrected <- nsl_interpro_database$nsl/as.numeric(unlist(nsl_interpro_database$length))
+
+## Ensure sorted by nsl:
+nsl_interpro_database_nozero <- nsl_interpro_database[order(nsl_interpro_database$nsl_corrected), ]
+
+## Read in a file containing interproscans at least found in 20 genes:
+interpros_to_check <- read.table("input/database/interproscan_of_interest_input_for_wilcoxon.n20.txt")$V1
+
+wilcox_pvalues <- rep(NA,
+               times = length(interpros_to_check))
+names(wilcox_pvalues) <- interpros_to_check
+
+ks_pvalues <- rep(NA,
+               times = length(interpros_to_check))
+names(ks_pvalues) <- interpros_to_check
+
+## For each interpro compare present in genes with high nsl values against
+## genes with low nsl values:
+for (current_interpro in interpros_to_check) {
+        print(paste("testing", current_interpro))
+        nsls_with_interpro <- subset(nsl_interpro_database_nozero,
+                                     subset = grepl(pattern = current_interpro,
+                                                    x = interpros))$nsl_corrected
+        nsls_without_interpro <- subset(nsl_interpro_database_nozero,
+                                        subset = !grepl(pattern = current_interpro,
+                                                        x = interpros))$nsl_corrected
+        wilcox_result <- wilcox.test(x = nsls_with_interpro,
+                                     y = nsls_without_interpro)
+        ks_result <- ks.test(x = nsls_with_interpro,
+                                     y = nsls_without_interpro)
+        wilcox_pvalues[current_interpro] <- wilcox_result$p.value
+        ks_pvalues[current_interpro] <- ks_result$p.value
+}
+
+## Adjust p values for multiple testing:
+wilcox_pvalues_adjust <- p.adjust(wilcox_pvalues,
+                           method = "bonferroni")
+ks_pvalues_adjust <- p.adjust(ks_pvalues,
+                           method = "bonferroni")
+
+## Convert to dataframe:
+pvalues_adjust_df <- cbind(as.data.frame(wilcox_pvalues_adjust),
+                           as.data.frame(ks_pvalues_adjust))
+pvalues_adjust_df$ipr_domain <- rownames(pvalues_adjust_df)
+
+## Subset significant terms:
+nrow(subset(pvalues_adjust_df,
+            wilcox_pvalues_adjust < 0.05 &
+                    wilcox_pvalues_adjust > 0))
+pvalues_adjust_sig <- subset(pvalues_adjust_df,
+                             wilcox_pvalues_adjust < 0.05)
+
+## Explore correlation of values for Wilcoxon and KS tests:
+cor.test(pvalues_adjust_df$wilcox_pvalues_adjust,
+         pvalues_adjust_df$ks_pvalues_adjust)
+
+pvalues_adjust_sig <- pvalues_adjust_sig[order(pvalues_adjust_sig$wilcox_pvalues_adjust), ]
+
+## Write to output:
+write.table(pvalues_adjust_sig,
+      file = "./results/signficiant_ipr_domains_length_corrected.txt",
+      row.names = FALSE,
+      col.names = TRUE,
+      sep = "\t",
+      quote = FALSE)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Run lintr
+lintr::lint("./interpro_enrichment_nsl.Rmd")
+```
