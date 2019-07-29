@@ -1,0 +1,8 @@
+module load mafft
+module load raxml
+
+mafft --auto input/putative_orthologues_ensembl.faa > results/orthologues_ensembl.afa
+
+raxmlHPC-SSE3 -f a -# 20 -m PROTGAMMAAUTO -p 12345 -x 12345 -s results/orthologues_ensembl.afa -n orthologues_ensembl.tree
+mafft --auto input/putative_homologues_refseq.faa > results/orthologues_refseq.afa
+raxmlHPC-SSE3 -f a -# 100 -m PROTGAMMAAUTO -p 12345 -x 12345 -s results/orthologues_refseq.afa -n orthologues_refseq.tree
