@@ -1,0 +1,75 @@
+---
+title: "plot_phylogenetic_tree"
+author: "JoeColgan"
+date: "11 July 2018"
+output: html_document
+---
+
+The purpose of this script is to take a newick-aligned dataset of protein sequences and plot the phylogeny. 
+
+## Load libraries:
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("tidyverse",
+               "ggtree",
+               "rphylopic",
+               "ggplot2",
+               "EBImage")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+## Create output directory:
+dir.create(path = "./plot")
+```
+
+Read in input data in newick format.
+Generate plot and save to file.
+
+```{r}
+## Read newick alignment file in and store as variable:
+tree <- read.tree("./input/wolbachia_bitscore_300_phyml_output_newick.txt")
+
+## A preliminary tree to check internal nodes
+ggtree(tree) + geom_text2(aes(subset = !isTip,
+                              label = node),
+                          hjust = -.3) + geom_tiplab()
+
+tree <- groupClade(tree, .node = 44)
+
+## Plot phylogenetic tree:
+phylo_tree <- ggtree(tree, aes(color = group,
+                               linetype = group)) +
+        xlim(0, 2.5) +
+        geom_tiplab(size = 4,
+                    color = "black",
+                    offset = 0.03) +
+        geom_label2(aes(subset = !isTip,
+                        label = label),
+                    size = 3,
+                    color = "darkred",
+                    alpha = 1) +
+        geom_hilight(node = 52,
+                     fill = "yellow",
+                     alpha = 0.5) +
+        theme_tree2("white") +
+        scale_color_continuous(low = "grey",
+                               high = "grey",
+                               name = "Branch length (my)")
+
+## Plot:
+plot(phylo_tree) + guides(fill = FALSE)
+```
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "./plot_phylogenetic_tree.Rmd")
+```
+
