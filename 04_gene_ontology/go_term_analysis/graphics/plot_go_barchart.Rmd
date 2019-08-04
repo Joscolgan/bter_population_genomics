@@ -120,7 +120,7 @@ combined_terms_plot
 
 ## Save picture:
 ggsave(file = "results/figures/combined_go_terms_barchart.png",
-       height = 14,
+       height = 16,
        width = 14)
 
 ## Save as R object:
