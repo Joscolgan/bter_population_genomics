@@ -35,14 +35,15 @@ distribution of gene locations in the region of interest. It also loads a SNP he
 
 ```{r, message = FALSE}
 ## Read in data:
-nsl_input <- "./input/nsl_output/NC_015771.1.nsl.out.100bins.norm.abs.bed.tmp"
+nsl_input <- "./input/nsl/input_for_r.txt"
 nsl_data <- read.table(file = nsl_input,
                        col.names = c("chrom",
                                      "position",
-                                     "position",
-                                     "nsl_score"))
+                                     "nsl_score",
+                                     "annotation",
+                                     "locus"))
 ## Both nucleotide diversity and Tajima D are in the same input file:
-nuc_div_input <- "./input/nucleotide_diversity_output/bter_all_chrom_10kb.txt"
+nuc_div_input <- "./input/nuc_div/bter_all_chrom_10kb.txt"
 nuc_div_data <- read.table(file = nuc_div_input,
                            header = TRUE)
 ```
@@ -50,10 +51,10 @@ nuc_div_data <- read.table(file = nuc_div_input,
 The gene of interest is an uncharacterised gene (LOC105666162), which codes for proteins with sequence similarity to proteins coded for by Wolbachia-like bacteria. The gene is located on chromosome 11:
 NC_015771.1 (1755259..1765481)
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 ## Assign the coordinates of the gene to variables plus 100kb 
 ## up and downstream of the gene:
-chrom <- "NC_015771.1"
+chromosome <- "NC_015771.1"
 start <- 1749721 - 200000
 end <- 1776527 + 200000
 ```
@@ -63,6 +64,7 @@ Subset the regions of interest:
 ```{r, message=FALSE}
 ## Subset nsl values for plotting:
 nsl_input_subset <- subset(nsl_data,
+                           chrom == chromosome &
                             position > start &
                             position < end)
 
@@ -108,7 +110,6 @@ nsl_plot <- ggplot(nsl_input_subset,
               axis.ticks.x = element_blank()) 
         #theme(plot.margin = unit(c(1, 1, 0, 1), "cm"))
 
-nsl_plot
 ```
 
 Subset genomic region to plot nucleotide diversity:
@@ -188,7 +189,7 @@ ggarrange(arrow_plot,
 ## Save:
 ggsave(file = "results/wolbachia_combined_plot_test.png",
        width = 10,
-       height = 7)
+       height = 8)
 ```
 
 Run lintr:
