@@ -39,31 +39,18 @@ This script plots nsl score, ihs score, population-scaled recombination rate, nu
 
 ```{r, message = FALSE}
 ## Read in data:
-nsl_data <- read.table(file = "./input/nsl_output/NC_015762.1.nsl.out.100bins.norm.abs.bed.tmp",
+nsl_data <- read.table(file = "./input/nsl/combined_all_nsl_annotated_snps_n46_snp_positions.annotated.txt",
                        col.names = c("chrom",
                                      "position",
-                                     "position",
-                                     "nsl_score"))
-ihs_data <- read.table(file = "./input/ihs_output/NC_015762.1.ihs.out.100bins.norm.abs.bed.tmp",
-                       col.names = c("chrom",
-                                     "position",
-                                     "position",
-                                     "ihs_score"))
-recomb_data <- read.table(file = "./input/recombination_rate/NC_015762.1.input_for_genetic_map.txt",
-                          header = TRUE)
+                                     "nsl_score",
+                                     "annotation"))
+
 ## Both nucleotide diversity and Tajima D are in the same input file:
-nuc_div_data_10kb <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_10kb.txt",
-                           header = TRUE)
+nuc_div_data_10kb <- read.table(file = "./input/nuc_div/bter_all_chrom_10kb.txt",
+                                header = TRUE)
 
-nuc_div_data_100kb <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_100kb_filtered.txt",
-                           col.names = c("chrom",
-                                         "start",
-                                         "end",
-                                         "nucleotide_diversity",
-                                         "tajima_d",
-                                         "seg_sites",
-                                         "midpoint"))
-
+nuc_div_data_100kb <- read.table(file = "./input/nuc_div/bter_all_chrom_100kb.txt",
+                                 header = TRUE)
 ```
 
 This region of interest contains 53 genes.
@@ -72,8 +59,8 @@ This region of interest contains 53 genes.
 ## Assign the coordinates of the gene to variables plus 100kb 
 ## up and downstream of the gene:
 chrom <- "NC_015762.1"
-start <- 362267 - 100000
-end <- 566568 + 100000
+start_position <- 362267 - 100000
+end_position <- 566568 + 100000
 ```
 
 Subset the regions of interest:
@@ -81,20 +68,13 @@ Subset the regions of interest:
 ```{r, message=FALSE}
 ## Subset nsl values for plotting:
 nsl_input_subset <- subset(nsl_data,
-                            position > start &
-                            position < end)
+                           chrom == "NC_015762.1" &
+                            position > start_position &
+                            position < end_position)
 
 ## subset sites above 2.56 to highlight on plot:
 nsl_snps_highlight <- subset(nsl_input_subset,
                             nsl_score > 2.56)
-
-## Subset ihs values for plotting:
-ihs_input_subset <- subset(ihs_data,
-                            position > start &
-                            position < end)
-
-ihs_snps_highlight <- subset(ihs_input_subset,
-                            ihs_score > 2.89)
 ```
 
 Generate plot of EHH:
@@ -210,30 +190,35 @@ Generate combined plots:
 
 ```{r, message=FALSE}
 ## Generate a combined plot:
-ggarrange(arrow_plot,
+ggarrange(region_histo_plot,
+        ggarrange(arrow_plot,
           nuc_div_plot,
           nsl_plot,
           heatmap_plot,
           nrow = 4,
           ncol = 1,
-          labels = c("A",
-                     "B",
+          labels = c("B",
                      "C",
-                     "D"),
+                     "D",
+                     "E"),
           heights = c(0.7,
                      1.5,
                      1.5,
                      1.5),
-          align = "hv")
+          align = "hv"),
+        ncol = 2,
+        nrow = 1,
+        labels = c("A"),
+        align = "hv")
 
 ## Save:
-ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
+ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot.png",
        width = 10,
        height = 8)
 
 ## Save as an R object:
 save(nuc_div_plot,
-     file = "./results/large_sweep_chrom_one_combined_plot.Rdata")
+     file = "./results/plots/large_sweep_chrom_one_combined_plot.Rdata")
 ```
 
 Alternative plot:
@@ -253,17 +238,19 @@ ggarrange(region_histo_plot,
                      "D",
                      "E"),
           heights = c(0.7,
-                     1.5,
-                     1.5,
-                     1.5),
+                     1.6,
+                     1.6,
+                     2.0),
           align = "hv"),
           ncol = 2,
-          nrow = 1)
+          nrow = 1,
+          widths = c(0.8, 
+                     1.2))
 
 ## Save:
-ggsave(file = "results/large_sweep_chrom_one_combined_plot_alt.png",
+ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot_alt.png",
        width = 12,
-       height = 8)
+       height = 10)
 ```
 
 Run lintr:
