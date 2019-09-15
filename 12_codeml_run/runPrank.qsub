@@ -1,0 +1,12 @@
+#!/bin/bash
+#$ -cwd                     # Run the code from the current directory
+#$ -V                       # Export environment to job
+#$ -j y                     # Merge the standard output and standard error
+#$ -l h_rt=2:00:00         # Limit each task to 24 hrs
+#$ -t 1-2409
+## Provide fasta.list populated with CDS sequences all five species per gene 
+echo $SGE_TASK_ID
+module load prank
+INPUT_FASTA=$(sed -n "${SGE_TASK_ID}p" fasta.list)
+prank -d=$INPUT_FASTA -o=$INPUT_FASTA -showtree -codon +F
+echo "done"
