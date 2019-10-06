@@ -1,5 +1,7 @@
 # brit_pop_colgan_et_al_2019
-Scripts used for Colgan et al. (2019) selection within bumblebees  
+This repository contains scripts used for the population genomics analyses outlined the manuscript:   
+__Signatures of ongoing selection in response to environmental pressures in a wild population of the buff-tailed bumblebee__
+
 
 The present repository contains scripts for:  
 - The quality assessment and filtering of raw Illumina FASTQ data (data_analysis/)  
