@@ -1,0 +1,34 @@
+
+
+```{r, message = TRUE}
+## Read in input:
+region_of_interest_df <- read.table(file = "./input/region_of_interest.txt",
+                                    col.names = c("chrom",
+                                                  "left_snp",
+                                                  "right_snp",
+                                                  "rho"))
+
+genome_wide_df <- read.table(file = "./input/genome_wide_pop_scaled_recombination_rates.txt",
+                                    col.names = c("chrom",
+                                                  "left_snp",
+                                                  "right_snp",
+                                                  "rho"))
+```
+
+Comparison of recombination rates:
+
+```{r, message = FALSE}
+## First, comparison of means:
+summary(region_of_interest_df$rho)
+summary(genome_wide_df$rho)
+
+mean(genome_wide_df$rho) / mean(region_of_interest_df$rho)
+
+## Comparison of mean population-scaled recombination rates:
+t.test(region_of_interest_df$rho,
+       genome_wide_df$rho)
+
+## Identify SNPs in top 1% of lowest values:
+quantile(genome_wide_df$rho, 0.01)
+
+```
