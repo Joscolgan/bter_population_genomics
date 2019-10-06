@@ -84,7 +84,7 @@ nsl_plot <- ggplot(nsl_input_subset,
                        color = high_nsl,
                        fill = high_nsl)) +
                 xlab("Genomic position (bp)") +
-                ylab("|nsl| value") +
+                ylab("|nsl| score") +
                 geom_rect(aes(xmin = 1725000,
                               xmax = 1800000,
                               ymin = -Inf,
@@ -124,7 +124,7 @@ nuc_div_subset <- subset(nuc_div_data,
 ## Calculate mean nucleotide diversity:
 nucdiv_median <- median(nuc_div_data$nuc_diversity)
 
-
+## Generate plot:
 nuc_div_plot <- ggplot(nuc_div_subset,
                        aes(x = midpoint,
                            y = nuc_diversity)) +
@@ -133,10 +133,6 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                    alpha = 0.75) +
         xlab("Genomic position (bp)") +
         ylab("Nucleotide diversity") +
-        #geom_vline(xintercept = c(1725000,
-        #                          1800000),
-        #           linetype = "dashed",
-        #           colour = "blue") +
         geom_hline(yintercept = c(nucdiv_median),
                    linetype = "dashed",
                    colour = "orange") +
