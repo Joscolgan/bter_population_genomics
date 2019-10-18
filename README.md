@@ -1,7 +1,7 @@
 ## Context & Citation:  
 This repository contains scripts used for the population genomics analyses outlined the manuscript:   
 __Signatures of ongoing selection in response to environmental pressures in a wild population of the buff-tailed bumblebee__
-Colgan TJ, Arce AN, Gill RJ, Ramos Rodrigues A, Kanteh Abdoulie, Li L, Chittka L, Wurm Y.  
+Colgan TJ, Arce AN, Gill RJ, Ramos Rodrigues A, Kanteh A, Li L, Chittka L, Wurm Y.  
 
 The present repository contains scripts for:  
 - The quality assessment and filtering of raw Illumina FASTQ data (data_analysis/)  
