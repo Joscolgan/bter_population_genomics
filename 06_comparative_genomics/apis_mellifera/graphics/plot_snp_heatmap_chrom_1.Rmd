@@ -36,9 +36,9 @@ dir.create(path = "./results/figures",
 
 ```{r, message = FALSE}
 ## Define input:
-input_path <- "./input_for_plot/vcf/"
+input_path <- "./filtered_vcf/"
 input_vcf <- paste(input_path,
-                   "region_1_snp_positions.txt.recode.vcf",
+                   "amel_region_1.recode.vcf",
                    sep = "")
 ## Use the name of input to designate the name for the GDS file format.
 input_vcf_gds <- gsub("recode.vcf",
@@ -72,9 +72,10 @@ snpgdsClose(input_vcf_gds_genofile)
 
 ```{r}
 ## Format change '2' to '1'
+#input_vcf_gds_genofile_matrix[input_vcf_gds_genofile_matrix == 2] <- 1
 ## Read in sample names:
 names <- scan(paste(input_path,
-                    "sample_list.txt",
+                    "sample_names.txt",
                     sep = ""),
               as.character())
 
@@ -82,7 +83,7 @@ names <- scan(paste(input_path,
 rownames(input_vcf_gds_genofile_matrix) <- names
 ## Read in genomic coordinates:
 positions <- read.table(paste(input_path,
-                              "region_1_snp_positions.txt",
+                              "amel_region_1_snp_positions.txt",
                               sep = ""),
                         header = FALSE)
 positions_to_plot <- positions$V2
@@ -117,7 +118,7 @@ dat_new_melted_ordered$variable <- factor(as.character(dat_new_melted_ordered$va
                                           levels = c(unique(as.character(unlist(dat_new_melted_ordered$variable)))))
                                 
 ## Plot:
-heatmap_plot_one <- ggplot(dat_new_melted_ordered,
+heatmap_plot <- ggplot(dat_new_melted_ordered,
                        aes(variable, samples)) +
                   geom_tile(aes(fill = value), colour = "white") +
                   scale_fill_gradient(low = "black", high = "grey") +
@@ -132,8 +133,8 @@ theme(legend.title = element_text(size = 15),
         axis.text.x = element_text(angle = 45,
                                    hjust = 1)) +
         theme(legend.position = "none") +
-                scale_x_discrete(breaks = levels(dat_new_melted_ordered$variable)[c(T,
-                                                                            rep(F, 20))])
+        scale_x_discrete(breaks = levels(dat_new_melted_ordered$variable)[c(T,
+                                                                            rep(F, 9))])
 
 ## Output plot:
 ggsave(file = "./results/figures/snp_heatmap_region_1.png",
@@ -141,116 +142,7 @@ ggsave(file = "./results/figures/snp_heatmap_region_1.png",
        width = 10)
 ```
 
-Plot the second graph:
-
-```{r, message = FALSE}
-## Define input:
-input_path <- "./input_for_plot/vcf/"
-input_vcf <- paste(input_path,
-                   "region_2_snp_positions.txt.recode.vcf",
-                   sep = "")
-## Use the name of input to designate the name for the GDS file format.
-input_vcf_gds <- gsub("recode.vcf",
-                      "recode.gds",
-                      input_vcf)
-## Reformat VCF into GDS format
-snpgdsVCF2GDS(input_vcf,
-              input_vcf_gds,
-              method = "biallelic.only")
-## Extract genotype information:
-input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
-## Extract genotype information and generate genotypic matrix:  
-input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
-                                                      "genotype"))
-## Perform PCA and store output in variable:  
-pca      <- snpgdsPCA(input_vcf_gds_genofile,
-                      num.thread = 2,
-                      autosome.only = FALSE)
-## Calculate percentages for principal components:  
-pc_percent      <- pca$varprop * 100
-## Print rounded up percentages:  
-print(round(pc_percent, 2))
-## Extract sample names from input:  
-sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
-                                       "sample.id"))
-## Print to console:
-snpgdsClose(input_vcf_gds_genofile)
-```
-
-4) Plot heatmap to demonstrate representation of haplotypes within population:
-
-```{r, message = FALSE}
-## Format change '2' to '1'
-## Read in sample names:
-names <- scan(paste(input_path,
-                    "sample_list.txt",
-                    sep = ""),
-              as.character())
-
-## Update row names:
-rownames(input_vcf_gds_genofile_matrix) <- names
-## Read in genomic coordinates:
-positions <- read.table(paste(input_path,
-                              "region_2_snp_positions.txt",
-                              sep = ""),
-                        header = FALSE)
-positions_to_plot <- positions$V2
-## Assign to colnames:
-colnames(input_vcf_gds_genofile_matrix) <- positions_to_plot
-
-## Convert into dataframe:
-input_vcf_gds_genofile_matrix_subset_df <- as.data.frame(input_vcf_gds_genofile_matrix)
-dat <- input_vcf_gds_genofile_matrix[, c(1500:2500)]
-row_order <- hclust(dist(dat))$order # clustering
-col_order <- hclust(dist(t(dat)))$order
-dat_new <- dat[row_order, col_order] # re-order matrix accoring to clustering
-dat_new_df <- as.data.frame(dat_new)
-dat_new_df$samples <- rownames(dat_new_df)
-## Convert heatmap2 into ggplot2 format:
-## Reshape:
-dat_new_melted <- melt(dat_new,
-                       id.vars = "samples")
-
-dat_new_melted_ordered <- dat_new_melted[order(dat_new_melted$X2), ]
-
-## Rename:
-colnames(dat_new_melted_ordered) <- c("samples",
-                                      "variable",
-                                      "value")
-
-## Adjust levels:
-dat_new_melted_ordered$samples <- factor(dat_new_melted_ordered$samples,
-                                 levels = c(unique(as.character(unlist(dat_new_melted_ordered$samples)))))
-
-dat_new_melted_ordered$variable <- factor(as.character(dat_new_melted_ordered$variable),
-                                          levels = c(unique(as.character(unlist(dat_new_melted_ordered$variable)))))
-                                
-## Plot:
-heatmap_plot_two <- ggplot(dat_new_melted_ordered,
-                       aes(variable, samples)) +
-                  geom_tile(aes(fill = value), colour = "white") +
-                  scale_fill_gradient2(low = "red",
-                                       mid = "white",
-                                       high = "blue") +
-                  ylab("Samples") +
-                  xlab("Genomic coordinates (bp)") +
-theme(legend.title = element_text(size = 15),
-        axis.text.y = element_text(size = 8),
-        legend.text = element_text(size = 15),
-        plot.title = element_text(size = 15),
-        axis.title = element_text(size = 15,
-                                face = "bold"),
-        axis.text.x = element_text(angle = 45,
-                                   hjust = 1)) +
-        theme(legend.position = "none") +
-                scale_x_discrete(breaks = levels(dat_new_melted_ordered$variable)[c(T,
-                                                                            rep(F, 20))])
-
-## Save the heatmap to output:
-ggsave(file = "./results/figures/snp_heatmap_region_2.png",
-       height = 10,
-       width = 10)
-```
+Save the heatmap to output:
 
 ```{r, message = FALSE}
 ## Save:
