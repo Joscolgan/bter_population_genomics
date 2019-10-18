@@ -194,11 +194,12 @@ region_one_plot <- ggplot(combined_nd_melt,
               axis.title = element_text(size = 15,
                                         face = "bold"),
               axis.title.x = element_blank(),
-              legend.position = "bottom",
-              legend.title = element_text(size = 10,
-                                        face = "bold"),
-              legend.text = element_text(size = 10,
-                                        face = "plain")
+                legend.text = element_text(size = 6,
+                                         face = "plain"),
+              legend.title = element_text(size = 6,
+                                          face = "bold"),
+              legend.justification = c(1.1, 1.1),
+              legend.position = c(1, 1)
 )
 
 region_two_plot <- ggplot(combined_nd_melt,
@@ -214,7 +215,6 @@ region_two_plot <- ggplot(combined_nd_melt,
         geom_hline(yintercept = c(nucdiv_median),
                    linetype = "dashed",
                    colour = "orange") +
-        geom_vline(xintercept = 25028539) +
         geom_rect(xmin = 25036596,
                       xmax = 25143386,
                       ymin = -Inf,
@@ -239,13 +239,7 @@ region_two_plot <- ggplot(combined_nd_melt,
               axis.title.x = element_blank(),
               axis.title.y = element_blank(),
               axis.text.y = element_blank(),
-              axis.ticks.y = element_blank(),
-              legend.position = "bottom",
-              legend.title = element_text(size = 10,
-                                        face = "bold"),
-              legend.text = element_text(size = 10,
-                                        face = "plain")
-)
+              axis.ticks.y = element_blank())
 ```
 
 Generate combined plot:
@@ -255,8 +249,7 @@ ggarrange(region_one_plot,
           labels = c("A", "B"),
           ncol = 2,
           nrow = 1,
-          align = "hv",
-          common.legend = TRUE)
+          align = "hv")
 ```
 
 Load previously generated arrow plot:
@@ -275,7 +268,6 @@ Generate combined plots:
 ## Generate a combined plot:
 arrow_plot_one <- arrow_plot_one + theme(legend.position = "none")
 arrow_plot_two <- arrow_plot_two + theme(legend.position = "none")
-region_one_plot <- region_one_plot + theme(legend.position = "none")
 region_two_plot <- region_two_plot + theme(legend.position = "none")
 
 ## Generate a multi-figure plot:
@@ -285,6 +277,8 @@ combined_apis_plot <- ggarrange(arrow_plot_one,
                            region_two_plot,
                            nrow = 2,
                            ncol = 2,
+                           labels = c("A",
+                                      "B"),
                            heights = c(0.2,
                                        1),
                            align = "hv")
@@ -296,7 +290,7 @@ save(data = combined_apis_plot,
 ## Save:
 ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
        width = 10,
-       height = 6)
+       height = 5)
 ```
 
 Alternative plot:
