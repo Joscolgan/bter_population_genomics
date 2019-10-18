@@ -65,13 +65,13 @@ arrow_plot_one <- ggplot(data, aes(xmin = as.numeric(start),
                               xmax = as.numeric(end),
                               y = strand,
                               fill = status,
-                              label = gene,
+                              #label = gene,
                               forward = direction)) +
         xlim(start_position, end_position) +
   geom_gene_arrow(arrowhead_height = unit(3, "mm"),
                   arrowhead_width = unit(1, "mm")) +
-  geom_gene_label(align = "left",
-                  min.size = 6) +
+  #geom_gene_label(align = "left",
+  #                min.size = 6) +
   facet_wrap(~ molecule,
              scales = "free",
              nrow = 1,
