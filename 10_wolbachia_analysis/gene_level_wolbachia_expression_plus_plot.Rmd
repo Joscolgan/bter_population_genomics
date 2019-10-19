@@ -241,8 +241,8 @@ life_wolbachia_stages_plot <- ggplot(data = new_order_df,
               legend.justification = c(1.1, 1.1),
               legend.position = c(1, 1),
               axis.title.x = element_blank(),
-                axis.text.x = element_text(angle = 45,
-                                           hjust = 1))
+                axis.text.x = element_blank(),
+              axis.ticks.x = element_blank())
 
 ## Add annotation to plot:
 life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
