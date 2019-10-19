@@ -1,0 +1,94 @@
+---
+title: "Bombus population genomics"
+output: plot_gggenes_arrows_tf.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction
+This script takes a tab-delimited file as input containing the following columns:
+1) Chromosome name
+2) Start position of chromosome
+3) End position of chromosome
+4) Gene name
+5) Strand
+6) Status - if you want to highlight a gene of interest
+
+N.B. I tested out the code using the example_data that comes with the package and everything worked. Created my own dataframe using the same column headers in R but there was an issue with the plots making all genes
+the same size in the plot. Unsure of what the problem is. Easiest fix
+was to output the example data file and manually change values for plots. 
+No issues since. 
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("ggplot2",
+               "ggpubr",
+               "gggenes",
+               "lintr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+## Read in file for plotting:
+input <- "./input/gggenes/wolbachia_input_for_gggenes.txt"
+data <- read.table(file = input,
+                   header = TRUE)
+
+## Assign values to start and end positions:
+start_position <- 1649722
+end_position <- 1876527
+
+## Turn off scientific notation:
+options(scipen = 999)
+
+data$direction <- ifelse(data$strand == "forward", 1, -1)
+
+## Plot:
+arrow_plot <- ggplot(data, aes(xmin = as.numeric(start),
+                              xmax = as.numeric(end),
+                              y = strand,
+                              fill = status,
+                              label = gene,
+                              forward = direction)) +
+        xlim(start_position, end_position) +
+  #geom_gene_arrow(arrowhead_width = grid::unit(10, "mm"),
+  #                arrowhead_height = grid::unit(10, "mm"),
+  #                arrow_body_height = grid::unit(8, "mm")) +
+        geom_gene_arrow(arrowhead_height = unit(3, "mm"),
+                        arrowhead_width = unit(1, "mm")) +
+
+  #geom_gene_label(align = "left",
+  #                min.size = 6) +
+  facet_wrap(~ molecule,
+             scales = "free",
+             nrow = 1,
+             shrink = FALSE) +
+  scale_fill_brewer(palette = "Blues") +
+        theme_genes() +
+        theme(axis.title.y = element_blank(),
+              axis.text.y = element_blank(),
+              axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank(),
+              legend.position = "none")
+
+## Remove forward and revese
+
+## Combine plot:
+save(arrow_plot,
+       file = "./results/plots/wolbachia_arrow_plot.Rdata")
+```
+
+Run lintr
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./plot_gggene_arrows_wolbachia.Rmd")
+```
+

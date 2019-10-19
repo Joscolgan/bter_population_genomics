@@ -1,0 +1,200 @@
+---
+title: "Bombus population genomics"
+output: plot_wolbachia_sweep.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+
+## Load libraries:
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("devtools",
+               "ggplot2",
+               "ggmap",
+               "SNPRelate",
+               "reshape",
+               "ggpubr",
+               "gplots",
+               "stringr",
+               "gggenes")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+```
+
+This script plots nsl score and nucleotide diversity estimates. It also loads an arrow-plot showing the 
+distribution of gene locations in the region of interest. It also loads a SNP heatmap showing the presence of shared haplotypes amongst individuals.
+
+```{r, message = FALSE}
+## Read in data:
+nsl_input <- "./input/nsl/input_for_r.txt"
+nsl_data <- read.table(file = nsl_input,
+                       col.names = c("chrom",
+                                     "position",
+                                     "nsl_score",
+                                     "annotation",
+                                     "locus"))
+## Both nucleotide diversity and Tajima D are in the same input file:
+nuc_div_input <- "./input/nuc_div/bter_all_chrom_10kb.txt"
+nuc_div_data <- read.table(file = nuc_div_input,
+                           header = TRUE)
+```
+
+The gene of interest is an uncharacterised gene (LOC105666162), which codes for proteins with sequence similarity to proteins coded for by Wolbachia-like bacteria. The gene is located on chromosome 11:
+NC_015771.1 (1755259..1765481)
+
+```{r, message = FALSE}
+## Assign the coordinates of the gene to variables plus 100kb 
+## up and downstream of the gene:
+chromosome <- "NC_015771.1"
+start <- 1749721 - 200000
+end <- 1776527 + 200000
+```
+
+Subset the regions of interest:
+
+```{r, message=FALSE}
+## Subset nsl values for plotting:
+nsl_input_subset <- subset(nsl_data,
+                           chrom == chromosome &
+                            position > start &
+                            position < end)
+
+## subset sites above 2.56 to highlight on plot:
+nsl_snps_highlight <- subset(nsl_input_subset,
+                            nsl_score > 2.56)
+```
+
+Generate plot of EHH:
+
+```{r, message = FALSE}
+## Plot nsl values:
+nsl_input_subset$high_nsl <- nsl_input_subset$nsl_score > 2.56
+nsl_plot <- ggplot(nsl_input_subset,
+                   aes(x = position,
+                       y = nsl_score,
+                       color = high_nsl,
+                       fill = high_nsl)) +
+                xlab("Genomic position (bp)") +
+                ylab("|nsl| score") +
+                geom_rect(aes(xmin = 1725000,
+                              xmax = 1800000,
+                              ymin = -Inf,
+                              ymax = Inf),
+                          fill = "light blue",
+                          alpha = 0.008,
+                          color = NA) +
+        geom_hline(yintercept = c(2.56),
+                   linetype = "dashed",
+                   colour = "orange") +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end)) +
+                geom_point(size = 3,
+                           alpha = 0.5) +
+                theme_bw() + scale_color_manual(values = c("black", "blue")) +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title.y = element_text(size = 15,
+                                          face = "bold"),
+              axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              legend.position = "none",
+              axis.ticks.x = element_blank()) 
+        #theme(plot.margin = unit(c(1, 1, 0, 1), "cm"))
+
+```
+
+Subset genomic region to plot nucleotide diversity:
+
+```{r, message = FALSE}
+## Subset genomic region of interest:
+nuc_div_subset <- subset(nuc_div_data,
+                         chrom == "NC_015771.1" &
+                         start > 1549721 &
+                         end < 1976527)
+
+## Calculate mean nucleotide diversity:
+nucdiv_median <- median(nuc_div_data$nuc_diversity)
+
+## Generate plot:
+nuc_div_plot <- ggplot(nuc_div_subset,
+                       aes(x = midpoint,
+                           y = nuc_diversity)) +
+        geom_point(colour = "black",
+                   size = 0,
+                   alpha = 0.75) +
+        xlab("Genomic position (bp)") +
+        ylab("Nucleotide diversity") +
+        geom_hline(yintercept = c(nucdiv_median),
+                   linetype = "dashed",
+                   colour = "orange") +
+                geom_rect(aes(xmin = 1725000,
+                              xmax = 1800000,
+                      ymin = -Inf,
+                      ymax = Inf),
+                  fill = "light blue",
+                  alpha = 0.008) +
+                geom_line() +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end),
+                           position = "top") +
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.title.x = element_blank())
+```
+
+Read in SNP genotype matrix:
+
+```{r, message=FALSE}
+## Load previously generated arrow and heatmap plots:
+load(file = "results/plots/wolbachia_arrow_plot.Rdata")
+load(file = "results/plots/wolbachia_snp_plot.Rdata")
+load(file = "input/gene_expression/wolbachia_gene_expression.Rdata")
+```
+
+Generate combined plots:
+
+```{r, message=FALSE}
+## Generate a combined plot:
+ggarrange(arrow_plot,
+          nuc_div_plot,
+          nsl_plot,
+          heatmap_plot,
+          life_wolbachia_stages_plot,
+          nrow = 5,
+          ncol = 1,
+          labels = c("A",
+                     "B",
+                     "C",
+                     "D",
+                     "E"),
+          heights = c(0.7,
+                     1.5,
+                     1.5,
+                     1.5,
+                     1.5),
+          align = "hv")
+
+## Save:
+ggsave(file = "results/wolbachia_combined_plot_test.png",
+       width = 10,
+       height = 12)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./plot_wolbachia_sweeps.Rmd")
+```
