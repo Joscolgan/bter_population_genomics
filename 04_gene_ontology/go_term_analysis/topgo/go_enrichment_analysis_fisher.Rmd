@@ -24,7 +24,9 @@ This script outputs a results table of significantly enriched GO terms.
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
-libraries <- c("topGO", "lintr", "lattice")
+libraries <- c("topGO",
+               "lintr",
+               "lattice")
 for (lib in libraries) {
     if (require(package = lib, character.only = TRUE)) {
         print("Successful")
@@ -43,19 +45,19 @@ Load in genelist and database files.
 ```{r}
 ## Step One:
 ## Define input:
-input <- "./input/topgo/mart_export_dmel_bter_go_terms.converted.output.txt"
+input <- "./input/dmel_bter_go_term_database.txt"
 
 ## GO annotations
 gene_to_go_mapping_file <- input
 
 ## genes overlapping with regions of significantly low nucleotide diversity:
-gene_list <- scan(file = "./overlapping_gene_ids.txt",
+gene_list <- scan(file = "input/zscore_normalised_sig_low_div_tjd_merged_flanking_regions_overlap_gene_ids.txt",
                   as.character())
 
 ## Define node size:
-node_size <- 100
+node_size <- 50
 
-output_directory <- paste("results/output_",
+output_directory <- paste("results/go_term_output_",
                           node_size,
                           "_fisher",
                           sep = "")
