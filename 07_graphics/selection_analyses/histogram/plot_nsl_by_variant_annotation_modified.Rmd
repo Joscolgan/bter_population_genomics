@@ -29,11 +29,12 @@ for (lib in libraries) {
 First, investigate the relationship between nsl score and variant annotation.
 
 ```{r, message = FALSE}
-data <- read.table(file = "./input/variants/input_annotations_per_snp.txt",
+data <- read.table(file = "./input/nsl_input/input_for_r_annotated.txt",
                    col.names = c("chrom",
                                  "position",
                                  "nsl_score",
-                                 "annotation"))
+                                 "annotation",
+                                 "locus"))
 ```
 
 Subdivide SNPs by annotation type:
@@ -60,12 +61,12 @@ levels(data$annotation_simplified)[!(levels(data$annotation_simplified) %in% c("
                                                                                "Non-coding RNA"))] <- "Coding"
 
 data$annotation_simplified <- factor(data$annotation_simplified,
-                                     levels = rev(c("Coding",
-                                                    "Non-coding RNA",
-                                                    "Intron",
+                                     levels = rev(c("Non-coding RNA",
+                                                    "Coding",
                                                     "UTR",
+                                                    "Intergenic",
                                                     "5kb up/down-stream",
-                                                    "Intergenic")))
+                                                    "Intron")))
 levels(data$annotation_simplified)
 
 variant_histogram <- ggplot(data = data,
@@ -86,6 +87,21 @@ variant_histogram <- ggplot(data = data,
         geom_vline(xintercept = 2.56,
                    linetype = "dashed",
                    colour = "blue") +
+        annotate("text",
+                 label = "Top 1% of genome-wide |nsl| scores",
+                 x = 2.25,
+                 y = 50000,
+                 angle = 90,
+                 colour = "blue") +
+        annotate("text",
+                 label = "Top 10% of genic |nsl| scores",
+                 x = 3,
+                 y = 50000,
+                 angle = 90,
+                 colour = "purple") +
+        geom_vline(xintercept = 2.72,
+                   linetype = "dashed",
+                   colour = "purple") +
         guides(fill = guide_legend(title = "Variant type")) +
         theme(legend.position = "top") +
         theme(axis.title = element_text(size = 20,
