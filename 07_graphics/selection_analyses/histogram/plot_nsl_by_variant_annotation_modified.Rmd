@@ -89,28 +89,30 @@ variant_histogram <- ggplot(data = data,
                    colour = "blue") +
         annotate("text",
                  label = "Top 1% of genome-wide |nsl| scores",
-                 x = 2.25,
+                 x = 2.46,
                  y = 50000,
                  angle = 90,
-                 colour = "blue") +
+                 colour = "blue",
+                 size = 4) +
         annotate("text",
                  label = "Top 10% of genic |nsl| scores",
-                 x = 3,
+                 x = 2.82,
                  y = 50000,
                  angle = 90,
-                 colour = "purple") +
+                 colour = "purple",
+                 size = 4) +
         geom_vline(xintercept = 2.72,
                    linetype = "dashed",
                    colour = "purple") +
         guides(fill = guide_legend(title = "Variant type")) +
         theme(legend.position = "top") +
-        theme(axis.title = element_text(size = 20,
+        theme(axis.title = element_text(size = 15,
                                   face = "bold"),
-              axis.text = element_text(size = 15,
+              axis.text = element_text(size = 10,
                                   face = "plain"),
-              legend.text = element_text(size = 15,
+              legend.text = element_text(size = 10,
                                          face = "plain"),
-              legend.title = element_text(size = 15,
+              legend.title = element_text(size = 10,
                                           face = "bold"),
               legend.justification = c(1.1, 1.1),
               legend.position = c(1, 1)) +
