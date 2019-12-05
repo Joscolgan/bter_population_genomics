@@ -1,0 +1,1 @@
+for name in input/2014_Bter_*.txt; do new_name="$(echo "$name" | cut -d '/' -f 2 | cut -d '.' -f 1-3)"; echo "$name"; Rscript quant_depth.R ./bterwol_gene_coordinates.bed "$name" results/gene_vs_genome_raw/"$new_name"_pvalue.txt; done
