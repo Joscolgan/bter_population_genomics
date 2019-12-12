@@ -1,0 +1,251 @@
+This script takes a tab-delimited file as input containing the following columns:
+1) Chromosome name
+2) Start position of chromosome
+3) End position of chromosome
+4) Gene name
+5) Strand
+6) Status - if you want to highlight a gene of interest
+
+N.B. I tested out the code using the example_data that comes with the package and everything worked. Created my own dataframe using the same column headers in R but there was an issue with the plots making all genes
+the same size in the plot. Unsure of what the problem is. Easiest fix
+was to output the example data file and manually change values for plots. 
+No issues since. 
+
+```{r}
+## Load libraries:
+library(ggplot2)
+library(gggenes)
+## Read in file for plotting:
+data <- read.table(file = "./input/input_for_plot.txt", header = TRUE)
+colnames(data)
+
+## Update levels so plot and legend order match:
+levels(data$chromosome) <- c("NT_177515.1",
+                             "NC_015771.1",
+                             "NW_014567515.1",
+                             "NW_020219542.1",
+                             "NW_011967025.1",
+                             "NW_012026812.1")
+levels(data$gene) <- c("Bombus_terrestris_LOC105666162",
+                             "Bombus_impatiens_LOC105681507",
+                             "Vollenhovia_emeryi_LOC105558474",
+                             "Wasmannia_auropunctata_LOC105448935",
+                             "Dinoponera_quadriceps_LOC106751470",
+                             "Temnothorax_curvispinosus_LOC112459356")
+
+## Generate plot:
+test <- ggplot(data, aes(xmin = start,
+                         xmax = end,
+                         y = chromosome)) +
+        facet_wrap(~ chromosome,
+                   scales = "free",
+                   ncol = 1) +
+        geom_gene_arrow(arrowhead_height = unit(3, "mm"),
+                        arrowhead_width = unit(1, "mm")) +
+        geom_subgene_arrow(data = data,
+                           aes(xmin = start,
+                               xmax = end,
+                               y = chromosome,
+                               fill = gene,
+                               xsubmin = start_wol_match,
+                               xsubmax = end_wol_match),
+                           color = "black",
+                           alpha = .7) +
+        theme_genes()
+
+## Save image:
+dir.create(path = "./results")
+ggsave(file = "./results/gene_plot.png",
+       height = 10,
+       width = 8)
+```
+
+Just plot Bombus - highlighting regions of similarity to Wolbachia and other insects
+
+```{r, message = FALSE}
+## Read in file for plotting:
+data <- read.table(file = "./input/input_for_plot_domains.txt", header = TRUE)
+colnames(data)
+
+protein_domain <- ggplot(data, aes(xmin = start,
+                         xmax = end,
+                         y = protein)) +
+        facet_wrap(~ protein,
+                   scales = "free",
+                   ncol = 1) +
+        geom_gene_arrow(arrowhead_height = unit(3, "mm"),
+                        arrowhead_width = unit(1, "mm")) +
+        geom_subgene_arrow(data = data,
+                           aes(xmin = start,
+                               xmax = end,
+                               y = protein,
+                               fill = domain,
+                               xsubmin = start_domain,
+                               xsubmax = end_domain),
+                           color = "black",
+                           alpha = .7) +
+        theme_genes() +
+        theme(axis.ticks = element_blank(),
+              axis.title.y = element_blank(),
+              axis.text = element_blank(),
+              legend.title = element_text(face = "bold"),
+              legend.position = "top") +
+        scale_x_continuous(position = "top")
+
+## Update colours for plotting:
+protein_domain <- protein_domain +
+        scale_fill_manual(name = "Functional domains",
+                          values = c("yellow",
+                                     "blue"))
+## Save image as object:
+save(protein_domain,
+     file = "./results/protein_domain.Rdata")
+```
+
+Add piecharts:
+
+```{r, message = FALSE}
+## Create a blank theme:
+blank_theme <- theme_minimal() +
+  theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.ticks = element_blank(),
+  plot.title = element_text(size = 14,
+                            face = "bold")
+  )
+
+## Read in files containing:
+## Group information and number of protein matches per group:
+sequence_1_info <- read.table(file = "./input/group_counts/sequence_1_prot_matches_by_group.txt",
+                              header = TRUE)
+
+sequence_1_info$group <- gsub(pattern = "_",
+                              replacement = " ",
+                              sequence_1_info$group)
+
+sequence_1_piechart <- ggplot(sequence_1_info,
+            aes(x = "",
+                y = number,
+                fill = group)) +
+        geom_bar(width = 1,
+                 stat = "identity")
+
+sequence_1_piechart <- sequence_1_piechart +
+        coord_polar("y",
+                    start = 0) +
+        blank_theme +
+        theme(axis.text.x = element_blank()) +
+        scale_fill_brewer(name = "Taxonomic group",
+                          palette = "Blues") +
+  theme(axis.title = element_blank(),
+        legend.title = element_text(face = "bold"))
+
+## read in sequence 2:
+sequence_2_info <- read.table(file = "./input/group_counts/sequence_2_prot_matches_by_group.txt",
+                              header = TRUE)
+
+sequence_2_info$group <- gsub(pattern = "_",
+                              replacement = " ",
+                              sequence_2_info$group)
+
+sequence_2_piechart <- ggplot(sequence_2_info,
+            aes(x = "",
+                y = number,
+                fill = group)) +
+        geom_bar(width = 1,
+                 stat = "identity")
+
+sequence_2_piechart <- sequence_2_piechart +
+        coord_polar("y",
+                    start = 0) +
+        blank_theme +
+        theme(axis.text.x = element_blank()) +
+        scale_fill_brewer(name = "Taxonomic group",
+                          palette = "Blues") +
+        theme(axis.title = element_blank(),
+              legend.title = element_text(face = "bold"))
+
+## read in sequence 3:
+sequence_3_info <- read.table(file = "./input/group_counts/sequence_3_prot_matches_by_group.txt",
+                              header = TRUE)
+
+sequence_3_info$group <- gsub(pattern = "_",
+                              replacement = " ",
+                              sequence_3_info$group)
+
+sequence_3_piechart <- ggplot(sequence_3_info,
+            aes(x = "",
+                y = number,
+                fill = group)) +
+        geom_bar(width = 1,
+                 stat = "identity")
+
+sequence_3_piechart <- sequence_3_piechart +
+        coord_polar("y",
+                    start = 0) +
+        blank_theme +
+        theme(axis.text.x = element_blank()) +
+        scale_fill_brewer(name = "Taxonomic group",
+                          palette = "Blues") +
+        theme(axis.title = element_blank(),
+              legend.title = element_text(face = "bold"))
+
+## read in sequence 4:
+sequence_4_info <- read.table(file = "./input/group_counts/sequence_4_prot_matches_by_group.txt",
+                              header = TRUE)
+
+sequence_4_piechart <- ggplot(sequence_4_info,
+                              aes(x = "",
+                                  y = number,
+                                  fill = group)) +
+        geom_bar(width = 1,
+                 stat = "identity")
+
+sequence_4_piechart <- sequence_4_piechart +
+        coord_polar("y",
+                    start = 0) +
+        blank_theme +
+        theme(axis.text.x = element_blank()) +
+        scale_fill_brewer(name = "Taxonomic group",
+                          palette = "Blues") +
+        theme(axis.title = element_blank(),
+              legend.title = element_text(face = "bold"))
+```
+
+Combine plots:
+
+```{r, message = FALSE}
+require(ggpubr)
+combined_pies <- ggarrange(sequence_1_piechart,
+          sequence_2_piechart,
+          sequence_3_piechart,
+          sequence_4_piechart,
+          nrow = 1,
+          ncol = 4,
+          common.legend = TRUE,
+          legend = "bottom")
+
+ggarrange(protein_domain,
+          combined_pies,
+          ncol = 1,
+          nrow = 2,
+          align = "hv")
+
+ggsave(file = "./results/protein_domain.png",
+       height = 6,
+       width = 10)
+```
+
+Run lintr:
+```{r, message = FALSE}
+require(lintr)
+lintr::lint(file = "./make_gggenes_plot.Rmd")
+```
+
+
+```{r, message = FALSE}
+lintr::lint(file = "./make_gggenes_plot.Rmd")
+```
