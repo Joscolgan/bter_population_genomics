@@ -42,7 +42,7 @@ load(file = "./results/histogram_snp_by_variant_type.Rdata")
 data_points <- read.csv(file = "input/map_input/input_for_maps.csv",
                         header = TRUE)
 
-britain_map <- britain_map + 
+britain_map <- britain_map +
         theme_bw() +
         theme(legend.position = "none",
               axis.text = element_text(size = 10,
@@ -99,7 +99,9 @@ variant_plot <- ggarrange(manhattan_plot,
 plot_2 <- ggarrange(variant_plot,
           combined_terms_plot,
           ncol = 2,
-          nrow = 1)
+          nrow = 1,
+          labels = c("C",
+                     "E"))
 
 plot_3 <- ggarrange(map_plot,
           plot_2,
@@ -123,5 +125,5 @@ ggsave(file = "./results/figure_1_map_plus_pca.pdf",
 Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "./combine_plots.Rmd")
+lintr::lint(file = "./multi_plot_figure_1.Rmd")
 ```
