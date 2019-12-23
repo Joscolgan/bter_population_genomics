@@ -52,11 +52,11 @@ The gene of interest is an uncharacterised gene (LOC105666162), which codes for 
 NC_015771.1 (1755259..1765481)
 
 ```{r, message = FALSE}
-## Assign the coordinates of the gene to variables plus 100kb 
+## Assign the coordinates of the gene to variables plus 100kb
 ## up and downstream of the gene:
 chromosome <- "NC_015771.1"
-start <- 1749721 - 200000
-end <- 1776527 + 200000
+start <- 1749721 - 100000
+end <- 1776527 + 100000
 ```
 
 Subset the regions of interest:
@@ -99,17 +99,18 @@ nsl_plot <- ggplot(nsl_input_subset,
                            limits = c(start, end)) +
                 geom_point(size = 3,
                            alpha = 0.5) +
-                theme_bw() + scale_color_manual(values = c("black", "blue")) +
+                theme_bw() +
+        scale_color_manual(values = c("black", "blue")) +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end),
+                           position = "top") +
+        theme_bw() +
         theme(axis.text = element_text(size = 10,
                                        face = "plain"),
-              axis.title.y = element_text(size = 15,
-                                          face = "bold"),
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
               axis.title.x = element_blank(),
-              axis.text.x = element_blank(),
-              legend.position = "none",
-              axis.ticks.x = element_blank()) 
-        #theme(plot.margin = unit(c(1, 1, 0, 1), "cm"))
-
+              legend.position = "none")
 ```
 
 Subset genomic region to plot nucleotide diversity:
@@ -118,8 +119,8 @@ Subset genomic region to plot nucleotide diversity:
 ## Subset genomic region of interest:
 nuc_div_subset <- subset(nuc_div_data,
                          chrom == "NC_015771.1" &
-                         start > 1549721 &
-                         end < 1976527)
+                         start > 1649721 &
+                         end < 1876527)
 
 ## Calculate mean nucleotide diversity:
 nucdiv_median <- median(nuc_div_data$nuc_diversity)
@@ -160,27 +161,32 @@ Read in SNP genotype matrix:
 ## Load previously generated arrow and heatmap plots:
 load(file = "results/plots/wolbachia_arrow_plot.Rdata")
 load(file = "results/plots/wolbachia_snp_plot.Rdata")
-load(file = "input/gene_expression/wolbachia_gene_expression.Rdata")
+load(file = "results/plots/wolbachia_boxplot.Rdata")
+load(file = "results/plots/wolbachia_pie_plot_updated.Rdata")
 ```
 
 Generate combined plots:
 
 ```{r, message=FALSE}
+## Comebine RNA expression and pie charts into a single pane:
+fifth_panel <- ggarrange(life_wolbachia_stages_plot,
+          domain_plus_pies,
+          ncol = 2,
+          nrow = 1,
+          labels = c("D",
+                     "E"))
+
 ## Generate a combined plot:
 ggarrange(arrow_plot,
-          nuc_div_plot,
           nsl_plot,
           heatmap_plot,
-          life_wolbachia_stages_plot,
-          nrow = 5,
+          fifth_panel,
+          nrow = 4,
           ncol = 1,
           labels = c("A",
                      "B",
-                     "C",
-                     "D",
-                     "E"),
+                     "C"),
           heights = c(0.7,
-                     1.5,
                      1.5,
                      1.5,
                      1.5),
@@ -188,7 +194,7 @@ ggarrange(arrow_plot,
 
 ## Save:
 ggsave(file = "results/wolbachia_combined_plot_test.png",
-       width = 10,
+       width = 12,
        height = 12)
 ```
 
