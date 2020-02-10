@@ -71,8 +71,10 @@ input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                                       
 ## For performing PCA, it is recommended to perform LD pruning:
 snpset <- snpgdsLDpruning(input_vcf_gds_genofile,
-                          ld.threshold = 0.1,
+                          slide.max.n=500,
+                          ld.threshold = 0.2,
                           autosome.only = FALSE)
+print(nrow(snpset))
 
 ## Get all selected SNP ids:
 snpset.id <- unlist(unname(snpset))
@@ -211,62 +213,73 @@ ggsave(file = lat_output,
 
 # Estimate IBD coefficients
 ibd_mom <- snpgdsIBDMoM(input_vcf_gds_genofile,
-sample.id = sample_id,
-snp.id = snpset.id,
-maf = 0.05,
-missing.rate = 0.05,
-num.thread = 20,
-autosome.only = FALSE)
+                        sample.id = sample_id,
+                        snp.id = snpset.id,
+                        maf = 0.05,
+                        missing.rate = 0.05,
+                        num.thread = 20,
+                        autosome.only = FALSE)
 # Make a data.frame
 ibd_mom_coeff <- snpgdsIBDSelection(ibd_mom)
+
 ## Alternatively, to plot with just sample ids and not points:
 ibd_plot<- ggplot(ibd_mom_coeff,
-aes(x = ibd_mom_coeff$k0,
-y = ibd_mom_coeff$k1)) +
-geom_point(shape = 16, size=4, alpha=0.4, show.legend = T) +
-theme_minimal() +
-xlab("K0") +
-ylab("K1")
+                  aes(x = ibd_mom_coeff$k0,
+                    y = ibd_mom_coeff$k1)) +
+                  geom_point(shape = 16,
+                             size = 4,
+                             alpha = 0.4,
+                             show.legend = TRUE) +
+                  theme_minimal() +
+                  xlab("K0") +
+                  ylab("K1")
 #geom_text(size=6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$pop)) +
 #scale_color_manual(values= c("blue", "orange", "red"))
+## Save file:
 ggsave(file = "ibd_mon_plot.png",
-width = 10,
-height = 10)
+       width = 10,
+       height = 10)
+
+## Set seed:
 set.seed(100)
+## Randomly sample 2000 SNPs
 snp.id <- sample(snpset.id, 2000)  # random 2000 SNPs
 ibd_mle <- snpgdsIBDMLE(input_vcf_gds_genofile,
-sample.id = sample_id,
-snp.id = snp.id,
-maf = 0.05,
-missing.rate = 0.05,
-num.thread = 20,
-autosome.only = FALSE)
+                        sample.id = sample_id,
+                        snp.id = snp.id,
+                        maf = 0.05,
+                        missing.rate = 0.05,
+                        num.thread = 20,
+                        autosome.only = FALSE)
 # Make a data.frame
 ibd_coeff_mle <- snpgdsIBDSelection(ibd_mle)
 ibd_mle_plot<- ggplot(ibd_coeff_mle,
-aes(x = k0,
-y = k1)) +
-geom_point() +
-theme_minimal() +
-xlab("K0") +
-ylab("K1")
+                      aes(x = k0,
+                          y = k1)) +
+               geom_point() +
+               theme_minimal() +
+               xlab("K0") +
+               ylab("K1")
+
 ## Reporting of kinship:
 ggsave(file = "ibd_mle_plot.png",
-width = 10,
-height = 10)
+       width = 10,
+       height = 10)
+
 ## Identity by state:
 ibs <- snpgdsIBS(input_vcf_gds_genofile,
-num.thread = 20,
-autosome.only = FALSE)
+                 num.thread = 20,
+                 autosome.only = FALSE)
 ## Order samples by population information:
 pop.idx <- order(pop_code)
 input_for_melt <- ibs$ibs
 input_for_melt_melted <- melt(input_for_melt)
 ## Generate plot:
 plot <- ggplot(data = input_for_melt_melted,
-aes(x = Var1,
-y = Var2,
-fill = value)) + geom_tile()
+               aes(x = Var1,
+                   y = Var2,
+                   fill = value)) +
+              geom_tile()
 
 ## Save plot:
 ggsave("correlation_plot_IBS.png",
