@@ -71,7 +71,7 @@ input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                                       
 ## For performing PCA, it is recommended to perform LD pruning:
 snpset <- snpgdsLDpruning(input_vcf_gds_genofile,
-                          slide.max.n=500,
+                          slide.max.n = 500,
                           ld.threshold = 0.2,
                           autosome.only = FALSE)
 print(nrow(snpset))
@@ -214,7 +214,7 @@ ggsave(file = lat_output,
 # Estimate IBD coefficients
 ibd_mom <- snpgdsIBDMoM(input_vcf_gds_genofile,
                         sample.id = sample_id,
-                        snp.id = snpset.id,
+                        #snp.id = snpset.id,
                         maf = 0.05,
                         missing.rate = 0.05,
                         num.thread = 20,
@@ -246,7 +246,7 @@ set.seed(100)
 snp.id <- sample(snpset.id, 2000)  # random 2000 SNPs
 ibd_mle <- snpgdsIBDMLE(input_vcf_gds_genofile,
                         sample.id = sample_id,
-                        snp.id = snp.id,
+                        #snp.id = snp.id,
                         maf = 0.05,
                         missing.rate = 0.05,
                         num.thread = 20,
