@@ -80,8 +80,9 @@ lat_plot <- ggplot(tab,
             theme(legend.position = "none")
 
 ## Perform correlation test:
-cor.test(tab$EV1,
-         tab$latitude)
+cor.test(tab$EV2,
+         tab$latitude,
+         methd = "pearson")
 
 ## Update latitude plot with points:
 lat_correlation <- ggplot(tab,
@@ -111,17 +112,21 @@ cor.test(tab$EV2,
          tab$latitude)
 
 ## Annotate plot with results from cor.test
-lat_correlation +
+lat_correlation <- lat_correlation +
         annotate(geom = "text",
                            y = 55.5,
                            x = -0.15,
-                           label = "r = 0.64",
+                           label = "r = 0.75",
                  size = 5) +
         annotate(geom = "text",
                            y = 55.2,
                            x = -0.15,
-                           label = "p < 1e-05",
+                           label = "p < 1e-08",
                  size = 5)
+
+ggsave(file = "./results/correlation_latitude.png",
+       height = 8,
+       width = 10)
 
 ## Combine and plot together:
 map_plot <- ggarrange(britain_map,
