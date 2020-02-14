@@ -14,6 +14,7 @@ This script loads R objects containing:
 # Load libraries; install from scratch if needed
 libraries <- c("ggplot2",
                "ggpubr",
+               "ggrepel",
                "lintr")
 for (lib in libraries) {
     if (require(package = lib, character.only = TRUE)) {
@@ -35,7 +36,7 @@ load(file = "./results/map_of_britain.Rdata")
 load(file = "./results/pca_plots.Rdata")
 
 ## Read in data:
-data_points <- read.csv(file = "input/input_for_maps.csv",
+data_points <- read.csv(file = "input/map_input/input_for_maps.csv",
                         header = TRUE)
 
 ## Update latitude plot with points:
