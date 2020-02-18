@@ -58,7 +58,7 @@ names(paths$kallisto_files) <- gsub(paths$kallisto_files_relative,
                                     pattern = "/.*",
                                     replacement = "")
 
-for (filenumber in 1:length(paths$kallisto_files)) {
+for (filenumber in seq(paths$kallisto_files)) {
   current_name <- names(paths$kallisto_files)[filenumber]
   current_file <- paths$kallisto_files[filenumber]
   if (FALSE == grepl(pattern = current_name, x = current_file)) {
@@ -310,6 +310,10 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
                  y = 750,
                  label = "(n = 3)",
                  fontface = 2)
+
+## Update legend title:
+life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
+        labs(fill = "Caste/Sex")
 
 ## Save plot:
 save(life_wolbachia_stages_plot,
