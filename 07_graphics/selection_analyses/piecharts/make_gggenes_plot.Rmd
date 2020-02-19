@@ -96,7 +96,8 @@ protein_domain <- ggplot(data, aes(xmin = start,
 protein_domain <- protein_domain +
         scale_fill_manual(name = "Functional domains",
                           values = c("yellow",
-                                     "blue"))
+                                     "blue")) +
+        theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
 
 ## Add gene name:
 protein_domain <- protein_domain + geom_text(x = 1,
@@ -106,7 +107,7 @@ protein_domain <- protein_domain + geom_text(x = 1,
                  geom_text(x = 1,
                            label = "Ankyrin 2",
                            hjust = -8.5,
-                           vjust = -1.2)
+                           vjust = -1.2) 
 
 ## Save image as object:
 save(protein_domain,
@@ -124,7 +125,7 @@ blank_theme <- theme_minimal() +
   panel.border = element_blank(),
   panel.grid = element_blank(),
   axis.ticks = element_blank(),
-  plot.title = element_text(size = 14,
+  plot.title = element_text(size = 8,
                             face = "bold")
   )
 
@@ -140,20 +141,26 @@ sequence_1_info$group <- gsub(pattern = "_",
 sequence_1_info$group <- factor(sequence_1_info$group,
                                    levels = unique(sequence_1_info$group))
 
-sequence_1_piechart <- ggplot(sequence_1_info,
-            aes(x = "",
-                y = count,
-                fill = group)) +
-        geom_bar(width = 1,
-                 stat = "identity")
+sequence_1_info <- sequence_1_info %>%
+        arrange(desc(group)) %>%
+        mutate(lab.ypos = cumsum(count) - 0.5*count)
+sequence_1_info
 
-sequence_1_piechart <- sequence_1_piechart +
-        coord_polar("y",
-                    start = 0) +
-        blank_theme +
-        theme(axis.text.x = element_blank()) +
-       scale_fill_manual(name = "Taxonomic group",
-                         values = c("steelblue1",
+sequence_1_piechart <- ggplot(sequence_1_info,
+                              aes(x = "",
+                                  y = count,
+                                  fill = group)) +
+        geom_bar(width = 1,
+                 stat = "identity",
+                 color = "white") +
+        coord_polar("y", start = 0) +
+        geom_text(data = subset(sequence_1_info, count > 0),
+                  aes(y = lab.ypos,
+                      label = count),
+                  size = 3,
+                  color = "white") +
+        scale_fill_manual(name = "Taxonomic\ngroup",
+                          values = c("steelblue1",
                                     "light blue",
                                      "blue",
                                      "navy",
@@ -161,9 +168,15 @@ sequence_1_piechart <- sequence_1_piechart +
                                      "brown",
                                      "grey",
                                      "black")) +
-  theme(axis.title = element_blank(),
-        legend.title = element_text(face = "bold"))
+        theme_void() +
+        theme(axis.title = element_blank(),
+              legend.position = "none",
+              legend.title = element_text(face = "bold")) +
+        theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
 
+sequence_1_piechart <- sequence_1_piechart + guides(fill = guide_legend(nrow = 3,
+                                               ncol = 3,
+                                               byrow = TRUE))
 ## read in sequence 2:
 sequence_2_info <- read.table(file = "./input/group_counts/sequence_two_count_modified.txt",
                               header = TRUE)
@@ -175,20 +188,26 @@ sequence_2_info$group <- gsub(pattern = "_",
 sequence_2_info$group <- factor(sequence_2_info$group,
                                    levels = unique(sequence_2_info$group))
 
-sequence_2_piechart <- ggplot(sequence_2_info,
-            aes(x = "",
-                y = count,
-                fill = group)) +
-        geom_bar(width = 1,
-                 stat = "identity")
+sequence_2_info <- sequence_2_info %>%
+        arrange(desc(group)) %>%
+        mutate(lab.ypos = cumsum(count) - 0.5 * count)
+sequence_2_info
 
-sequence_2_piechart <- sequence_2_piechart +
-        coord_polar("y",
-                    start = 0) +
-        blank_theme +
-        theme(axis.text.x = element_blank()) +
-       scale_fill_manual(name = "Taxonomic group",
-                         values = c("steelblue1",
+sequence_2_piechart <- ggplot(sequence_2_info,
+                              aes(x = "",
+                                  y = count,
+                                  fill = group)) +
+        geom_bar(width = 1,
+                 stat = "identity",
+                 color = "white") +
+        coord_polar("y", start = 0) +
+        geom_text(data = subset(sequence_2_info, count > 0),
+                  aes(y = lab.ypos,
+                      label = count),
+                  size = 3,
+                  color = "white") +
+        scale_fill_manual(name = "Taxonomic\ngroup",
+                          values = c("steelblue1",
                                     "light blue",
                                      "blue",
                                      "navy",
@@ -196,8 +215,12 @@ sequence_2_piechart <- sequence_2_piechart +
                                      "brown",
                                      "grey",
                                      "black")) +
+        theme_void() +
         theme(axis.title = element_blank(),
-              legend.title = element_text(face = "bold"))
+              legend.position = "none",
+              legend.title = element_text(face = "bold")) +
+        theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
+
 
 ## read in sequence 3:
 sequence_3_info <- read.table(file = "./input/group_counts/sequence_three_count_modified.txt",
@@ -210,21 +233,26 @@ sequence_3_info$group <- gsub(pattern = "_",
 sequence_3_info$group <- factor(sequence_3_info$group,
                                    levels = unique(sequence_3_info$group))
 
+sequence_3_info <- sequence_3_info %>%
+        arrange(desc(group)) %>%
+        mutate(lab.ypos = cumsum(count) - 0.5*count)
+sequence_3_info
 
 sequence_3_piechart <- ggplot(sequence_3_info,
-            aes(x = "",
-                y = count,
-                fill = group)) +
+                              aes(x = "",
+                                  y = count,
+                                  fill = group)) +
         geom_bar(width = 1,
-                 stat = "identity")
-
-sequence_3_piechart <- sequence_3_piechart +
-        coord_polar("y",
-                    start = 0) +
-        blank_theme +
-        theme(axis.text.x = element_blank()) +
-       scale_fill_manual(name = "Taxonomic group",
-                         values = c("steelblue1",
+                 stat = "identity",
+                 color = "white") +
+        coord_polar("y", start = 0) +
+        geom_text(data = subset(sequence_3_info, count > 0),
+                  aes(y = lab.ypos,
+                      label = count),
+                  size = 3,
+                  color = "white") +
+        scale_fill_manual(name = "Taxonomic\ngroup",
+                          values = c("steelblue1",
                                     "light blue",
                                      "blue",
                                      "navy",
@@ -232,8 +260,11 @@ sequence_3_piechart <- sequence_3_piechart +
                                      "brown",
                                      "grey",
                                      "black")) +
+        theme_void() +
         theme(axis.title = element_blank(),
-              legend.title = element_text(face = "bold"))
+              legend.position = "none",
+              legend.title = element_text(face = "bold")) +
+        theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
 
 ## read in sequence 4:
 sequence_4_info <- read.table(file = "./input/group_counts/sequence_four_count_modified.txt",
@@ -246,21 +277,26 @@ sequence_4_info$group <- gsub(pattern = "_",
 sequence_4_info$group <- factor(sequence_4_info$group,
                                    levels = unique(sequence_4_info$group))
 
+sequence_4_info <- sequence_4_info %>%
+        arrange(desc(group)) %>%
+        mutate(lab.ypos = cumsum(count) - 0.5*count)
+sequence_4_info
+
 sequence_4_piechart <- ggplot(sequence_4_info,
                               aes(x = "",
                                   y = count,
                                   fill = group)) +
         geom_bar(width = 1,
-                 stat = "identity")
-
-
-sequence_4_piechart <- sequence_4_piechart +
-        coord_polar("y",
-                    start = 0) +
-        blank_theme +
-        theme(axis.text.x = element_blank()) +
-       scale_fill_manual(name = "Taxonomic group",
-                         values = c("steelblue1",
+                 stat = "identity",
+                 color = "white") +
+        coord_polar("y", start = 0) +
+        geom_text(data = subset(sequence_4_info, count > 0),
+                  aes(y = lab.ypos,
+                      label = count),
+                      size = 3,
+                  color = "white") +
+        scale_fill_manual(name = "Taxonomic\ngroup",
+                          values = c("steelblue1",
                                     "light blue",
                                      "blue",
                                      "navy",
@@ -268,8 +304,11 @@ sequence_4_piechart <- sequence_4_piechart +
                                      "brown",
                                      "grey",
                                      "black")) +
+        theme_void() +
         theme(axis.title = element_blank(),
-              legend.title = element_text(face = "bold"))
+              legend.position = "none",
+              legend.title = element_text(face = "bold")) +
+        theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
 ```
 
 Combine plots:
@@ -277,23 +316,28 @@ Combine plots:
 ```{r, message = FALSE}
 require(ggpubr)
 combined_pies <- ggarrange(sequence_1_piechart,
-          sequence_2_piechart,
-          sequence_3_piechart,
-          sequence_4_piechart,
-          nrow = 1,
-          ncol = 4,
-          common.legend = TRUE,
-          legend = "bottom")
+                           sequence_2_piechart,
+                           sequence_3_piechart,
+                           sequence_4_piechart,
+                           nrow = 1,
+                           ncol = 4,
+                           align = "hv",
+                           legend = "bottom",
+                           common.legend = TRUE)
 
 combined_fig <- ggarrange(protein_domain,
           combined_pies,
           ncol = 1,
           nrow = 2,
+          heights = c(0.5,
+                      2),
           align = "hv")
 
 ggsave(file = "./results/protein_domain.png",
        height = 6,
        width = 10)
+
+save.image(file = "./results/protein_domain_plus_pies.Rdata")
 
 ## Save as object:
 save(combined_fig,
