@@ -17,7 +17,7 @@ This script uses the Wald test in DESeq2 to test for differential expression bet
 This can then be used for further analysis. 
 
 
-```{r}
+```{r, message = FALSE}
 # Load libraries; install from scratch if needed
 libraries <- c("tximport", "readr", "DESeq2",
                "ggplot2", "gplots", "rhdf5",
@@ -29,7 +29,7 @@ for (lib in libraries) {
     } else {
         print("Installing")
         source("https://bioconductor.org/biocLite.R")
-        library(lib, character.only = TRUE )
+        library(lib, character.only = TRUE)
     }
 }
 dir.create("results")
@@ -43,7 +43,7 @@ We use raw, non-normalised estimated counts.
 ## Set paths to folders containing output files from kallisto
 paths <- list()
 paths$sample_batch_info <- "data/sample_information.tmp"
-paths$kallisto_output   <- "input/"
+paths$kallisto_output   <- "input/count_data/"
 
 # Set relative paths:
 paths$kallisto_files_relative <- grep(x = list.files(paths$kallisto_output,
@@ -58,7 +58,7 @@ names(paths$kallisto_files) <- gsub(paths$kallisto_files_relative,
                                     pattern = "/.*",
                                     replacement = "")
 
-for (filenumber in 1:length(paths$kallisto_files)) {
+for (filenumber in seq(paths$kallisto_files)) {
   current_name <- names(paths$kallisto_files)[filenumber]
   current_file <- paths$kallisto_files[filenumber]
   if (FALSE == grepl(pattern = current_name, x = current_file)) {
@@ -101,7 +101,7 @@ transcript_to_gene <- read.table(file = "./data/rna_and_corresponding_gene_ids.t
                                  col.names = c("transcript",
                                                "locus"))
 
-# Use tximport on kallisto files 
+# Use tximport on kallisto files
 ## Counts are estimated counts from kallisto:
 txi_counts <- tximport(paths$kallisto_files,
                        type    = "kallisto",
@@ -111,6 +111,7 @@ txi_counts <- tximport(paths$kallisto_files,
 # Save object for use in other scripts
 dir.create(path = "results/count_estimates/")
 save(txi_counts, file = "results/count_estimates/txi_count_estimates.Rdata")
+load(file = "results/count_estimates/txi_count_estimates.Rdata")
 
 ## Generate plot:
 ## Subset gene of interest:
@@ -139,31 +140,189 @@ genes_of_interest_df_tmp$tissue <- gsub(pattern = "_",
 ## Melt:
 require(reshape2)
 genes_of_interest_melt <- melt(genes_of_interest_df_tmp)
+genes_of_interest_melt$sample_id <- paste(
+        genes_of_interest_melt$tissue,
+      rownames(genes_of_interest_melt),
+      sep = " ")
+levels(genes_of_interest_melt$sample_id) <-
+       genes_of_interest_melt$sample_id
+genes_of_interest_melt$sample_id <- factor(genes_of_interest_melt$sample_id,
+       levels(genes_of_interest_melt$sample_id))
+## Extract list of samples based on developmental stage:
+adult_samples <- grep("adult",
+                      genes_of_interest_melt$sample_id)
+pupae_samples <- grep("pupae",
+                      genes_of_interest_melt$sample_id)
+larvae_samples <- grep("larvae",
+                      genes_of_interest_melt$sample_id)
+combined_samples <- c(larvae_samples,
+                      pupae_samples,
+                      adult_samples)
+other_samples <- subset(genes_of_interest_melt,
+       !(rownames(genes_of_interest_melt) %in% combined_samples))
+## Reorder dataframe to plot based on developmental stage:
+new_order_df <- rbind(subset(genes_of_interest_melt,
+       rownames(genes_of_interest_melt) %in% larvae_samples),
+subset(genes_of_interest_melt,
+       rownames(genes_of_interest_melt) %in% pupae_samples),
+subset(genes_of_interest_melt,
+       rownames(genes_of_interest_melt) %in% adult_samples),
+subset(genes_of_interest_melt,
+       rownames(genes_of_interest_melt) %in% other_samples))
+## Reorder the samples for plotting:
+new_order_df$sample_id <- factor(new_order_df$sample_id,
+       levels = as.character(new_order_df$sample_id))
+replacement_order <- c(as.character(new_order_df$sample_id[1:14]),
+       as.character(new_order_df$sample_id[18:20]),
+       as.character(new_order_df$sample_id[15:17]),
+       as.character(new_order_df$sample_id[21:27]))
+## Update worker status for plotting:
+replacement_order <- gsub("rep_",
+                               "",
+                               replacement_order)
+replacement_order <- gsub("undet_",
+                               "",
+                               replacement_order)
+new_order_df$tissue <- gsub("rep ",
+                         "",
+                         new_order_df$tissue)
+new_order_df$tissue <- gsub("undet ",
+                         "",
+                         new_order_df$tissue)
+new_order_df$sample_id <- factor(new_order_df$sample_id,
+       levels = unique(as.character(replacement_order)))
+colnames(new_order_df)[1] <- "caste"
+
+new_order_df$caste <- gsub("rep_",
+                         "",
+                         new_order_df$caste)
+new_order_df$caste <- gsub("undet_",
+                         "",
+                         new_order_df$caste)
+new_order_df$sample_id <- factor(new_order_df$sample_id,
+       levels = unique(as.character(replacement_order)))
+colnames(new_order_df)[1] <- "caste"
+
+new_order_df$tissue <- factor(new_order_df$tissue,
+       levels = unique(new_order_df$tissue))
+
+## Set levels for tissue:
+new_order_df$caste <- factor(new_order_df$caste,
+          levels = unique(new_order_df$caste))
 
 ## Generate plot:
-life_wolbachia_stages_plot <- ggplot(data = genes_of_interest_melt,
-                           aes(x = samples,
-                               y = value)) +
-        #scale_fill_manual(name = "Life stage",
-        #                    values = c("Brown",
-        #                               "Orange",
-        #                               "Grey",
-        #                               "Blue")) +
-        geom_point(aes(fill = tissue),
-                   colour = "black",
-                   pch = 21,
-                   alpha = 0.8,
-                   size = 5) +
-        ylab("Length-scaled TPM") +
+life_wolbachia_stages_plot <- ggplot(new_order_df,
+       aes(x = tissue,
+           y = value,
+           fill = caste)) +
+  geom_boxplot(outlier.colour = "red",
+               outlier.shape = 8,
+               outlier.size = 4) +
+                ylab("Gene expression (TPM)") +
         xlab("Samples") +
+        scale_fill_manual(values = c("brown",
+                                     "orange",
+                                     "yellow",
+                                     "white")) +
+        ylim(0, 3000) +
+        geom_vline(xintercept = 3.5,
+                   linetype = "dashed") +
+        geom_vline(xintercept = 6.5,
+                   linetype = "dashed") +
         theme_bw() +
         theme(axis.title = element_text(face = "bold"),
-              legend.position = "bottom",
-                axis.text.x = element_text(angle = 90,
-                                           hjust = 1))
+              legend.text = element_text(size = 10,
+                                         face = "plain"),
+              legend.title = element_text(size = 10,
+                                          face = "bold"),
+              legend.justification = c(1.1, 1.1),
+              legend.position = c(1, 1),
+              axis.title.x = element_blank(),
+                axis.text.x = element_blank(),
+              axis.ticks.x = element_blank())
+
+## Add annotation to plot:
+life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
+        ## Add annotation for the larval box plots:
+        annotate("text",
+                 x = 2,
+                 y = 2800,
+                 label = "Larval",
+                 fontface = 2) +
+        annotate("text",
+                 x = 1,
+                 y = 1400,
+                 label = "(n = 3)",
+                 fontface = 2) +
+        annotate("text",
+                 x = 2,
+                 y = 1400,
+                 label = "(n = 1)",
+                 fontface = 2) +
+        annotate("text",
+                 x = 3,
+                 y = 1400,
+                 label = "(n = 3)",
+                 fontface = 2) +
+        ## Add annotations to the pupal stage:
+        annotate("text",
+                 x = 5,
+                 y = 2800,
+                 label = "Pupal",
+                 fontface = 2) +
+        annotate("text",
+                 x = 4,
+                 y = 2300,
+                 label = "(n = 3)",
+                 fontface = 2) +
+        annotate("text",
+                 x = 5,
+                 y = 2300,
+                 label = "(n = 1)",
+                 fontface = 2) +
+        annotate("text",
+                 x = 6,
+                 y = 2300,
+                 label = "(n = 3)",
+                 fontface = 2) +
+        ## Add annotations to the adult stage plots:
+        annotate("text",
+                 x = 7.5,
+                 y = 2800,
+                 label = "Adult",
+                 fontface = 2) +
+        annotate("text",
+                 x = 7,
+                 y = 750,
+                 label = "(n = 1)",
+                 fontface = 2) +
+        annotate("text",
+                 x = 8,
+                 y = 750,
+                 label = "(n = 3)",
+                 fontface = 2) +
+        annotate("text",
+                 x = 9,
+                 y = 750,
+                 label = "(n = 1)",
+                 fontface = 2) +
+        annotate("text",
+                 x = 10,
+                 y = 750,
+                 label = "(n = 3)",
+                 fontface = 2)
+
+## Update legend title:
+life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
+        labs(fill = "Caste/Sex")
 
 ## Save plot:
-save(life_stages_plot,
-     file = "./results/wolbachia_scatterplot.Rdata")
-
+save(life_wolbachia_stages_plot,
+     file = "./results/plots/wolbachia_boxplot.Rdata")
 ```
+
+Run lintr:
+```{r, message = FALSE}
+lintr::lint(file = "./gene_level_wolbachia_expression_plus_plot.Rmd")
+```
+
