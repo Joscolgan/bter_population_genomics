@@ -41,7 +41,7 @@ dir.create(path = "./results/plots",
 
 ```{r, message = FALSE}
 ## Read in file for plotting:
-input <- "./input/populations/region_two_sites_for_gggenes_input.txt"
+input <- "./input/arrow_plot_input/region_two_sites_for_gggenes_input.txt"
 data <- read.table(file = input,
                    col.names = c("molecule",
                                 "start",
