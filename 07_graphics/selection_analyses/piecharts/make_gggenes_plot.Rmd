@@ -88,8 +88,8 @@ protein_domain <- ggplot(data, aes(xmin = start,
         theme(axis.ticks = element_blank(),
               axis.title.y = element_blank(),
               axis.text = element_blank(),
-              legend.title = element_text(face = "bold"),
-              legend.position = "top") +
+              #legend.title = element_text(face = "bold"),
+              legend.position = "none") +
         scale_x_continuous(position = "top")
 
 ## Update colours for plotting:
@@ -97,6 +97,17 @@ protein_domain <- protein_domain +
         scale_fill_manual(name = "Functional domains",
                           values = c("yellow",
                                      "blue"))
+
+## Add gene name:
+protein_domain <- protein_domain + geom_text(x = 1,
+                           label = "NB-ARC",
+                           hjust = -4,
+                           vjust = -1.2) +
+                 geom_text(x = 1,
+                           label = "Ankyrin 2",
+                           hjust = -8.5,
+                           vjust = -1.2)
+
 ## Save image as object:
 save(protein_domain,
      file = "./results/protein_domain.Rdata")
@@ -119,16 +130,19 @@ blank_theme <- theme_minimal() +
 
 ## Read in files containing:
 ## Group information and number of protein matches per group:
-sequence_1_info <- read.table(file = "./input/group_counts/sequence_1_prot_matches_by_group.txt",
+sequence_1_info <- read.table(file = "./input/group_counts/sequence_one_count_modified.txt",
                               header = TRUE)
 
 sequence_1_info$group <- gsub(pattern = "_",
                               replacement = " ",
                               sequence_1_info$group)
 
+sequence_1_info$group <- factor(sequence_1_info$group,
+                                   levels = unique(sequence_1_info$group))
+
 sequence_1_piechart <- ggplot(sequence_1_info,
             aes(x = "",
-                y = number,
+                y = count,
                 fill = group)) +
         geom_bar(width = 1,
                  stat = "identity")
@@ -138,22 +152,32 @@ sequence_1_piechart <- sequence_1_piechart +
                     start = 0) +
         blank_theme +
         theme(axis.text.x = element_blank()) +
-        scale_fill_brewer(name = "Taxonomic group",
-                          palette = "Blues") +
+       scale_fill_manual(name = "Taxonomic group",
+                         values = c("steelblue1",
+                                    "light blue",
+                                     "blue",
+                                     "navy",
+                                     "orange",
+                                     "brown",
+                                     "grey",
+                                     "black")) +
   theme(axis.title = element_blank(),
         legend.title = element_text(face = "bold"))
 
 ## read in sequence 2:
-sequence_2_info <- read.table(file = "./input/group_counts/sequence_2_prot_matches_by_group.txt",
+sequence_2_info <- read.table(file = "./input/group_counts/sequence_two_count_modified.txt",
                               header = TRUE)
 
 sequence_2_info$group <- gsub(pattern = "_",
                               replacement = " ",
                               sequence_2_info$group)
 
+sequence_2_info$group <- factor(sequence_2_info$group,
+                                   levels = unique(sequence_2_info$group))
+
 sequence_2_piechart <- ggplot(sequence_2_info,
             aes(x = "",
-                y = number,
+                y = count,
                 fill = group)) +
         geom_bar(width = 1,
                  stat = "identity")
@@ -163,22 +187,33 @@ sequence_2_piechart <- sequence_2_piechart +
                     start = 0) +
         blank_theme +
         theme(axis.text.x = element_blank()) +
-        scale_fill_brewer(name = "Taxonomic group",
-                          palette = "Blues") +
+       scale_fill_manual(name = "Taxonomic group",
+                         values = c("steelblue1",
+                                    "light blue",
+                                     "blue",
+                                     "navy",
+                                     "orange",
+                                     "brown",
+                                     "grey",
+                                     "black")) +
         theme(axis.title = element_blank(),
               legend.title = element_text(face = "bold"))
 
 ## read in sequence 3:
-sequence_3_info <- read.table(file = "./input/group_counts/sequence_3_prot_matches_by_group.txt",
+sequence_3_info <- read.table(file = "./input/group_counts/sequence_three_count_modified.txt",
                               header = TRUE)
 
 sequence_3_info$group <- gsub(pattern = "_",
                               replacement = " ",
                               sequence_3_info$group)
 
+sequence_3_info$group <- factor(sequence_3_info$group,
+                                   levels = unique(sequence_3_info$group))
+
+
 sequence_3_piechart <- ggplot(sequence_3_info,
             aes(x = "",
-                y = number,
+                y = count,
                 fill = group)) +
         geom_bar(width = 1,
                  stat = "identity")
@@ -188,29 +223,51 @@ sequence_3_piechart <- sequence_3_piechart +
                     start = 0) +
         blank_theme +
         theme(axis.text.x = element_blank()) +
-        scale_fill_brewer(name = "Taxonomic group",
-                          palette = "Blues") +
+       scale_fill_manual(name = "Taxonomic group",
+                         values = c("steelblue1",
+                                    "light blue",
+                                     "blue",
+                                     "navy",
+                                     "orange",
+                                     "brown",
+                                     "grey",
+                                     "black")) +
         theme(axis.title = element_blank(),
               legend.title = element_text(face = "bold"))
 
 ## read in sequence 4:
-sequence_4_info <- read.table(file = "./input/group_counts/sequence_4_prot_matches_by_group.txt",
+sequence_4_info <- read.table(file = "./input/group_counts/sequence_four_count_modified.txt",
                               header = TRUE)
+
+sequence_4_info$group <- gsub(pattern = "_",
+                              replacement = " ",
+                              sequence_4_info$group)
+
+sequence_4_info$group <- factor(sequence_4_info$group,
+                                   levels = unique(sequence_4_info$group))
 
 sequence_4_piechart <- ggplot(sequence_4_info,
                               aes(x = "",
-                                  y = number,
+                                  y = count,
                                   fill = group)) +
         geom_bar(width = 1,
                  stat = "identity")
+
 
 sequence_4_piechart <- sequence_4_piechart +
         coord_polar("y",
                     start = 0) +
         blank_theme +
         theme(axis.text.x = element_blank()) +
-        scale_fill_brewer(name = "Taxonomic group",
-                          palette = "Blues") +
+       scale_fill_manual(name = "Taxonomic group",
+                         values = c("steelblue1",
+                                    "light blue",
+                                     "blue",
+                                     "navy",
+                                     "orange",
+                                     "brown",
+                                     "grey",
+                                     "black")) +
         theme(axis.title = element_blank(),
               legend.title = element_text(face = "bold"))
 ```
@@ -228,7 +285,7 @@ combined_pies <- ggarrange(sequence_1_piechart,
           common.legend = TRUE,
           legend = "bottom")
 
-ggarrange(protein_domain,
+combined_fig <- ggarrange(protein_domain,
           combined_pies,
           ncol = 1,
           nrow = 2,
@@ -237,6 +294,10 @@ ggarrange(protein_domain,
 ggsave(file = "./results/protein_domain.png",
        height = 6,
        width = 10)
+
+## Save as object:
+save(combined_fig,
+     file = "./results/protein_domain_plus_pies.Rdata")
 ```
 
 Run lintr:
