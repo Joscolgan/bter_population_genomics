@@ -246,7 +246,7 @@ Generate combined plot:
 ```{r, message = FALSE}
 ggarrange(region_one_plot,
           region_two_plot,
-          labels = c("A", "B"),
+          labels = c("E", "F"),
           ncol = 2,
           nrow = 1,
           align = "hv")
@@ -258,8 +258,8 @@ Load previously generated arrow plot:
 ## Load arrow plot:
 load(file = "./results/plots/chrom_1_arrow_plot_region_1.Rdata")
 load(file = "./results/plots/chrom_1_arrow_plot_region_2.Rdata")
-load(file = "./results/plots/chrom_1_region_1_snp_plot.Rdata")
-load(file = "./results/plots/chrom_1_region_2_snp_plot.Rdata")
+#load(file = "./results/plots/chrom_1_region_1_snp_plot.Rdata")
+#load(file = "./results/plots/chrom_1_region_2_snp_plot.Rdata")
 ```
 
 Generate combined plots:
@@ -272,16 +272,16 @@ region_two_plot <- region_two_plot + theme(legend.position = "none")
 
 ## Generate a multi-figure plot:
 combined_apis_plot <- ggarrange(arrow_plot_one,
-                           arrow_plot_two,
-                           region_one_plot,
-                           region_two_plot,
-                           nrow = 2,
-                           ncol = 2,
-                           labels = c("A",
-                                      "B"),
-                           heights = c(0.2,
-                                       1),
-                           align = "hv")
+                                arrow_plot_two,
+                                region_one_plot,
+                                region_two_plot,
+                                nrow = 2,
+                                ncol = 2,
+                                labels = c("E",
+                                           "F"),
+                                heights = c(0.2,
+                                            1),
+                                align = "hv")
 
 ## Save object to file:
 save(data = combined_apis_plot,
