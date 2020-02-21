@@ -109,7 +109,7 @@ for (i in 1:length(pop_code_df$site_number)){
 rownames(input_vcf_gds_genofile_matrix) <- new_names
 
 ## Read in genomic coordinates:
-positions <- read.table(file = "./input/vcf/regions_of_interest/region_of_interest_snp_positions.txt",
+positions <- read.table(file = "./input/vcf/regions_of_interest/snp_positions_of_interest.txt",
                         header = FALSE)
 positions_to_plot <- positions$V2
 ## Assign to colnames:
@@ -149,13 +149,13 @@ heatmap_plot <- ggplot(dat_new_melted_ordered,
                   scale_fill_gradient(low = "black", high = "grey") +
                   ylab("Samples") +
                   xlab("Genomic position (bp)") +
-theme(legend.title = element_text(size = 15),
-        axis.text.y = element_text(size = 8),
-        legend.text = element_text(size = 15),
-        plot.title = element_text(size = 15),
-        axis.title = element_text(size = 15,
+theme(legend.title = element_text(size = 12),
+        axis.text.y = element_text(size = 6),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size = 12),
+        axis.title = element_text(size = 12,
                                 face = "bold"),
-        axis.text.x = element_text(size = 8,
+        axis.text.x = element_text(size = 6,
                                    angle = 45,
                                    hjust = 1)) +
         theme(legend.position = "none")
