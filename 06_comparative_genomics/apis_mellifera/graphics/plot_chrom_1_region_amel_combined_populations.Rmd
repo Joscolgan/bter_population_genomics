@@ -168,7 +168,7 @@ region_one_plot <- ggplot(combined_nd_melt,
                    alpha = 0.75) +
         geom_line() +
         xlab("Genomic coordinates (bp)") +
-        ylab("Nucleotide diversity") +
+        ylab("Nucleotide diversity (pi)") +
         geom_hline(yintercept = c(nucdiv_median),
                    linetype = "dashed",
                    colour = "orange") +
@@ -183,15 +183,16 @@ region_one_plot <- ggplot(combined_nd_melt,
         scale_x_continuous(labels = scales::comma,
                            limits = c(region_one_start,
                                       region_one_end),
-                           position = "bottom") +
-        scale_color_manual(values = c("blue",
+                           position = "top") +
+        scale_color_manual(name = "Population",
+                           values = c("blue",
                                       "orange",
                                       "black",
                                       "purple")) +
         theme_bw() +
         theme(axis.text = element_text(size = 10,
                                        face = "plain"),
-              axis.title = element_text(size = 15,
+              axis.title = element_text(size = 12,
                                         face = "bold"),
               axis.title.x = element_blank(),
                 legend.text = element_text(size = 6,
@@ -211,7 +212,7 @@ region_two_plot <- ggplot(combined_nd_melt,
                    alpha = 0.75) +
         geom_line() +
         xlab("Genomic coordinates (bp)") +
-        ylab("Nucleotide diversity") +
+        ylab("Nucleotide diversity (pi)") +
         geom_hline(yintercept = c(nucdiv_median),
                    linetype = "dashed",
                    colour = "orange") +
@@ -226,15 +227,16 @@ region_two_plot <- ggplot(combined_nd_melt,
         scale_x_continuous(labels = scales::comma,
                            limits = c(region_two_start,
                                       region_two_end),
-                           position = "bottom") +
-        scale_color_manual(values = c("blue",
+                           position = "top") +
+        scale_color_manual(name = "Population",
+                values = c("blue",
                                       "orange",
                                       "black",
                                       "purple")) +
         theme_bw() +
         theme(axis.text = element_text(size = 10,
                                        face = "plain"),
-              axis.title = element_text(size = 15,
+              axis.title = element_text(size = 12,
                                         face = "bold"),
               axis.title.x = element_blank(),
               axis.title.y = element_blank(),
@@ -279,7 +281,7 @@ combined_apis_plot <- ggarrange(arrow_plot_one,
                                 ncol = 2,
                                 labels = c("E",
                                            "F"),
-                                heights = c(0.2,
+                                heights = c(0.3,
                                             1),
                                 align = "hv")
 
