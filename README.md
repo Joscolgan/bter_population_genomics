@@ -4,10 +4,10 @@ __Signatures of ongoing selection in response to environmental pressures in a wi
 Colgan TJ, Arce AN, Gill RJ, Ramos Rodrigues A, Kanteh A, Li L, Chittka L, Wurm Y.  
 
 The present repository contains scripts for:  
-- 1) The quality assessment of raw sequencing data using [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
-- 2) Filtering of raw Illumina FASTQ data (data_analysis/) using the following steps:
-- a) Adaptor identification and removal using [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
-- b) Interleaving of adaptor removed pairs using [Khmer](https://github.com/dib-lab/khmer).  
+- The quality assessment of raw sequencing data using [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
+- Filtering of raw Illumina FASTQ data (data_analysis/) using the following steps:
+- 1) Adaptor identification and removal using [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
+- 2) Interleaving of adaptor removed pairs using [Khmer](https://github.com/dib-lab/khmer). 
 - The alignment and variant calling of filtered Illumina FASTQ data (data_analysis/)  
 - The assessment of population structure and admixture (population_structure_analyses/)  
 - Investigate signatures of selection, including:  
