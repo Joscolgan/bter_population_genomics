@@ -8,6 +8,7 @@ The present repository contains scripts for:
 - Filtering of raw Illumina FASTQ data (data_analysis/) using the following steps:
 - 1) Adaptor identification and removal using [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
 - 2) Interleaving of adaptor removed pairs using [Khmer](https://github.com/dib-lab/khmer). 
+- 3) Filtering based on sequence quality using [fastx](http://hannonlab.cshl.edu/fastx_toolkit/).  
 - The alignment and variant calling of filtered Illumina FASTQ data (data_analysis/)  
 - The assessment of population structure and admixture (population_structure_analyses/)  
 - Investigate signatures of selection, including:  
