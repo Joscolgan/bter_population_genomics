@@ -9,6 +9,9 @@ The present repository contains scripts for:
 - 1) Adaptor identification and removal using [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
 - 2) Interleaving of adaptor removed pairs using [Khmer](https://github.com/dib-lab/khmer). 
 - 3) Filtering based on sequence quality using [fastx](http://hannonlab.cshl.edu/fastx_toolkit/).  
+- 4) K-mer counting and filtering using [Khmer](https://github.com/dib-lab/khmer).  
+- 5) Split back into pairs and orphans produced during filtering using [Khmer](https://github.com/dib-lab/khmer).  
+- 6) Remove sequences less than 50bp in length using [seqtk](https://github.com/lh3/seqtk).  
 - The alignment and variant calling of filtered Illumina FASTQ data (data_analysis/)  
 - The assessment of population structure and admixture (population_structure_analyses/)  
 - Investigate signatures of selection, including:  
