@@ -14,7 +14,7 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 
@@ -28,17 +28,24 @@ Read input file:
 
 ```{r, message=FALSE}
 ## Read in input file for plots:
-input <- "./results/input_for_plot.txt"
+input <- "./input_for_plot.txt"
 input_df <- read.table(file = input,
-                             header = TRUE)
+                             header = FALSE)
+colnames(input_df) <- c("ipr_name",
+                        "ipr_description",
+                        "term_number",
+                        "pvalues_adjusted")
 
 ## Convert underscore to blank space:
-input_df$ipr_description <- paste(gsub("_",
+input_df$ipr_description <- gsub("_",
                                  " ",
-                                 input_df$ipr_description),
-                                 " (",
-                                 input_df$term_count,
-                                 ")", sep = "")
+                                 input_df$ipr_description)
+## Combine ipr description and term number:
+input_df$combined_term <- paste(input_df$ipr_description,
+                                " (",
+                                input_df$term_number,
+                                ")",
+                                sep = "")
 
 ## Log transform for plotting:
 input_df$log_transformed <- -log(input_df$pvalues_adjusted)
@@ -49,7 +56,7 @@ Generate plot:
 ```{r, message=FALSE}
 ## Generate plot:
 input_for_plot <- ggbarplot(input_df,
-                            x = "ipr_description",
+                            x = "combined_term",
                             y = "log_transformed",
                             position = position_dodge(0.1),
                             fill = "grey",
