@@ -4,9 +4,14 @@ output: plot_ipr_domains.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
+## Introduction:  
+The following scripts takens a list of InterProScan domains of interest and plots a barchart using [ggplot2](https://ggplot2.tidyverse.org/). The script outputs a .png image as default.  
+
 ```{r, message = FALSE}
 ## Load libraries:
-libraries <- c("lintr", "ggplot2", "ggpubr")
+libraries <- c("lintr",
+               "ggplot2",
+               "ggpubr")
 for (lib in libraries) {
         if (require(package = lib, character.only = TRUE)) {
                 print("Successful")
@@ -21,7 +26,6 @@ for (lib in libraries) {
 ## Create output folder:
 dir.create(path = "./results/figures",
            recursive = TRUE)
-
 ```
 
 Read input file:
