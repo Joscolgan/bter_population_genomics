@@ -34,7 +34,7 @@ for (lib in libraries) {
         print("Installing")
         source("https://bioconductor.org/biocLite.R")
         avebiocLite(pkgs = lib)
-        library(lib, character.only = TRUE )
+        library(lib, character.only = TRUE)
     }
 }
 ```
@@ -45,13 +45,16 @@ Load in genelist and database files.
 ```{r}
 ## Step One:
 ## Define input:
-input <- "./input/dmel_bter_go_term_database.txt"
+input <- "./input/database/dmel_bter_go_term_database.txt"
 
 ## GO annotations
 gene_to_go_mapping_file <- input
 
 ## genes overlapping with regions of significantly low nucleotide diversity:
-gene_list <- scan(file = "input/zscore_normalised_sig_low_div_tjd_merged_flanking_regions_overlap_gene_ids.txt",
+gene_input <- "zscore_normalised_sig_low_div_tjd_merged_flanking_regions_overlap_gene_ids.txt"
+gene_list <- scan(file = paste("results/",
+                               gene_input,
+                               sep = ""),
                   as.character())
 
 ## Define node size:
@@ -73,14 +76,14 @@ if (file.exists(output_directory)) {
 Read in input file:
 
 ```{r, message = FALSE}
-## Read in GO annotations:  
+## Read in GO annotations: 
 gene_to_go_mapping <- readMappings(file = gene_to_go_mapping_file)
-geneUniverse <- names(gene_to_go_mapping)
+gene_universe <- names(gene_to_go_mapping)
 
-genesOfInterest <- as.character(gene_list)
+genes_of_interest <- as.character(gene_list)
 
-geneList <- factor(as.integer(geneUniverse %in% genesOfInterest))
-names(geneList) <- geneUniverse
+genelist <- factor(as.integer(gene_universe %in% genes_of_interest))
+names(genelist) <- gene_universe
 ```
 
 ## Steps Two and Three: Create topGO Object & run tests for GO term enrichment
@@ -129,36 +132,11 @@ for (go_category in c("BP", "MF", "CC")) {
                                                       method = c("BH"))
   result_weight_output$weight_fisher_adjusted <- p.adjust(p = result_weight_output$weight_fisher,
                                                           method = c("BH"))
-  ## Subset calls with significance higher than expected:
-  result_weight_output_sig <- subset(x      = result_weight_output,
-                                     subset = (Significant > Expected) &
-                                             (weight_fisher_adjusted < 0.05))
-  ## Print to console one of the GO terms of interest to check the distribution of that GO term across ranked genes:
-  print(showGroupDensity(object  = my_go_data,
-                         whichGO = head(result_weight_output_sig$GO.ID,
-                                        n = 1),
-                         ranks   = TRUE,
-                         rm.one  = FALSE))
-  ## Print out all GO terms of interest:
-  for (go_term in 1:nrow(result_weight_output_sig)){
-          output_name <- head(result_weight_output_sig$GO.ID,
-                              n = go_term)
-          output_name <- paste("./",
-                               output_name,
-                               ".pdf",
-                               sep = "")
-          pdf()
-          print(showGroupDensity(object  = my_go_data,
-                         whichGO = result_weight_output_sig$GO.ID[go_term],
-                         ranks   = TRUE,
-                         rm.one  = FALSE))
-          dev.off()
-  }
   ## Write to output:
-  write.table(x         = result_weight_output_sig,
+  write.table(x         = result_weight_output,
               file      = file.path(output_directory,
                                     paste(go_category,
-                                          "sig.tsv",
+                                          "raw.tsv",
                                           sep = "_")),
               row.names = FALSE,
               sep       = "\t",
@@ -170,5 +148,5 @@ Run lintr:
 
 ```{r, message = FALSE}
 ## Check style:
-lintr::lint(file = "./GO_enrichment_ks_rank_test.Rmd")
+lintr::lint(file = "./go_enrichment_analysis_fisher.Rmd")
 ```
