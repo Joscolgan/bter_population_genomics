@@ -12,7 +12,8 @@ The present repository contains scripts for:
 - 4) K-mer counting and filtering using [Khmer](https://github.com/dib-lab/khmer).  
 - 5) Split back into pairs and orphans produced during filtering using [Khmer](https://github.com/dib-lab/khmer).  
 - 6) Remove sequences less than 50bp in length using [seqtk](https://github.com/lh3/seqtk).  
-- The alignment and variant calling of filtered Illumina FASTQ data (data_analysis/)  
+- The alignment and variant calling of filtered Illumina data:
+- 1) Alignment against the [bumblebee](https://www.ncbi.nlm.nih.gov/assembly/GCF_000214255.1) reference genome was performed using [bowtie 2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 - The assessment of population structure and admixture (population_structure_analyses/)  
 - Investigate signatures of selection, including:  
   - 1) Investigating regions of reduced nucleotide diversity using [PopGenome](https://cran.r-project.org/web/packages/PopGenome/index.html).  
