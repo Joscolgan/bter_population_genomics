@@ -16,7 +16,7 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 
@@ -29,7 +29,7 @@ Read in input data:
 
 ```{r, message = FALSE}
 ## Read in input file:
-data <- read.table(file = "./results/bter_all_chrom_100kb_approx_F.txt",
+data <- read.table(file = "./results/bter_all_chrom_100kb_approx_F_jump_size_zero.txt",
                    header = TRUE)
 
 ## Calculate z-score for nucleotide diversity:
@@ -42,11 +42,13 @@ data$nd_zscores <- (data$nuc_diversity - data_nd_mean) / data_nd_sd
 data$nd_pvalue2sided <- 2 * pnorm(-abs(data$nd_zscores))
 
 ## Calculate z-score for Tajima's D:
-data_td_sd <- sd(data$tajima_d)*sqrt((length(data$tajima_d)-1)/(length(data$tajima_d)))
+data_td_sd <- sd(data$tajima_d) *
+              sqrt((length(data$tajima_d) - 1) /
+                           (length(data$tajima_d)))
 data_td_mean <- mean(data$tajima_d)
 
 data$td_zscores <- (data$tajima_d - data_td_mean) / data_td_sd
-data$td_pvalue2sided <- 2*pnorm(-abs(data$td_zscores))
+data$td_pvalue2sided <- 2 * pnorm(-abs(data$td_zscores))
 ```
 
 Write the output to file:
@@ -82,4 +84,9 @@ nrow(subset(data,
 
 ## Save output:
 save(data, file = "./results/zscore_normalised.Rdata")
+```
+Run lintr
+
+```{r, message = FALSE}
+lintr::lint(file = "./calculate_zscores.Rmd")
 ```
