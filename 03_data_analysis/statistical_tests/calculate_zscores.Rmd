@@ -23,22 +23,23 @@ for (lib in libraries) {
 ## Create output folder:
 dir.create(path = "./results/figures",
            recursive = TRUE)
-
 ```
 
 Read in input data:
 
 ```{r, message = FALSE}
 ## Read in input file:
-data <- read.table(file = "./input/nucleotide_diversity_output/bter_all_chrom_100kb.txt",
+data <- read.table(file = "./results/bter_all_chrom_100kb_approx_F.txt",
                    header = TRUE)
 
 ## Calculate z-score for nucleotide diversity:
-data_nd_sd <- sd(data$nuc_diversity)*sqrt((length(data$nuc_diversity)-1)/(length(data$nuc_diversity)))
+data_nd_sd <- sd(data$nuc_diversity) *
+                 sqrt((length(data$nuc_diversity) - 1) /
+                              (length(data$nuc_diversity)))
 data_nd_mean <- mean(data$nuc_diversity)
 
 data$nd_zscores <- (data$nuc_diversity - data_nd_mean) / data_nd_sd
-data$nd_pvalue2sided <- 2*pnorm(-abs(data$nd_zscores))
+data$nd_pvalue2sided <- 2 * pnorm(-abs(data$nd_zscores))
 
 ## Calculate z-score for Tajima's D:
 data_td_sd <- sd(data$tajima_d)*sqrt((length(data$tajima_d)-1)/(length(data$tajima_d)))
@@ -51,6 +52,9 @@ data$td_pvalue2sided <- 2*pnorm(-abs(data$td_zscores))
 Write the output to file:
 
 ```{r, message = FALSE}
+## Turn off scientific notation:
+options(scipen = 999)
+
 ## write to output
 write.table(x = data,
             file = "./results/zscore_normalised.txt",
@@ -64,9 +68,17 @@ Subset regions with significant high or low nucleotide diversity:
 
 ```{r, message = FALSE}
 ## Subset significant terms:
-data_nd_sig <- subset(data, nd_pvalue2sided < 0.05)
-data_td_sig <- subset(data, tajima_d > 0 &
+data_nd_sig <- subset(data,
+                      nd_pvalue2sided < 0.05)
+data_td_sig <- subset(data,
+                      tajima_d < 0 &
                       td_pvalue2sided < 0.05)
+
+## Regions with low diversity and low Tajima's D:
+nrow(subset(data,
+       nd_pvalue2sided < 0.05 &
+                tajima_d < 0 &
+               td_pvalue2sided < 0.05))
 
 ## Save output:
 save(data, file = "./results/zscore_normalised.Rdata")
