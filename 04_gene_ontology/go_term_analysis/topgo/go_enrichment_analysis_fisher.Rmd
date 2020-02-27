@@ -1,6 +1,7 @@
 ---
-title: "Bombus pesticide exposure: gene expression in head"
-output: GO_enrichment.html
+title: "Bombus population genomics"
+output: go_enrichment_analysis_fisher.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 # Introduction 
