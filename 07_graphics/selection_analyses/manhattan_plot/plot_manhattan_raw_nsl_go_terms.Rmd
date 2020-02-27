@@ -33,7 +33,7 @@ Read in data
 
 ```{r, message = FALSE}
 ## Read in variants:
-variants <- read.table(file = "./subset_tmp/input_for_r_annotated.txt",
+variants <- read.table(file = "./input/nsl_input/input_for_r_annotated.txt",
                        col.names = c("CHR",
                                      "BP",
                                      "P",
@@ -46,7 +46,7 @@ variants$SNP <- rownames(variants)
 variants$P <- abs(variants$P)
 
 ## Extract top 50 peaks of interest:
-input <- "./input/nsl_output/top_50_genes/input_for_plot_top20.txt"
+input <- "./input/nsl_input/input_for_plot_top20.txt"
 peaks <- read.table(file = input,
                     col.names = c("CHR",
                                   "BP",
@@ -121,7 +121,7 @@ manhattan_plot <- ggplot(don, aes(x = BPcum,
                                       "navy"),
                                     22 )) +
     geom_hline(yintercept = 2.56,
-               color = "black",
+               color = "blue",
                linetype = "dashed") +
     xlab("Chromosome") +
     ylab("|nsl| score") +
