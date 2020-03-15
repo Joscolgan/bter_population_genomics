@@ -35,7 +35,7 @@ distribution of gene locations in the region of interest. It also loads a SNP he
 
 ```{r, message = FALSE}
 ## Read in data:
-nsl_input <- "./input/nsl/input_for_r.txt"
+nsl_input <- "./input/nsl/input_for_r_annotated.txt"
 nsl_data <- read.table(file = nsl_input,
                        col.names = c("chrom",
                                      "position",
@@ -68,16 +68,16 @@ nsl_input_subset <- subset(nsl_data,
                             position > start &
                             position < end)
 
-## subset sites above 2.56 to highlight on plot:
+## subset sites above 2.72 (i.e. top 10% of genes) to highlight on plot:
 nsl_snps_highlight <- subset(nsl_input_subset,
-                            nsl_score > 2.56)
+                            nsl_score > 2.72)
 ```
 
 Generate plot of EHH:
 
 ```{r, message = FALSE}
 ## Plot nsl values:
-nsl_input_subset$high_nsl <- nsl_input_subset$nsl_score > 2.56
+nsl_input_subset$high_nsl <- nsl_input_subset$nsl_score > 2.72
 nsl_plot <- ggplot(nsl_input_subset,
                    aes(x = position,
                        y = nsl_score,
@@ -92,9 +92,9 @@ nsl_plot <- ggplot(nsl_input_subset,
                           fill = "light blue",
                           alpha = 0.008,
                           color = NA) +
-        geom_hline(yintercept = c(2.56),
+        geom_hline(yintercept = c(2.72),
                    linetype = "dashed",
-                   colour = "orange") +
+                   colour = "purple") +
         scale_x_continuous(labels = scales::comma,
                            limits = c(start, end)) +
                 geom_point(size = 3,
@@ -162,16 +162,17 @@ Read in SNP genotype matrix:
 load(file = "results/plots/wolbachia_arrow_plot.Rdata")
 load(file = "results/plots/wolbachia_snp_plot.Rdata")
 load(file = "results/plots/wolbachia_boxplot.Rdata")
-load(file = "results/plots/wolbachia_pie_plot_updated.Rdata")
+load(file = "results/protein_domain_plus_pies.Rdata")
 ```
 
 Generate combined plots:
 
 ```{r, message=FALSE}
-## Comebine RNA expression and pie charts into a single pane:
+## Combine RNA expression and pie charts into a single pane:
 fifth_panel <- ggarrange(life_wolbachia_stages_plot,
-          domain_plus_pies,
+          combined_fig,
           ncol = 2,
+          align = "hv",
           nrow = 1,
           labels = c("D",
                      "E"))
@@ -186,8 +187,8 @@ ggarrange(arrow_plot,
           labels = c("A",
                      "B",
                      "C"),
-          heights = c(0.7,
-                     1.5,
+          heights = c(0.5,
+                     1.3,
                      1.5,
                      1.5),
           align = "hv")
