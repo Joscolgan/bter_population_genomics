@@ -1,8 +1,8 @@
---- 
-title: "Bombus pesticide exposure: gene expression in head"
-output: gene_level_3treatments.html
-authors:  Isabel Fletcher, Joe Colgan, Yannick Wurm http://wurmlab.com
---- 
+---
+title: "Bombus population genomics"
+output: gene_level_wolbachia_expression_plus_plot.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
 
 # Introduction
 This script is for differential gene expression analysis of transcript quantification data.
