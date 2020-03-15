@@ -4,7 +4,7 @@ output: make_gggenes_plot.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
-## Introduction  
+## Introduction:  
 This script takes a tab-delimited file as input containing the following columns:
 1) Chromosome name
 2) Start position of chromosome
@@ -332,7 +332,7 @@ ggsave(file = "./results/protein_domain.png",
        width = 10)
 
 ## Save everything as R object:
-save.image(file = "./results/protein_domain_plus_pies.Rdata")
+save.image(file = "./results/protein_domain_plus_pies.RData")
 ```
 
 Run lintr:
