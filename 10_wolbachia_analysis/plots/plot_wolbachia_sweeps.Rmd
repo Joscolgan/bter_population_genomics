@@ -4,9 +4,18 @@ output: plot_wolbachia_sweep.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
+## Introduction:  
+This script takes multiple tab-delimited text files and R objects from other scripts to generate and output to file a multi-plot image (.png, .pdf).  
+The multiple plot image contains:  
+1) An arrow plot of genes in region of interest. Arrow plot generated using [gggenes](https://cran.r-project.org/web/packages/gggenes/vignettes/introduction-to-gggenes.html).  
+2) A scatterplot of nsl values per SNP. nsl scores per SNP calculated using [selscan](https://github.com/szpiech/selscan).  
+3) A genotype heatmap generated using [SNPRelate](https://bioconductor.org/packages/release/bioc/html/SNPRelate.html) and displayed using [ggplot2](https://ggplot2.tidyverse.org/).  
+4) Boxplots displaying variation in gene expression across bumblebee life stages in a gene of interest.  
+5) An arrow plot of predicted protein of interest and piecharts.  
+
+Multiple image plot generated using [ggpubr](http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/).  
 
 ## Load libraries:
-
 ```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("devtools",
