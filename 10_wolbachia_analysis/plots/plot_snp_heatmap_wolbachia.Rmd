@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_snp_heatmap.html
+output: plot_snp_heatmap_wolbachia.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
