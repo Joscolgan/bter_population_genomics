@@ -4,6 +4,14 @@ output: calculate_zscores.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
+## Introduction:  
+This script takes a tab-delimited text file as input containing columns with information on:
+1) Nucleotide diversity calculated for sliding windows of 100kb.  
+2) Tajima's D calculated for sliding windows of 100 kb.  
+This script transforms values for each measure into z-scores and then calculates windows with significant outliers.  
+The output is a tab-delimited text file containing a list of significant windows.  
+The script also saves the primary dataset (a dataframe) as an R object.  
+
 ```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("lintr",
@@ -83,7 +91,7 @@ nrow(subset(data,
                td_pvalue2sided < 0.05))
 
 ## Save output:
-save(data, file = "./results/zscore_normalised.Rdata")
+save(data, file = "./results/zscore_normalised.RData")
 ```
 Run lintr
 
