@@ -27,40 +27,44 @@ dir.create("results")
 ## Take arguments from the command line:
 ## Provide access to a copy of the command line arguments supplied when R session is invoked
 args <- commandArgs(TRUE)
-region_of_interest <- args[1] 						# Assign first argument as input
+region_of_interest <- args[1]
 depth_file <- args[2]
-output <- args[3]						# Assign second argument as input
-message(paste("will output to", output))
+output <- args[3]
+message(paste("will output to",
+              output))
 
 ## First of all read in gene of interest coordinates:
 region_input <- read.table(file = region_of_interest,
-header = FALSE)
+                           header = FALSE)
 colnames(region_input) <- c("chromosome",
-"gene_start",
-"gene_end")
+                            "gene_start",
+                            "gene_end")
 print("Region input loaded")
 
 ## Second read in depth file:
 depth_input <- read.table(file = depth_file,
-header = FALSE)
+                          header = FALSE)
 ## Update column names:
 colnames(depth_input) <- c("chromosome",
-"position",
-"depth")
+                           "position",
+                           "depth")
 print("Depth input loaded")
 
 region_chrom <- as.character(region_input$chromosome)
 
 ## Subset depth file using gene coordinates:
 depth_subset <- subset(depth_input,
-chromosome == region_chrom &
-position >=  region_input$gene_start &
-position <= region_input$gene_end)
+                       chromosome == region_chrom &
+                       position >=  region_input$gene_start &
+                       position <= region_input$gene_end)
 print("Subset completed")
 
 ## Calculate t test between gene of interest and rest of genome:
-print(t.test(depth_subset$depth, depth_input$depth))
-chars <- capture.output(print(t.test(depth_subset$depth, depth_input$depth)))
-writeLines(chars, con = file(output))
+print(t.test(depth_subset$depth,
+             depth_input$depth))
+chars <- capture.output(print(t.test(depth_subset$depth,
+                                     depth_input$depth)))
+writeLines(chars,
+           con = file(output))
 ## Print to console:
 print("Script complete! Check output")
