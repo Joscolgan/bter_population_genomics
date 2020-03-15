@@ -4,16 +4,6 @@ output: plot_wolbachia_sweep.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
-## Introduction:  
-This script takes numerous tab-delimited text files and R objects as input to generate a multiple image plot
-generated through a combination of [ggplot2](https://ggplot2.tidyverse.org/) and [ggpubr](http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/).  
-For input, this script specifically takes the following:  
-1) A tab-delimited text file containing five columns:  
-a) chrom: Chromosome where a polymorphic site (SNP) is located.  
-b) position: The phyiscal position of the SNP of interest.  
-c) nsl_score: A nsl score assigned to the SNP by [selscan](https://github.com/szpiech/selscan).  
-d) annotation: Functional annotation of the SNP assigned by [SnpEff](http://snpeff.sourceforge.net/SnpEff_manual.html).  
-e) locus: The gene symbol where the SNP is located or at least within 5kb.  
 
 ## Load libraries:
 
@@ -169,10 +159,10 @@ Read in SNP genotype matrix:
 
 ```{r, message=FALSE}
 ## Load previously generated arrow and heatmap plots:
-load(file = "results/plots/wolbachia_arrow_plot.Rdata")
-load(file = "results/plots/wolbachia_snp_plot.Rdata")
-load(file = "results/plots/wolbachia_boxplot.Rdata")
-load(file = "results/protein_domain_plus_pies.Rdata")
+load(file = "results/plots/wolbachia_arrow_plot.RData")
+load(file = "results/plots/wolbachia_snp_plot.RData")
+load(file = "results/plots/wolbachia_boxplot.RData")
+load(file = "results/protein_domain_plus_pies.RData")
 ```
 
 Generate combined plots:
@@ -204,8 +194,8 @@ ggarrange(arrow_plot,
           align = "hv")
 
 ## Save:
-ggsave(file = "results/wolbachia_combined_plot_test.png",
-       width = 12,
+ggsave(file = "results/wolbachia_combined_plot_test.pdf",
+       width = 14,
        height = 12)
 ```
 
