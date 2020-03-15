@@ -24,7 +24,7 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 
@@ -50,18 +50,18 @@ snpgdsVCF2GDS(input_vcf,
               method = "biallelic.only")
 ## Extract genotype information:
 input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
-## Extract genotype information and generate genotypic matrix:  
+## Extract genotype information and generate genotypic matrix:
 input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                                       "genotype"))
-## Perform PCA and store output in variable:  
+## Perform PCA and store output in variable:
 pca      <- snpgdsPCA(input_vcf_gds_genofile,
                       num.thread = 2,
                       autosome.only = FALSE)
-## Calculate percentages for principal components:  
+## Calculate percentages for principal components:
 pc_percent      <- pca$varprop * 100
-## Print rounded up percentages:  
+## Print rounded up percentages:
 print(round(pc_percent, 2))
-## Extract sample names from input:  
+## Extract sample names from input:
 sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                        "sample.id"))
 ## Print to console:
@@ -71,7 +71,7 @@ snpgdsClose(input_vcf_gds_genofile)
 Plot heatmap to demonstrate representation of haplotypes within population:
 
 ```{r}
-## Format change '2' to '1'
+## Format change '2' to '1':
 input_vcf_gds_genofile_matrix[input_vcf_gds_genofile_matrix == 2] <- 1
 
 ## Read in table:
@@ -87,9 +87,9 @@ colnames(pop_code_df) <- c("sample",
 ## Check status of whether there are two or one individual per site:
 new_names <- vector()
 
-for (i in 1:length(pop_code_df$site_number)){
+for (i in seq(pop_code_df$site_number)) {
         status <- duplicated(pop_code_df$site_number)[i]
-        if (status==FALSE){
+        if (status == FALSE) {
                 print("Not duplicated")
                 new_names <- c(new_names,
                                  paste(pop_code_df$site_number[i],
@@ -109,7 +109,7 @@ for (i in 1:length(pop_code_df$site_number)){
 rownames(input_vcf_gds_genofile_matrix) <- new_names
 
 ## Read in genomic coordinates:
-positions <- read.table(file = "./input/snp_input/input_bed_file.snp_positions.txt",
+positions <- read.table(file = "./input/bed_file/input_bed_file.snp_positions.txt",
                         header = FALSE)
 positions_to_plot <- positions$V2
 ## Assign to colnames:
@@ -120,7 +120,8 @@ input_vcf_gds_genofile_matrix_subset_df <- as.data.frame(input_vcf_gds_genofile_
 dat <- input_vcf_gds_genofile_matrix[, c(100:200)]
 row_order <- hclust(dist(dat))$order # clustering
 col_order <- hclust(dist(t(input_vcf_gds_genofile_matrix_subset_df)))$order
-dat_new <- input_vcf_gds_genofile_matrix_subset_df[row_order, ] # re-order matrix accoring to clustering
+# re-order matrix accoring to clustering
+dat_new <- input_vcf_gds_genofile_matrix_subset_df[row_order, ]
 dat_new_df <- as.data.frame(dat_new)
 dat_new_df$samples <- rownames(dat_new_df)
 ## Convert heatmap2 into ggplot2 format:
@@ -168,7 +169,8 @@ Save the heatmap to output:
 ```{r, message = FALSE}
 ## Save:
 dir.create(path = "results/plots/")
-save(heatmap_plot, file = "results/plots/wolbachia_snp_plot.Rdata")
+save(heatmap_plot,
+     file = "results/plots/wolbachia_snp_plot.Rdata")
 ```
 
 Run lintr:
