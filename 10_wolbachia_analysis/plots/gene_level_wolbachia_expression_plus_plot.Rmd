@@ -1,8 +1,8 @@
----
-title: "Bombus population genomics"
-output: gene_level_wolbachia_expression_plus_plot.html
-author: Joe Colgan, Yannick Wurm http://wurmlab.com
----
+--- 
+title: "Bombus pesticide exposure: gene expression in head"
+output: gene_level_3treatments.html
+authors:  Isabel Fletcher, Joe Colgan, Yannick Wurm http://wurmlab.com
+--- 
 
 # Introduction
 This script is for differential gene expression analysis of transcript quantification data.
@@ -17,12 +17,20 @@ This script uses the Wald test in DESeq2 to test for differential expression bet
 This can then be used for further analysis. 
 
 
-```{r}
+```{r, message = FALSE}
 # Load libraries; install from scratch if needed
-libraries <- c("tximport", "readr", "DESeq2",
-               "ggplot2", "gplots", "rhdf5",
-               "plyr", "ggfortify", "biomaRt",
-               "vsn", "RColorBrewer", "ReportingTools")
+libraries <- c("tximport",
+               "readr",
+               "DESeq2",
+               "ggplot2",
+               "gplots",
+               "rhdf5",
+               "plyr",
+               "ggfortify",
+               "biomaRt",
+               "vsn",
+               "RColorBrewer",
+               "ReportingTools")
 for (lib in libraries) {
     if (require(package = lib, character.only = TRUE)) {
         print("Successful")
@@ -37,8 +45,8 @@ dir.create("results")
 
 
 ## Step One: Input results from kallisto
-
 We use raw, non-normalised estimated counts.
+
 ```{r} 
 ## Set paths to folders containing output files from kallisto
 paths <- list()
@@ -111,6 +119,7 @@ txi_counts <- tximport(paths$kallisto_files,
 # Save object for use in other scripts
 dir.create(path = "results/count_estimates/")
 save(txi_counts, file = "results/count_estimates/txi_count_estimates.Rdata")
+load(file = "results/count_estimates/txi_count_estimates.Rdata")
 
 ## Generate plot:
 ## Subset gene of interest:
@@ -217,7 +226,7 @@ life_wolbachia_stages_plot <- ggplot(new_order_df,
   geom_boxplot(outlier.colour = "red",
                outlier.shape = 8,
                outlier.size = 4) +
-                ylab("Gene expression: TPM values") +
+                ylab("Gene expression (TPM)") +
         xlab("Samples") +
         scale_fill_manual(values = c("brown",
                                      "orange",
@@ -229,11 +238,12 @@ life_wolbachia_stages_plot <- ggplot(new_order_df,
         geom_vline(xintercept = 6.5,
                    linetype = "dashed") +
         theme_bw() +
-        theme(axis.title = element_text(face = "bold"),
-              legend.text = element_text(size = 10,
-                                         face = "plain"),
-              legend.title = element_text(size = 10,
-                                          face = "bold"),
+        theme(axis.title = element_text(face = "bold",
+                                        size = 15),
+              legend.text = element_text(face = "plain",
+                                         size = 10),
+              legend.title = element_text(face = "bold",
+                                          size = 10),
               legend.justification = c(1.1, 1.1),
               legend.position = c(1, 1),
               axis.title.x = element_blank(),
@@ -246,7 +256,7 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
         annotate("text",
                  x = 2,
                  y = 2800,
-                 label = "Larval stage",
+                 label = "Larval",
                  fontface = 2) +
         annotate("text",
                  x = 1,
@@ -267,7 +277,7 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
         annotate("text",
                  x = 5,
                  y = 2800,
-                 label = "Pupal stage",
+                 label = "Pupal",
                  fontface = 2) +
         annotate("text",
                  x = 4,
@@ -288,7 +298,7 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
         annotate("text",
                  x = 7.5,
                  y = 2800,
-                 label = "Adult stage",
+                 label = "Adult",
                  fontface = 2) +
         annotate("text",
                  x = 7,
@@ -317,7 +327,7 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
 
 ## Save plot:
 save(life_wolbachia_stages_plot,
-     file = "./results/plots/wolbachia_boxplot.Rdata")
+     file = "./results/plots/wolbachia_boxplot.RData")
 ```
 
 Run lintr:
