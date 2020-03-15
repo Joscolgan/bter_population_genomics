@@ -1,3 +1,10 @@
+---
+title: "Bombus population genomics"
+output: make_gggenes_plot.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction  
 This script takes a tab-delimited file as input containing the following columns:
 1) Chromosome name
 2) Start position of chromosome
