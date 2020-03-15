@@ -1,8 +1,7 @@
 ---
-title: "plot_phylogenetic_tree"
-author: "JoeColgan"
-date: "11 July 2018"
-output: html_document
+title: "Bombus population genomics"
+output: plot_phylogenetic_tree_modified.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 The purpose of this script is to take a newick-aligned dataset of protein sequences and plot the phylogeny. 
