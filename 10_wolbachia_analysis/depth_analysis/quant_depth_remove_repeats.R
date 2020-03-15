@@ -53,45 +53,60 @@ depth_input <- read.table(file = depth_file,
 header = FALSE)
 ## Update column names:
 colnames(depth_input) <- c("chromosome",
-"position",
-"depth")
+                           "position",
+                           "depth")
+## Print to console:
 print("Depth input loaded")
 
 ## Remove regions of zero counts or putative repetitive regions:
 depth_input <- subset(depth_input,
-depth > 0 &
-depth < 100)
+                      depth > 0 &
+                      depth < 100)
 
 region_chrom <- as.character(region_input$chromosome)
 
 ## Subset depth file using gene coordinates:
 depth_subset <- subset(depth_input,
-chromosome == region_chrom &
-position >=  region_input$gene_start &
-position <= region_input$gene_end)
+                       chromosome == region_chrom &
+                       position >=  region_input$gene_start &
+                       position <= region_input$gene_end)
+## Print to console:
 print("Subset completed")
 
+## Subset depth file for region flanking upstream:
 flank_1_subset <- subset(depth_input,
-chromosome == region_chrom &
-position >= flank_region_1_start  &
-position <= flank_region_1_end)
+                         chromosome == region_chrom &
+                         position >= flank_region_1_start  &
+                         position <= flank_region_1_end)
 
+## Subset depth file for region flanking downstream:
 flank_2_subset <- subset(depth_input,
-chromosome == region_chrom &
-position >= flank_region_2_start &
-position <= flank_region_2_end)
+                         chromosome == region_chrom &
+                         position >= flank_region_2_start &
+                         position <= flank_region_2_end)
 
 ## Calculate t test between gene of interest and rest of genome:
-print(t.test(depth_subset$depth, depth_input$depth))
-chars <- capture.output(print(t.test(depth_subset$depth, depth_input$depth)))
+print(t.test(depth_subset$depth,
+             depth_input$depth))
+chars <- capture.output(print(t.test(depth_subset$depth,
+                                     depth_input$depth)))
 ## Calculate t test between gene of interest and rest of genome:
-print(t.test(flank_1_subset$depth, depth_subset$depth))
-flank_1_chars <- capture.output(print(t.test(flank_1_subset$depth, depth_subset$depth)))
+print(t.test(flank_1_subset$depth,
+             depth_subset$depth))
+flank_1_chars <- capture.output(print(t.test(flank_1_subset$depth,
+                                             depth_subset$depth)))
 ## Calculate t test between gene of interest and rest of genome:
 print(t.test(flank_2_subset$depth, depth_subset$depth))
-flank_2_chars <- capture.output(print(t.test(flank_2_subset$depth, depth_subset$depth)))
-writeLines(chars, con = file(output))
-writeLines(flank_1_chars, con = file(output_1))
-writeLines(flank_2_chars, con = file(output_2))
+flank_2_chars <- capture.output(print(t.test(flank_2_subset$depth,
+                                             depth_subset$depth)))
+
+## Output to file:
+writeLines(chars,
+           con = file(output))
+writeLines(flank_1_chars,
+           con = file(output_1))
+writeLines(flank_2_chars,
+           con = file(output_2))
+
 ## Print to console:
 print("Script complete! Check output")
