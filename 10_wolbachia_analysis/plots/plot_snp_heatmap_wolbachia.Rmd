@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_snp_heatmap_wolbachia.html
+output: plot_snp_heatmap.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -150,10 +150,10 @@ heatmap_plot <- ggplot(dat_new_melted_ordered,
                   scale_fill_gradient(low = "black", high = "grey") +
                   ylab("Samples") +
                   xlab("Genomic position (bp)") +
-theme(legend.title = element_text(size = 15),
+theme(legend.title = element_text(size = 12),
         axis.text.y = element_text(size = 8),
-        legend.text = element_text(size = 15),
-        plot.title = element_text(size = 15),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size = 12),
         axis.title = element_text(size = 15,
                                 face = "bold"),
         axis.text.x = element_text(size = 8,
@@ -170,7 +170,7 @@ Save the heatmap to output:
 ## Save:
 dir.create(path = "results/plots/")
 save(heatmap_plot,
-     file = "results/plots/wolbachia_snp_plot.Rdata")
+     file = "results/plots/wolbachia_snp_plot.RData")
 ```
 
 Run lintr:
