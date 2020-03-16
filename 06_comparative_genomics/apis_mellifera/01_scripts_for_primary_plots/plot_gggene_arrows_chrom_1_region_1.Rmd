@@ -31,13 +31,16 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 
+## Create output directory:
 dir.create(path = "./results/plots",
            recursive = TRUE)
 ```
+
+Read in input file - formatted for running gggenes.
 
 ```{r, message = FALSE}
 ## Read in file for plotting:
@@ -68,15 +71,15 @@ arrow_plot_one <- ggplot(data, aes(xmin = as.numeric(start),
                               label = gene,
                               forward = direction)) +
         xlim(start_position, end_position) +
-  geom_gene_arrow(arrowhead_height = unit(3, "mm"),
-                  arrowhead_width = unit(1, "mm")) +
-  geom_gene_label(align = "left",
-                  min.size = 6) +
-  facet_wrap(~ molecule,
-             scales = "free",
-             nrow = 1,
-             shrink = FALSE) +
-  scale_fill_brewer(palette = "Blues") +
+        geom_gene_arrow(arrowhead_height = unit(3, "mm"),
+                        arrowhead_width = unit(1, "mm")) +
+        geom_gene_label(align = "left",
+                        min.size = 6) +
+        facet_wrap(~ molecule,
+                   scales = "free",
+                   nrow = 1,
+                   shrink = FALSE) +
+        scale_fill_brewer(palette = "Blues") +
         theme_genes() +
         theme(axis.title.y = element_blank(),
               axis.text.y = element_blank(),
