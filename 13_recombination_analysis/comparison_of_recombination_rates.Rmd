@@ -1,4 +1,29 @@
+---
+title: "Bombus population genomics"
+output: comparison_of_recombination_rates.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
 
+## Introduction:
+The purpose of this script is to compare the population-scaled recombination rates (rho) for a region of interest and compare against the genome-wide mean using a t-test.
+
+Load libraries:
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("lintr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE)
+        }
+}
+```
+
+Read in input files:
 
 ```{r, message = TRUE}
 ## Read in input:
@@ -29,6 +54,12 @@ t.test(region_of_interest_df$rho,
        genome_wide_df$rho)
 
 ## Identify SNPs in top 1% of lowest values:
-quantile(genome_wide_df$rho, 0.01)
+quantile(genome_wide_df$rho,
+         0.01)
+```
 
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "./comparison_of_recombination_rates.Rmd")
 ```
