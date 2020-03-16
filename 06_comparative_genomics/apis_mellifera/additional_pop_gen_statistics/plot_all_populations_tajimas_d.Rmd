@@ -16,7 +16,7 @@ for (lib in libraries) {
     } else {
         print("Installing")
         source("https://bioconductor.org/biocLite.R")
-        library(lib, character.only = TRUE )
+        library(lib, character.only = TRUE)
     }
 }
 
@@ -26,18 +26,18 @@ dir.create("results")
 
 Load data: 
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 ## Load african data
-load(file = "./input/african_plots.Rdata")
-load(file = "./input/asian_plots.Rdata")
-load(file = "./input/eEurope_plots.Rdata")
-load(file = "./input/wEurope_plots.Rdata")
+load(file = "./input/african_plots.RData")
+load(file = "./input/asian_plots.RData")
+load(file = "./input/eEurope_plots.RData")
+load(file = "./input/wEurope_plots.RData")
 ```
 
 Plot together:
 
-```{r, message =  FALSE}
-##
+```{r, message = FALSE}
+## Generate a combined plot:
 ggarrange(combined_plot_africa,
           combined_plot_asia,
           ncol = 1,
