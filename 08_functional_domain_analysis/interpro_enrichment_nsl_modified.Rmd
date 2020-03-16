@@ -35,7 +35,7 @@ Read in input files:
 
 ```{r}
 ## Read data from file:
-nsl_interpro_database <- read.table("./input/nsl/interproscan_input_plus_nsl_top_scores_per_gene.txt",
+nsl_interpro_database <- read.table("./input/nsl/interproscan_input_plus_nsl_top_scores_per_gene_new.txt",
                                     col.names = c("locus",
                                                   "nsl",
                                                   "length",
@@ -45,11 +45,13 @@ nsl_interpro_database <- read.table("./input/nsl/interproscan_input_plus_nsl_top
 ## Ensure nsl and ihs scores are numeric:
 nsl_interpro_database$nsl <- as.numeric(as.character(nsl_interpro_database$nsl))
 # we suppose that all values of 0 mean NO nsl was calculated
-nsl_interpro_database_nozero <- na.omit(nsl_interpro_database)
-nsl_interpro_database$nsl_corrected <- nsl_interpro_database$nsl/as.numeric(unlist(nsl_interpro_database$length))
+nsl_interpro_database_nozero <- subset(nsl_interpro_database,
+                                       nsl > 0)
+        
+nsl_interpro_database_nozero$nsl_corrected <- nsl_interpro_database_nozero$nsl/as.numeric(unlist(nsl_interpro_database_nozero$length))
 
 ## Ensure sorted by nsl:
-nsl_interpro_database_nozero <- nsl_interpro_database[order(nsl_interpro_database$nsl_corrected), ]
+nsl_interpro_database_nozero <- nsl_interpro_database_nozero[order(nsl_interpro_database_nozero$nsl_corrected), ]
 
 ## Read in a file containing interproscans at least found in 20 genes:
 interpros_to_check <- read.table("input/database/interproscan_of_interest_input_for_wilcoxon.n20.txt")$V1
@@ -104,9 +106,11 @@ cor.test(pvalues_adjust_df$wilcox_pvalues_adjust,
 
 pvalues_adjust_sig <- pvalues_adjust_sig[order(pvalues_adjust_sig$wilcox_pvalues_adjust), ]
 
+dir.create(path = "./results")
+
 ## Write to output:
 write.table(pvalues_adjust_sig,
-      file = "./results/signficiant_ipr_domains_length_corrected.txt",
+      file = "./results/signficiant_ipr_domains_length_corrected_new.txt",
       row.names = FALSE,
       col.names = TRUE,
       sep = "\t",
