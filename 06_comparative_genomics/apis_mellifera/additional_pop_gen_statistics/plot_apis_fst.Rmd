@@ -1,4 +1,8 @@
-
+---
+title: "Bombus population genomics"
+output: plot_apis_fst.html
+authors: Joe Colgan (joscolgan)
+---
 
 
 ```{r, message = FALSE}
