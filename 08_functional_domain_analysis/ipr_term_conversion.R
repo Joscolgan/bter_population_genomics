@@ -20,18 +20,30 @@ input     <- args[1] 	    # Assign first argument as input
 output    <- args[2]        # Assign second argument as output
 
 ## Load data into dataframe:
-ensembl_input <- read.table(input, stringsAsFactors = FALSE)
+ensembl_input <- read.table(input,
+                            stringsAsFactors = FALSE)
 
 ## Aggregate the list, which concatenates the second column:
 mymerge <- function(x) {
-        all_in_one <- paste(unlist(x), sep=",", collapse=",")
-        split_term <- unlist(strsplit(all_in_one, split=","))
-        return(paste(unique(split_term), sep=",", collapse=","))
+        all_in_one <- paste(unlist(x),
+                            sep = ",",
+                            collapse = ",")
+        split_term <- unlist(strsplit(all_in_one,
+                                      split = ","))
+        return(paste(unique(split_term),
+                     sep = ",",
+                     collapse = ","))
 }
 
 ## Run function:
-output_df <- aggregate(ensembl_input[-1], by=list(ensembl_input$V1), mymerge)
+output_df <- aggregate(ensembl_input[-1],
+                       by = list(ensembl_input$V1),
+                       mymerge)
 
-write.table(output_df, file = output, row.names = FALSE, col.names = FALSE,
+## Write to output:
+write.table(x = output_df,
+            file = output,
+            row.names = FALSE,
+            col.names = FALSE,
             sep = "\t",
             quote = FALSE)
