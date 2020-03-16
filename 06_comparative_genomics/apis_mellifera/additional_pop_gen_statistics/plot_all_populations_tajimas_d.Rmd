@@ -9,7 +9,9 @@ This scripts loads plots of Tajima's D across genomic windows of 10kb for four h
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
-libraries <- c("ggplot2", "ggpubr", "lintr")
+libraries <- c("ggplot2",
+               "ggpubr",
+               "lintr")
 for (lib in libraries) {
     if (require(package = lib, character.only = TRUE)) {
         print("Successful")
@@ -42,4 +44,10 @@ ggarrange(combined_plot_africa,
           combined_plot_asia,
           ncol = 1,
           nrow = 2)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "./plot_all_populations_tajimas_d.Rmd")
 ```
