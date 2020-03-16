@@ -31,13 +31,16 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 
+## Create output directory:
 dir.create(path = "./results/plots",
            recursive = TRUE)
 ```
+
+Read in input file - formatted for running gggenes.
 
 ```{r, message = FALSE}
 ## Read in file for plotting:
