@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_chrom_1_sweep.html
+output: plot_chrom_1_region_amel_combined_populations.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -30,7 +30,7 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 ```
@@ -83,7 +83,7 @@ colnames(combined_df) <- c("chrom",
 This region of interest contains 53 genes.
 
 ```{r, message=FALSE}
-## Assign the coordinates of the gene to variables plus 100kb 
+## Assign the coordinates of the gene to variables plus 100kb
 ## up and downstream of the gene:
 chrom <- "NC_037638.1"
 region_one_start <- 20537332 - 100000
@@ -160,7 +160,7 @@ combined_nd_melt$population <- gsub("western_nd",
 
 ## Generate plot:
 region_one_plot <- ggplot(combined_nd_melt,
-                       aes(x = midpoint,
+                          aes(x = midpoint,
                            y = nuc_diversity,
                            colour = population)) +
         geom_point(colour = "black",
@@ -260,8 +260,6 @@ Load previously generated arrow plot:
 ## Load arrow plot:
 load(file = "./results/plots/chrom_1_arrow_plot_region_1.Rdata")
 load(file = "./results/plots/chrom_1_arrow_plot_region_2.Rdata")
-#load(file = "./results/plots/chrom_1_region_1_snp_plot.Rdata")
-#load(file = "./results/plots/chrom_1_region_2_snp_plot.Rdata")
 ```
 
 Generate combined plots:
@@ -287,35 +285,12 @@ combined_apis_plot <- ggarrange(arrow_plot_one,
 
 ## Save object to file:
 save(data = combined_apis_plot,
-     file = "./results/combined_apis_plots.Rdata")
+     file = "./results/combined_apis_plots.RData")
 
 ## Save:
-ggsave(file = "results/large_sweep_chrom_one_combined_plot.png",
+ggsave(file = "results/chrom_one_combined_plot.png",
        width = 10,
        height = 5)
-```
-
-Alternative plot:
-
-```{r, message = FALSE}
-## Generate a combined plot:
-ggarrange(region_one_plot,
-          arrow_plot_two,
-ggarrange(region_one_plot,
-          region_two_plot,
-          nrow = 1,
-          ncol = 2,
-          align = "hv",
-          labels = c("C",
-                     "D"),
-          common.legend = TRUE),
-nrow = 2,
-ncol = 1)
-
-## Save:
-ggsave(file = "results/large_sweep_chrom_one_combined_plot_alt.png",
-       width = 12,
-       height = 8)
 ```
 
 Run lintr:
