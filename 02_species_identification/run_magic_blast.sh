@@ -1,7 +1,6 @@
 #!/bin/env bash
 ############################################################################
 ##
-##
 ## Author: Joe Colgan                      Name: run_magic_blast.sh
 ##
 ## Date: 2018/12/30
@@ -55,5 +54,8 @@ echo 'Step One: Running magic-blast - complete'
 top_bitscore="$(cut -f 13 "$output".tab | sort -k1,1nr - | head -n 1 - )"
 
 ## Filter by top matches:
-awk '$3=="100"' "$output".tab | awk '$13=='$top_bitscore'' - | cut -f 2 - | sort | uniq -c | sort -k1,1nr - > "$output".species.text
+awk '$3=="100"' "$output".tab | \
+awk '$13=='$top_bitscore'' - | \
+cut -f 2 - | sort | uniq -c | \
+sort -k1,1nr - > "$output".species.text
 head -n 1 "$output".species.text
