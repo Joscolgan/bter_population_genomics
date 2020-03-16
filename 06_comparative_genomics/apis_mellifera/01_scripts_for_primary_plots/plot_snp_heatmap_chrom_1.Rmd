@@ -5,7 +5,7 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
-This script reads in a VCF file and generates a genotype matrix.
+This script reads in a VCF file and generates a genotype matrix using [SNPRelate](https://bioconductor.org/packages/release/bioc/html/SNPRelate.html).
 Using data contained in the genotype matrix, a heatmap is generated showing the location of
 major and minor alleles.
 The output is a .png plot of the heatmap.
@@ -24,7 +24,7 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 
@@ -33,6 +33,7 @@ dir.create(path = "./results/figures",
            recursive = TRUE)
 ```
 
+Load input vcfs for generating genotype matrices:
 
 ```{r, message = FALSE}
 ## Define input:
@@ -50,29 +51,27 @@ snpgdsVCF2GDS(input_vcf,
               method = "biallelic.only")
 ## Extract genotype information:
 input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
-## Extract genotype information and generate genotypic matrix:  
+## Extract genotype information and generate genotypic matrix: 
 input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                                       "genotype"))
-## Perform PCA and store output in variable:  
+## Perform PCA and store output in variable: 
 pca      <- snpgdsPCA(input_vcf_gds_genofile,
                       num.thread = 2,
                       autosome.only = FALSE)
-## Calculate percentages for principal components:  
+## Calculate percentages for principal components: 
 pc_percent      <- pca$varprop * 100
-## Print rounded up percentages:  
+## Print rounded up percentages: 
 print(round(pc_percent, 2))
-## Extract sample names from input:  
+## Extract sample names from input: 
 sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                        "sample.id"))
 ## Print to console:
 snpgdsClose(input_vcf_gds_genofile)
 ```
 
-4) Plot heatmap to demonstrate representation of haplotypes within population:
+Plot heatmap to demonstrate representation of haplotypes within population:
 
 ```{r}
-## Format change '2' to '1'
-#input_vcf_gds_genofile_matrix[input_vcf_gds_genofile_matrix == 2] <- 1
 ## Read in sample names:
 names <- scan(paste(input_path,
                     "sample_names.txt",
@@ -124,14 +123,14 @@ heatmap_plot <- ggplot(dat_new_melted_ordered,
                   scale_fill_gradient(low = "black", high = "grey") +
                   ylab("Samples") +
                   xlab("Genomic coordinates (bp)") +
-theme(legend.title = element_text(size = 15),
-        axis.text.y = element_text(size = 8),
-        legend.text = element_text(size = 15),
-        plot.title = element_text(size = 15),
-        axis.title = element_text(size = 15,
-                                face = "bold"),
-        axis.text.x = element_text(angle = 45,
-                                   hjust = 1)) +
+        theme(legend.title = element_text(size = 15),
+              axis.text.y = element_text(size = 8),
+              legend.text = element_text(size = 15),
+              plot.title = element_text(size = 15),
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text.x = element_text(angle = 45,
+                                         hjust = 1)) +
         theme(legend.position = "none") +
         scale_x_discrete(breaks = levels(dat_new_melted_ordered$variable)[c(T,
                                                                             rep(F, 9))])
@@ -148,7 +147,7 @@ Save the heatmap to output:
 ## Save:
 dir.create(path = "results/plots/")
 save(heatmap_plot,
-     file = "results/plots/chrom_1_snp_plot.Rdata")
+     file = "results/plots/chrom_1_snp_plot.RData")
 ```
 
 Run lintr:
