@@ -4,6 +4,10 @@ output: plot_apis_fst.html
 authors: Joe Colgan (joscolgan)
 ---
 
+## Introduction:
+This script takes output from [vcftools](http://vcftools.sourceforge.net/) which calculated pairwise Weir and Cockram's Fst between two of four honeybee (_Apis mellifera_) populations.  
+The scripts plots scatterplots for two regions of interest in the honeybee genome.  
+The script outputs an image (.png, .jpeg, .pdf) of these plots.  
 
 ```{r, message = FALSE}
 #Load libraries; install from scratch if needed
