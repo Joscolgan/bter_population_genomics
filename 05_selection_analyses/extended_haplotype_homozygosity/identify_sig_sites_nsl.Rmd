@@ -38,24 +38,24 @@ Read in input:
 
 ```{r, message=FALSE}
 ## Read in data:
-NC_015762.1_nsl_data <- read.table("./nsl/NC_015762.1.nsl.out.100bins.norm")
-NC_015763.1_nsl_data <- read.table("./nsl/NC_015763.1.nsl.out.100bins.norm")
-NC_015764.1_nsl_data <- read.table("./nsl/NC_015764.1.nsl.out.100bins.norm")
-NC_015765.1_nsl_data <- read.table("./nsl/NC_015765.1.nsl.out.100bins.norm")
-NC_015766.1_nsl_data <- read.table("./nsl/NC_015766.1.nsl.out.100bins.norm")
-NC_015767.1_nsl_data <- read.table("./nsl/NC_015767.1.nsl.out.100bins.norm")
-NC_015768.1_nsl_data <- read.table("./nsl/NC_015768.1.nsl.out.100bins.norm")
-NC_015769.1_nsl_data <- read.table("./nsl/NC_015769.1.nsl.out.100bins.norm")
-NC_015770.1_nsl_data <- read.table("./nsl/NC_015770.1.nsl.out.100bins.norm")
-NC_015771.1_nsl_data <- read.table("./nsl/NC_015771.1.nsl.out.100bins.norm")
-NC_015772.1_nsl_data <- read.table("./nsl/NC_015772.1.nsl.out.100bins.norm")
-NC_015773.1_nsl_data <- read.table("./nsl/NC_015773.1.nsl.out.100bins.norm")
-NC_015774.1_nsl_data <- read.table("./nsl/NC_015774.1.nsl.out.100bins.norm")
-NC_015775.1_nsl_data <- read.table("./nsl/NC_015775.1.nsl.out.100bins.norm")
-NC_015776.1_nsl_data <- read.table("./nsl/NC_015776.1.nsl.out.100bins.norm")
-NC_015777.1_nsl_data <- read.table("./nsl/NC_015777.1.nsl.out.100bins.norm")
-NC_015778.1_nsl_data <- read.table("./nsl/NC_015778.1.nsl.out.100bins.norm")
-NC_015779.1_nsl_data <- read.table("./nsl/NC_015779.1.nsl.out.100bins.norm")
+NC_015762.1_nsl_data <- read.table("./input/nsl/NC_015762.1.nsl.out.100bins.norm")
+NC_015763.1_nsl_data <- read.table("./input/nsl/NC_015763.1.nsl.out.100bins.norm")
+NC_015764.1_nsl_data <- read.table("./input/nsl/NC_015764.1.nsl.out.100bins.norm")
+NC_015765.1_nsl_data <- read.table("./input/nsl/NC_015765.1.nsl.out.100bins.norm")
+NC_015766.1_nsl_data <- read.table("./input/nsl/NC_015766.1.nsl.out.100bins.norm")
+NC_015767.1_nsl_data <- read.table("./input/nsl/NC_015767.1.nsl.out.100bins.norm")
+NC_015768.1_nsl_data <- read.table("./input/nsl/NC_015768.1.nsl.out.100bins.norm")
+NC_015769.1_nsl_data <- read.table("./input/nsl/NC_015769.1.nsl.out.100bins.norm")
+NC_015770.1_nsl_data <- read.table("./input/nsl/NC_015770.1.nsl.out.100bins.norm")
+NC_015771.1_nsl_data <- read.table("./input/nsl/NC_015771.1.nsl.out.100bins.norm")
+NC_015772.1_nsl_data <- read.table("./input/nsl/NC_015772.1.nsl.out.100bins.norm")
+NC_015773.1_nsl_data <- read.table("./input/nsl/NC_015773.1.nsl.out.100bins.norm")
+NC_015774.1_nsl_data <- read.table("./input/nsl/NC_015774.1.nsl.out.100bins.norm")
+NC_015775.1_nsl_data <- read.table("./input/nsl/NC_015775.1.nsl.out.100bins.norm")
+NC_015776.1_nsl_data <- read.table("./input/nsl/NC_015776.1.nsl.out.100bins.norm")
+NC_015777.1_nsl_data <- read.table("./input/nsl/NC_015777.1.nsl.out.100bins.norm")
+NC_015778.1_nsl_data <- read.table("./input/nsl/NC_015778.1.nsl.out.100bins.norm")
+NC_015779.1_nsl_data <- read.table("./input/nsl/NC_015779.1.nsl.out.100bins.norm")
 ```
 
 Create a list:
@@ -94,7 +94,7 @@ nsl_samples <- list(NC_015762.1_nsl_data = NC_015762.1_nsl_data,
 df <- data.frame()
 
 ## Load quantile value:
-load(file = "./nsl_combined/nsl_quantile.Rdata")
+load(file = "./results/nsl_quantile.Rdata")
 
 ## For each sample in the list:
 for (name in nsl_samples){
@@ -130,7 +130,6 @@ unlisted.df$binom_test_adjusted <- p.adjust(p = unlisted.df$binom_test,
 unlisted.df.sig <- unlisted.df[which(unlisted.df$binom_test_adjusted < 0.05), ]
 table(unlisted.df.sig$df)
 ```
-
 
 ## Convert the input text files into zoo formatted files:
 #for (item in 1:length(names(nsl.samples))){
@@ -185,7 +184,7 @@ for (item in 1:length(names(nsl_samples))){
 }
 
 chromosome_names <- names(nsl_samples)
-chromosome_names<- gsub("_nsl_data", "", chromosome_names)
+chromosome_names <- gsub("_nsl_data", "", chromosome_names)
 
 ## Need to examine sites for each chromosome with a SNP proportion of 0.15:
 df_sig <- data.frame()
@@ -247,7 +246,7 @@ colnames(combined_df_rearranged) <- c("Chr",
 ## present within genomic windows. Windows with a high proportion (10%) of 
 ## Ns are to be removed. 
 write.table(combined_df_rearranged,
-            file = "nsl_n41_unfiltered.txt",
+            file = "results/nsl_n41_unfiltered.txt",
             sep = "\t",
             quote = FALSE,
             row.names = FALSE,
@@ -258,7 +257,7 @@ combined_df_sig <- subset(combined_df_rearranged, binom_test_adjusted < 0.05)
 
 ## Write to output:
 write.table(combined_df_sig,
-            file = "nsl_n41_unfiltered.sig.txt",
+            file = "results/nsl_n41_unfiltered.sig.txt",
             sep = "\t",
             quote = FALSE,
             row.names = FALSE,
