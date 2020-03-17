@@ -1,110 +1,118 @@
 ---
 title: "fisher_test_chrom_4"
 author: "JoeColgan"
-date: "10 July 2018"
 output: html_document
 ---
 
 ```{r}
 ## Construct table:
+data <- read.table(file = "input/combined_all_nsl_annotated_snps_n46_snp_positions.annotated.txt",
+                   header = FALSE)
+
 ## Columns: Coding and noncoding
 ## Rows: 1% and 99% (rest of the genome)
-total_snps <- 1292860
-
+total_snps <- nrow(data)
 ## With the total number of SNPs:
 ## 1) introns:
-total_intron_snps <- 740511
-
+total_intron_snps <- length(grep("intron", data$V4))
 ## 2) intergenic regions:
-total_intergenic_snps <- 228691
-
+true_intergenic_snps <- length(grep("intergenic", data$V4))
+true_updwnstream_snps <- length(grep("stream", data$V4))
+total_intergenic_snps <- true_intergenic_snps + true_updwnstream_snps
 ## 3) coding regions:
-total_coding_snps <- 35467
-
+missense_snps <- length(grep("missense", data$V4))
+synonymous_snps <- length(grep("synonymous", data$V4))
+stop_variants <- length(grep("stop", data$V4))
+start_variants <- length(grep("start", data$V4))
+initiator_variants <- length(grep("initiator", data$V4))
+splice_region_variants <- length(grep("splice_region_variant", data$V4))
+total_genic_coding <- missense_snps +
+                synonymous_snps +
+                stop_variants +
+                start_variants +
+                initiator_variants +
+                splice_region_variants
 ## 4) noncoding regions:
-total_noncoding_snps <- total_snps - total_coding_snps
+utr_snps <- length(grep("UTR_variant", data$V4))
+non_coding <- length(grep("non_coding", data$V4))
+total_genic_noncoding <- utr_snps +
+                         non_coding +
+                         total_intron_snps
 ```
 
 Calculate the variant types within top 1% of SNPs with strong signatures of EHH:
 
 ```{r}
 ## Within regions under selection:
-total_selected_snps <- 10555
+top_one_percent <- subset(data,
+                          V3 > quantile(data$V3, 0.99))
 
+## 1) introns:
+special_intron_snps <- length(grep("intron", top_one_percent$V4))
 ## 2) intergenic regions:
-intergenic_selected_snps <- 1860
-
-## 3a) intronic regions:
-intronic_selected_snps <- 5358
-
-## 3b) intronic regions:
-intronic_selected_snps_noncoding <- 163
-intronic_selected_snps_coding <- intronic_selected_snps - intronic_selected_snps_noncoding 
-
-## 4) coding regions: 
-coding_selected_snps <- 370
-
+special_intergenic_snps <- length(grep("intergenic", top_one_percent$V4))
+special_updwnstream_snps <- length(grep("stream", top_one_percent$V4))
+total_special_intergenic_snps <- special_intergenic_snps + special_updwnstream_snps
+## 3) coding regions:
+special_missense_snps <- length(grep("missense", top_one_percent$V4))
+special_synonymous_snps <- length(grep("synonymous", top_one_percent$V4))
+special_stop_variants <- length(grep("stop", top_one_percent$V4))
+special_start_variants <- length(grep("start", top_one_percent$V4))
+special_initiator_variants <- length(grep("initiator", top_one_percent$V4))
+special_splice_region_variants_1 <- length(grep("splice_region_variant", top_one_percent$V4))
+special_splice_region_variants_2 <- length(grep("splice_region_variant&", top_one_percent$V4))
+special_splice_region_variants <- special_splice_region_variants_1 - special_splice_region_variants_2
+special_genic_coding <- special_missense_snps +
+                special_synonymous_snps +
+                special_stop_variants +
+                special_start_variants +
+                special_initiator_variants +
+                special_splice_region_variants
+## 4) noncoding regions:
+special_utr_snps <- length(grep("UTR_variant", top_one_percent$V4))
+special_non_coding <- length(grep("non_coding", top_one_percent$V4))
+special_genic_noncoding <- special_utr_snps +
+                         special_non_coding +
+                         special_intron_snps
 ```
 
 Calculate the variant types within rest of genome (99% of SNPs) without strong signatures of EHH:
 
 ```{r}
 ## Within regions NOT under selection:
-total_non_selected_snps <- total_snps - total_selected_snps
-
-## 2) intergenic regions:
-intergenic_non_selected_snps <- total_intergenic_snps - intergenic_selected_snps
-
-## 3) intronic regions:
-intronic_non_selected_snps <- total_intron_snps - intronic_selected_snps
-
-## Correct for SNPs found within introns of noncoding genes:
-intronic_non_selected_noncoding_snps <- 26964
-intronic_non_selected_coding_snps <- intronic_non_selected_snps - intronic_non_selected_noncoding_snps
-
-## 4) coding regions: 
-coding_non_selected_snps <- total_coding_snps - coding_selected_snps
-
+nonspecial_genic_noncoding <- total_genic_noncoding - special_genic_noncoding
+nonspecial_genic_coding <- total_genic_coding - special_genic_coding
+nonspecial_intron <- total_intron_snps - special_intron_snps
+nonspecial_intergenic <- total_intergenic_snps - total_special_intergenic_snps
+nonspecial_utr <- true_updwnstream_snps - special_updwnstream_snps
 ```
 
 Calculate a Chi-squared test:
 
 ```{r}
 ## Construct:
-chisq.test(rbind(c(coding_selected_snps, coding_non_selected_snps), 
-                 c(intronic_selected_snps_coding, intronic_non_selected_coding_snps)))
-        
-```
-
-Comparison of SNPs within genic regions in comparison to nongenic regions:
-
-```{r}
-## Total genomewide SNPs within genic regions:
-total_genic_snps <- 819092
-
-## Selected SNPs within genic regions:
-genic_selected_snps <- 6212
-
-## SNPs within genic regions not under selectio:
-genic_non_selected_snps <- total_genic_snps - genic_selected_snps
-
-## Total SNPs within intergenic regions:
-total_intergenic_snps <- 473768
-
-## Selected SNPs within intergenic regions:
-intergenic_selected_snps <- 4343
-
-## SNPs within intergenic regions not under selectio:
-intergenic_non_selected_snps <- total_intergenic_snps - intergenic_selected_snps
-
+chisq.test(rbind(c(special_genic_coding, nonspecial_genic_coding), 
+                 c(special_intron_snps, nonspecial_intron)))
 ```
 
 Perform a Chi-squared test:
 
 ```{r}
 ## Construct:
-chisq.test(rbind(c(genic_selected_snps, genic_non_selected_snps), 
-                 c(intergenic_selected_snps, intergenic_non_selected_snps)))
+special_genic_total <- special_genic_coding + 
+                        special_genic_noncoding
+       
+nonspecial_genic_total <- nonspecial_genic_coding + 
+                        nonspecial_genic_noncoding
+ 
+special_intergenic_total <- special_intergenic_snps +
+                            special_updwnstream_snps
+
+nonspecial_intergenic_total <- nonspecial_intergenic +
+                               nonspecial_utr
+
+chisq.test(rbind(c(special_genic_total, nonspecial_genic_total), 
+                 c(special_intergenic_total, nonspecial_intergenic_total)))
         
 ```
 
