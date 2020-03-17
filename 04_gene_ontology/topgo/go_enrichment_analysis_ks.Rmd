@@ -1,9 +1,8 @@
 ---
 title: "Bombus population genomics"
-output: go_enrichment_analysis.html
+output: go_enrichment_analysis_ks.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
-
 
 # Introduction 
 This script is for gene ontology (GO) enrichment analysis of differentiallly expressed genes to explore the biological processes and molecular functions associated with DE genes, using the R package 'TopGO' (https://www.bioconductor.org/packages/3.7/bioc/vignettes/topGO/inst/doc/topGO.pdf).
