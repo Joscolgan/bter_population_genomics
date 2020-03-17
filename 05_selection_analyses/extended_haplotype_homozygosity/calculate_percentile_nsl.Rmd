@@ -33,18 +33,25 @@ Read in file and calculate the top 1% value:
 
 ```{r, message = FALSE}
 ## Read in input file:
-data <- read.table(file = "./combined_nsl_input_for_calculating_top_one.txt",
+input <- "./input/combined_nsl/combined_all_nsl_annotated_snps_n46.txt"
+data <- read.table(file = input,
                    header = FALSE)
 
-## Convert Standardised ihs to absolute values:
+## Convert Standardised nsl to absolute values:
 data$V7 <- abs(data$V7)
 
 ## Calculate top 1%:
 nsl_quantile <- quantile(data$V7, 0.99)
 
 ## Assign name for output:
-output <- "nsl_quantile.Rdata"
+output <- "./results/nsl_quantile.Rdata"
 
 ## Save:
 save(nsl_quantile, file = output)
+```
+
+Use lintr to check style:
+
+```{r, message = TRUE}
+lintr::lint(file = "calculate_percentile_nsl.Rmd")
 ```
