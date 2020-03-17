@@ -1,7 +1,6 @@
 ---
-title: "Bombus population genomics"
-output: go_enrichment_analysis_fisher.html
-author: Joe Colgan, Yannick Wurm http://wurmlab.com
+title: "Bombus pesticide exposure: gene expression in head"
+output: GO_enrichment.html
 ---
 
 # Introduction 
@@ -107,7 +106,7 @@ for (go_category in c("BP", "MF", "CC")) {
   my_go_data <- new("topGOdata",
                     description = paste("GOtest", go_category, sep = "_"),
                     ontology    = go_category,
-                    allGenes    = genelist,
+                    allGenes    = geneList,
                     gene2GO     = gene_to_go_mapping,
                     annot       = annFUN.gene2GO,
                     nodeSize    = node_size) # Modify to reduce/increase stringency.
