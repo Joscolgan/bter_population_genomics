@@ -1,0 +1,107 @@
+
+
+
+```{r, message = FALSE}
+## Load libraries:
+require(ggplot2)
+require(ggpubr)
+```
+
+Load input:
+
+```{r, message = FALSE}
+input_dir <- "./input/"
+
+genome_data <- read.table(file = paste(input_dir,
+                                       "non_insecticide_response_genes_unique_nsl_scores.txt",
+                                       sep = ""),
+                          col.names = c("locus",
+                                        "nsl_score",
+                                        "gene_length"))
+
+genes_of_interest <- read.table(file = paste(input_dir,
+                                             "putative_insecticide_response_genes_unique_nsl_scores.txt",
+                                             sep = ""),
+                                col.names = c("locus",
+                                              "nsl_score",
+                                              "gene_length"))
+
+```
+
+Generate a density plot:
+
+```{r, message = FALSE}
+density_plot <- ggplot(data = genome_data,
+                       aes(x = nsl_score,
+                           fill = "blue")) +
+        geom_density(alpha = 0.5) +
+        geom_density(data = genes_of_interest,
+                     aes(x = nsl_score,
+                         fill = "orange"),
+                     alpha = 0.5) +
+        xlab(label = "nsl score") +
+        ylab(label = "Density") +
+        geom_vline(xintercept = 2.72,
+                   linetype = "dashed",
+                   colour = "purple") +
+        theme_bw() +
+        theme(axis.title = element_text(face = "bold",
+                                       size = 15),
+              legend.title = element_text(face = "bold",
+                                          size = 15),
+              legend.text = element_text(face = "plain",
+                                         size = 10),
+              legend.position = c(0.8,
+                                  0.8))
+
+## update colours:
+density_plot <- density_plot + labs(fill = "Group") +
+        scale_fill_manual(values = c("blue",
+                                     "orange"),
+                          labels = c("Genome-wide",
+                                     "Insecticide response genes"))
+
+## Comparison of means:
+t.test(genome_data$nsl_score,
+       genes_of_interest$nsl_score)
+```
+
+Try as a histogram:
+
+```{r, message = FALSE}
+histogram_plot <- ggplot(data = genome_data,
+                       aes(x = nsl_score,
+                           fill = "blue")) +
+        geom_histogram(alpha = 0.5) +
+        geom_histogram(data = genes_of_interest,
+                     aes(x = nsl_score,
+                         fill = "orange"),
+                     alpha = 0.5) +
+        xlab(label = "nsl score") +
+        ylab(label = "Density") +
+        geom_vline(xintercept = 2.72,
+                   linetype = "dashed",
+                   colour = "purple") +
+        theme_bw() +
+        theme(axis.title = element_text(face = "bold",
+                                       size = 15),
+              legend.title = element_text(face = "bold",
+                                          size = 15),
+              legend.text = element_text(face = "plain",
+                                         size = 10),
+              legend.position = c(0.8,
+                                  0.8))
+
+## update colours:
+histogram_plot <- histogram_plot + labs(fill = "Group") +
+        scale_fill_manual(values = c("blue",
+                                     "orange"),
+                          labels = c("Genome-wide",
+                                     "Insecticide response genes"))
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "./density_plot.Rmd")
+```
