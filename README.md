@@ -1,5 +1,5 @@
 ## Context & Citation:  
-This repository contains all scripts used for the population genomics analysis of wild-caught Bombus terrestris males collected across the island of Great Britain. This was developed as part of a NERC-funded project reported implemented in [Yannick Wurm's lab at Queen Mary University of London](https://wurmlab.github.io/). Findings are reported in the following manuscript:
+This repository contains all scripts used for the population genomics analysis of wild-caught _Bombus terrestris_ males collected across the island of Great Britain. This was developed as part of a NERC-funded project reported implemented in [Yannick Wurm's lab at Queen Mary University of London](https://wurmlab.github.io/). Findings are reported in the following manuscript:
 
 Colgan, T.J., Arce, A.N., Gill, R.J., Ramos Rodrigues, A., Kanteh, A., Duncan, E., Li, L., Chittka, L., Wurm, Y.  
 __Signatures of ongoing selection in response to environmental pressures in a wild population of the buff-tailed bumblebee__  
