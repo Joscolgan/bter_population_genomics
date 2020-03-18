@@ -5,10 +5,15 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
-The purpose of this script is to generate a map of Great Britain and highlight sampling sites.
+The purpose of this script is to generate a map of Great Britain and highlight sampling sites.  
+This script takes an input .csv file containing the information on:
+1) Site identifier
+2) Longitude coordinates of collection site
+3) Latitude coordinates of collection site
 The output of the script is an image (.png or .pdf) file.
 
 The first step involves installing and loading libraries:
+
 ```{r, message = FALSE}
 libraries <- c("ggplot2",
                "ggrepel",
@@ -32,7 +37,7 @@ for (lib in libraries) {
 dir.create(path = "./results")
 ```
 
-Load data for plotting from the world:
+Load data for plotting from the world as a template background:
 
 ```{r, message = FALSE}
 ## Set theme:
@@ -48,13 +53,14 @@ For plotting of collection sites, read in input file containing coordinates:
 
 ```{r, message = FALSE}
 ## Read in data:
-data_points <- read.csv(file = "input/map_input/input_for_maps.csv",
+data_points <- read.csv(file = "input/map_input/input_for_maps_reduced.csv",
                         header = TRUE)
 ```
 
-Generate map:
+Generate map for Britain:
 
 ```{r, message = FALSE}
+## Generate plot:
 britain_map <- ggplot(data = world) +
         geom_sf() +
         geom_text(data = world_points,
@@ -64,13 +70,6 @@ britain_map <- ggplot(data = world) +
                   color = "darkblue",
                   fontface = "bold",
                   check_overlap = FALSE) +
-        #annotate(geom = "text",
-        #         x = 0,
-        #         y = 55,
-        #         label = "North Sea",
-        #         fontface = "italic",
-        #         color = "grey22",
-        #         size = 8) +
         geom_point(data = data_points,
                    aes(x = Longitude,
                        y = Latitude,
