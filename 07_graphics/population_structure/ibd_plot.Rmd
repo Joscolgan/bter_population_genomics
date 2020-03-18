@@ -39,6 +39,8 @@ ibs_plot <- ggplot(data = input_for_melt_melted,
 
 ibs_plot <- ibs_plot + guides(fill = guide_legend(title = "r value"))
 
+summary(input_for_melt_melted$value)
+
 ## Print to console:
 ibs_plot
 
@@ -95,6 +97,11 @@ kinship_plot <- ggplot(data = ibd_coeff_mle_fo_melted,
 kinship_plot <- kinship_plot +
         guides(fill = guide_legend(title = "kinship coefficient")) 
 
+levels(ibd_coeff_mle_fo_melted$value)
+
+levels(ibd_coeff_mle_fo_melted$ID1) <- sample_id_sorted_by_ascending_latitude$sample.id
+
+levels(ibd_coeff_mle_fo_melted$ID2) <- sample_id_sorted_by_ascending_latitude$sample.id
 
 ## Save to file:
 ggsave(file = "./results/kinship_matrix.png",
