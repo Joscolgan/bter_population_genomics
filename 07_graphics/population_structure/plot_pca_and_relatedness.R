@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #######################################################################
 ##
-## Author: Joe Colgan           Program: plot_pca.R
+## Author: Joe Colgan           Program: plot_pca_and_relatedness.R
 ##
 ## Date:   2019/05/10
 ##
