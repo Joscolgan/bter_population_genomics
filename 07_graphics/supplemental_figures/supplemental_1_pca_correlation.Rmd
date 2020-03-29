@@ -48,7 +48,7 @@ cor.test(tab$EV2,
 lat_correlation <- ggplot(tab,
             aes(x = EV2,
                 y = latitude)) +
-            xlab(paste("Principal component",
+            xlab(paste("Principal component ",
                        2,
                        " ",
                        "(",
@@ -80,7 +80,14 @@ lat_correlation <- lat_correlation +
                            label = "p < 1e-08",
                  size = 5)
 
+## Save as .png:
 ggsave(file = "./results/supplemental_1_pca_correlation.png",
+       height = 8,
+       width = 10)
+
+## Save as .pdf
+ggsave(file = "./results/supplemental_1_pca_correlation.pdf",
+       dpi = 600,
        height = 8,
        width = 10)
 ```
