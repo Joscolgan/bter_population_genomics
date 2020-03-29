@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: combine_map_pca_plot.html
+output: multi_plot_figure_1.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -32,16 +32,21 @@ Next step is to load input files (R objects)
 
 ```{r, message = FALSE}
 ## Load objects:
-load(file = "./results/map_of_britain.Rdata")
+load(file = "./results/map_of_britain.RData")
 load(file = "./input/pca_plot/pca_plots.Rdata")
 load(file = "./results/manhattan_plot.RData")
 load(file = "./results/figures/combined_go_terms_barchart.Rdata")
 load(file = "./results/histogram_snp_by_variant_type.Rdata")
+```
 
+1) Plot map:
+
+```{r, message = FALSE}
 ## Read in data:
 data_points <- read.csv(file = "input/map_input/input_for_maps.csv",
                         header = TRUE)
 
+## Update axes titles on map:
 britain_map <- britain_map +
         theme_bw() +
         theme(legend.position = "none",
@@ -49,19 +54,23 @@ britain_map <- britain_map +
                   face = "plain"),
               axis.title = element_text(size = 15,
                   face = "bold"))
+```
 
+2) Plot PCA:
+
+```{r, message = FALSE}
 ## Update latitude plot with points:
-lat_plot <- ggplot(tab,
-            aes(x = tab$EV1,
-                y = tab$EV2)) +
-            xlab(paste("Principal component",
+pca_plot <- ggplot(tab,
+            aes(x = EV1,
+                y = EV2)) +
+            xlab(paste("Principal component ",
                        1,
                        " ",
                        "(",
                        round(pc_percent[1],
                              2), "%", ")",
                        sep = "")) +
-            ylab(paste("Principal component",
+            ylab(paste("Principal component ",
                        2,
                        " ",
                        "(",
@@ -86,8 +95,8 @@ cor.test(tab$EV2,
 
 ## Update latitude plot with points:
 lat_correlation <- ggplot(tab,
-            aes(x = tab$EV2,
-                y = tab$latitude)) +
+            aes(x = EV2,
+                y = latitude)) +
             xlab(paste("Principal component",
                        2,
                        " ",
@@ -127,48 +136,107 @@ lat_correlation <- lat_correlation +
 ggsave(file = "./results/correlation_latitude.png",
        height = 8,
        width = 10)
+```
 
+3) Generate a combined plot for map and PCA:
+
+```{r, message = FALSE}
 ## Combine and plot together:
-map_plot <- ggarrange(britain_map,
-          lat_plot,
-          ncol = 2,
-          nrow = 1,
-          align = "hv",
-          widths = c(1, 1),
-          labels = c("A", "B"))
+map_and_pca_plot <- ggarrange(britain_map,
+                              pca_plot,
+                              ncol = 2,
+                              nrow = 1,
+                              align = "hv",
+                              widths = c(1, 1),
+                              labels = c("A", "B"))
+```
 
-variant_plot <- ggarrange(manhattan_plot,
-          variant_histogram,
-          ncol = 1,
-          nrow = 2,
-          align = "hv",
-          widths = c(1, 1),
-          labels = c("C", "D"))
+4) Generate a second multi-image plot for:
+i)   Manhattan plot of nsl values
+ii)  Histogram of functional variant types
+iii) Barchart of enriched Gene Ontology terms:
 
-plot_2 <- ggarrange(variant_plot,
-          combined_terms_plot,
-          ncol = 2,
-          nrow = 1,
-          labels = c("C",
-                     "E"))
+First, generate a combined plot of manhattan (i) and histogram (ii) plots:
 
-plot_3 <- ggarrange(map_plot,
-          plot_2,
-          ncol = 1,
-          nrow = 2,
-          heights = c(0.75, 1)
-          )
+```{r, message = FALSE}
+## Ensure axis titles are the same size across plots:
+manhattan_plot <- manhattan_plot +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold")) +
+        theme(legend.position = "none")
+
+## Ensure axis titles are the same size across plots:
+variant_histogram <- variant_histogram +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold")) +
+        theme(legend.position = "none")
+
+## Generate a combined plot:
+manhattan_and_hist_plot <- ggarrange(manhattan_plot,
+                                     variant_histogram,
+                                     ncol = 1,
+                                     nrow = 2,
+                                     align = "hv",
+                                     widths = c(1, 1),
+                                     labels = c("C", "D"))
+```
+
+Second, combine this plot with barchart (iii)
+
+```{r, message = FALSE}
+## Ensure axis titles are same size across plots:
+combined_terms_plot <- combined_terms_plot +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold")) +
+        theme(legend.position = "none")
+
+## Generate a combined plot:
+man_hist_barchart_plot <- ggarrange(manhattan_and_hist_plot,
+                                    combined_terms_plot,
+                                    ncol = 2,
+                                    nrow = 1,
+                                    labels = c("C",
+                                               "E"))
+```
+
+Third, generate a final combined plot consisting of:
+i) map and pca plot
+ii) Manhattan, histogram and barchart plots
+
+```{r, message = FALSE}
+## Generate combined plot:
+combined_plot <- ggarrange(map_and_pca_plot,
+                           man_hist_barchart_plot,
+                           ncol = 1,
+                           nrow = 2,
+                           heights = c(0.75, 1)
+                           )
+
+## Print to console:
+combined_plot
 
 ## Save combined plot to file:
-ggsave(file = "./results/figure_1_map_plus_pca_plus_manhattan.png",
+ggsave(file = "./results/figure_1_map_pca_plus_manhattan.png",
         width = 13,
         height = 16)
 
 ## Save as PDF:
-ggsave(file = "./results/figure_1_map_plus_pca.pdf",
+ggsave(file = "./results/figure_1_map_pca_plus_manhattan.pdf",
        dpi = 600,
         width = 13,
         height = 16)
+```
+
+Save also as an R object:
+
+```{r, message = FALSE}
+save.image(file = "./results/figure_1_map_pca_plus_manhattan.RData")
 ```
 
 Run lintr:
