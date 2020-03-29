@@ -55,7 +55,9 @@ input_vcf <- input
 ## to reside in memory. GDS formatted data is also designed for efficient data access to large datasets.
 
 ## Use the name of input to designate the name for the GDS file format.
-input_vcf_gds <- gsub(".vcf", ".gds", input_vcf)
+input_vcf_gds <- gsub(pattern = ".vcf",
+                      replacemnt = ".gds",
+                      x = input_vcf)
 
 ## Reformat VCF into GDS format
 snpgdsVCF2GDS(input_vcf,
@@ -108,7 +110,7 @@ colnames(pop_code_df) <- c("sample",
                            "original_site_number",
                            "latitude")
 
-## 
+## Assign landuse information:
 pop_code <- pop_code_df$landuse
 
 ## Generate a dataframe containing a column for:
@@ -129,8 +131,9 @@ new_names <- list()
 ## Create a list:
 for (name in sample_id){
         new_names[name] <- paste(strsplit(name, "_")[[1]][5],
-        "_", strsplit(name, "_")[[1]][6],
-        sep = "")
+                                 "_",
+                                 strsplit(name, "_")[[1]][6],
+                                 sep = "")
 }
 
 ## Unlist as a character string and update sample ids:
@@ -145,15 +148,22 @@ tab$latitude <- pop_code_df$latitude
 ## Check status of whether there are two or one individual per site:
 new_site_id <- vector()
 
+## Annotate samples if more than one per site
 for (i in 1:length(tab$site_id)){
         status <- duplicated(tab$site_id)[i]
         if (status==FALSE){
                 print("Not duplicated")
-                new_site_id <- c(new_site_id, paste(tab$site_id[i], "A", sep=""))
+                new_site_id <- c(new_site_id,
+                                 paste(tab$site_id[i],
+                                       "A",
+                                       sep = ""))
         }
         else {
                 print("Duplicated")
-                new_site_id <- c(new_site_id, paste(tab$site_id[i], "B", sep=""))
+                new_site_id <- c(new_site_id,
+                                 paste(tab$site_id[i],
+                                       "B",
+                                       sep = ""))
         }
 }
 
@@ -162,21 +172,37 @@ tab$site_id <- new_site_id
 
 ## Alternatively, to plot with just sample ids and not points:
 landuse_plot <- ggplot(tab,
-                    aes(x = tab$EV1,
-                        y = tab$EV2,
-                        color = tab$pop)) +
-        #geom_point(shape = 16, size = 4, alpha = 0.4, show.legend = T) +
-        theme_minimal() +
-        xlab(paste("Principal component", 1," ","(",round(pc_percent[1], 2), "%", ")", sep = "")) +
-        ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep = "")) +
-#geom_text(size = 6, position = position_jitter(width = 0.04, height = 0.04),
-        geom_text(size = 5,
-        aes(label = tab$site_id, color = tab$pop)) +
-        scale_color_manual(values = c("blue", "orange", "red")) +
-              theme(axis.text=element_text(size = 20),
-                    axis.title=element_text(size = 20,
-                                            face = "plain")) +
-                    theme(legend.position = "none")
+                       aes(x = tab$EV1,
+                           y = tab$EV2,
+                           color = tab$pop)) +
+theme_minimal() +
+xlab(paste("Principal component",
+           1,
+           " ",
+           "(",
+           round(pc_percent[1], 2),
+           "%",
+           ")",
+           sep = "")) +
+        ylab(paste("Principal component",
+                   2,
+                   " ",
+                   "(",
+                   round(pc_percent[2], 2),
+                   "%",
+                   ")",
+                   sep = "")) +
+geom_text(size = 5,
+          aes(label = tab$site_id,
+              color = tab$pop)) +
+scale_color_manual(values = c("blue",
+                              "orange",
+                              "red")) +
+theme(axis.text = element_text(size = 20),
+      axis.title = element_text(size = 20,
+                                face = "plain")) +
+theme(legend.position = "none")
+
 ## Plot:
 ggsave(file = landuse_output,
         dpi = 600,
@@ -185,8 +211,8 @@ ggsave(file = landuse_output,
 
 ## Alternatively, to plot with just sample ids and not points:
 lat_plot <- ggplot(tab,
-            aes(x = tab$EV1,
-                y = tab$EV2,
+            aes(x = EV1,
+                y = EV2,
                 fill = tab$latitude)) +
                 #color = tab$pop)) +
                 #geom_point(shape = 16, size = 4, alpha = 0.4, show.legend = T) +
@@ -195,11 +221,13 @@ lat_plot <- ggplot(tab,
             ylab(paste("Principal component", 2," ","(",round(pc_percent[2], 2), "%", ")", sep = "")) +
             #geom_text(size = 6, position = position_jitter(width = 0.04, height = 0.04),
             #geom_text(size = 6, position=position_jitter(width=0.04, height=0.04), aes(label=tab$site_id, color=tab$latitude)) +
-            geom_text(size = 5, aes(label=tab$site_id, color=tab$latitude)) +
+            geom_text(size = 5,
+                      aes(label = tab$site_id,
+                          color = tab$latitude)) +
             scale_fill_distiller(palette = "Blues") +
             theme(axis.text = element_text(size = 20),
-            axis.title = element_text(size = 20,
-            face = "plain")) +
+                  axis.title = element_text(size = 20,
+                                            face = "plain")) +
             theme(legend.position = "none")
 
 ## Plot:
@@ -287,4 +315,4 @@ ggsave("correlation_plot_IBS.png",
        height = 10)
 
 ## Save object:
-save.image(file = "./results/pca_plots.Rdata")
+save.image(file = "./results/pca_plots.RData")
