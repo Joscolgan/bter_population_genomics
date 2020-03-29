@@ -67,12 +67,12 @@ ibs_plot <- ibs_plot +
 ibs_plot
 
 ## Save image as .png:
-ggsave(file = "results/ibs_correlation_plot.png",
+ggsave(file = "results/supplemental_2_ibs_correlation_plot.png",
        height = 10,
        width = 10)
 
 ## Save image as .pdf:
-ggsave(file = "results/ibs_correlation_plot.pdf",
+ggsave(file = "results/supplemental_2_ibs_correlation_plot.pdf",
        dpi = 600,
        height = 10,
        width = 10)
