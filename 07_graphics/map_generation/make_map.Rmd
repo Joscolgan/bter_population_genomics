@@ -108,7 +108,7 @@ ggsave(file = "./results/map_of_britain.png",
 
 ## Save image as an R object:
 save(britain_map,
-     file = "./results/map_of_britain.Rdata")
+     file = "./results/map_of_britain.RData")
 ```
 
 Run lintr:
