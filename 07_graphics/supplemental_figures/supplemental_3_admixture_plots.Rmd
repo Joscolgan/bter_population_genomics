@@ -161,5 +161,5 @@ ggsave(file = "./results/supplemental_3_admixture_plots.pdf",
 Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "./plot_admixture_results.Rmd")
+lintr::lint(file = "./supplemental_3_admixture_plots.Rmd")
 ```
