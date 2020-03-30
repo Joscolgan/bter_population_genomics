@@ -114,5 +114,3 @@ Check script using lintr
 ```{r, message = FALSE}
 lintr::lint(file = "./plot_ipr_domains.Rmd")
 ```
-
-
