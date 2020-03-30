@@ -29,7 +29,6 @@ for (lib in libraries) {
 ## Create output folder:
 dir.create(path = "./results/figures",
            recursive = TRUE)
-
 ```
 
 Read input file:
@@ -98,12 +97,12 @@ input_for_plot <- ggbarplot(input_df,
                    colour = "black")
 
 ## Save picture:
-ggsave(file = "results/figures/enriched_functional_domains.png",
+ggsave(file = "results/supplemental_4_enriched_functional_domains.png",
        height = 12,
        width = 12)
 
 ## Save picture:
-ggsave(file = "results/figures/enriched_functional_domains.pdf",
+ggsave(file = "results/supplemental_4_enriched_functional_domains.pdf",
        dpi = 600,
        height = 12,
        width = 12)
@@ -112,5 +111,5 @@ ggsave(file = "results/figures/enriched_functional_domains.pdf",
 Check script using lintr
 
 ```{r, message = FALSE}
-lintr::lint(file = "./plot_ipr_domains.Rmd")
+lintr::lint(file = "./supplemental_4_plot_ipr_domains.Rmd")
 ```
