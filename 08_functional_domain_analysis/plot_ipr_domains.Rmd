@@ -4,6 +4,14 @@ output: plot_ipr_domains.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
+## Introduction:  
+This script takes a tab-delimited text file as input containing four columns:
+1) InterPro (IPR) domain accession identifier.
+2) InterPro (IPR) domain description.
+3) The number of times a specific term appears in the reference species predicted proteome.
+4) Value of significance (BH-adjusted p-value).
+This script generates a barchart of enriched IPR domains and outputs a saved image (.png, .pdf, .jpeg).
+
 ```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("lintr", "ggplot2", "ggpubr")
@@ -91,6 +99,12 @@ input_for_plot <- ggbarplot(input_df,
 
 ## Save picture:
 ggsave(file = "results/figures/enriched_functional_domains.png",
+       height = 12,
+       width = 12)
+
+## Save picture:
+ggsave(file = "results/figures/enriched_functional_domains.pdf",
+       dpi = 600,
        height = 12,
        width = 12)
 ```
