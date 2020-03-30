@@ -1,8 +1,7 @@
 ---
-title: "plot_admixture_results"
-author: "JoeColgan"
-date: "13 July 2018"
-output: html_document
+title: "Bombus population genomics"
+output: supplemental_3_admixture_plots.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
