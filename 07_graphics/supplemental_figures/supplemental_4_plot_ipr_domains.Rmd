@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_ipr_domains.html
+output: supplemental_4_plot_ipr_domains.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
