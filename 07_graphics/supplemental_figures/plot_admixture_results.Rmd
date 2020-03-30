@@ -1,0 +1,166 @@
+---
+title: "plot_admixture_results"
+author: "JoeColgan"
+date: "13 July 2018"
+output: html_document
+---
+
+## Introduction:
+The purpose of this scripts is to take output files from the coancestry and subpopulation estimator software, ADMIXTURE and generate scatterplots. The input files are for two estimates of subpopulations (k) present within the current dataset. These estimates include:
+- Cross validation error rate: the lowest CV error reat for a K in comparison to other K suggests the most appropriate
+- Loglikelihood of L: This should have a correlation with CV error rate. 
+
+```{r}
+## Load libraries:
+libraries <- c("devtools",
+               "ggplot2",
+               "ggpubr",
+               "lintr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE)
+        }
+}
+```
+
+Investigate and plot correction error rate:
+
+```{r}
+## Read in data for plotting of scatterplot:
+admixture_data <- read.table("./input/complete_CV.txt",
+                             header = FALSE)
+
+## Subset columns 2 and 3 containing information on proposed number of populations and CV error value:
+admixture_data_subset <- admixture_data[, 2:3]
+
+## Reformat the third column:
+admixture_data_subset$V2 <- gsub(pattern     = "\\(K=",
+                                 replacement = "",
+                                 x = admixture_data_subset$V2)
+
+admixture_data_subset$V2 <- gsub(pattern = "\\)",
+                                 replacement = "",
+                                 x = admixture_data_subset$V2)
+
+## Rename columns and sort by K populations numerically:
+admixture_data_subset_sorted <- admixture_data_subset[order(as.numeric(as.character(admixture_data_subset$V2))), ]
+```
+
+Plot Correction validation error rate:
+
+```{r}
+## Update column names:
+colnames(admixture_data_subset_sorted) <- c("k",
+                                            "cv")
+
+## Ensure K and CV are numeric values:
+admixture_data_subset_sorted$k <- as.numeric(admixture_data_subset_sorted$k)
+admixture_data_subset_sorted$cv <- as.numeric(admixture_data_subset_sorted$cv)
+
+## Subset on the value of K:
+admixture_data_subset_sorted <- subset(x = admixture_data_subset_sorted,
+                                       k <= 20)
+
+## Reorder levels:
+admixture_data_subset_sorted$k <- factor(admixture_data_subset_sorted$k,
+                                        levels = admixture_data_subset_sorted$k)
+
+## Plot using ggplot:
+admixture_scatterplot <- ggplot(data = admixture_data_subset_sorted,
+                                aes(x = admixture_data_subset_sorted$k,
+                                    y = admixture_data_subset_sorted$cv)) +
+                                xlab(expression(italic("K"))) +
+                                ylab("Cross validation error") +
+                                geom_point(size = 3) +
+                                theme_minimal()
+
+## Make axes text font bigger:
+admixture_scatterplot <- admixture_scatterplot +
+        theme(axis.text = element_text(size = 12),
+              axis.title = element_text(size = 12,
+                                        face = "bold"))
+
+## Print to console:
+admixture_scatterplot
+```
+
+
+Plot estimated loglikelihood rate:
+
+```{r}
+## Read in log likelihood file:
+loglikelihood_data <- read.table(file = "./input/complete_loglihood.txt",
+                                 header = FALSE)
+
+## Rename columns:
+colnames(loglikelihood_data) <- c("k", "loglikelihood")
+
+## Reformat input data:
+loglikelihood_data$k <- gsub(pattern = "log",
+                             replacement = "",
+                             loglikelihood_data$k)
+
+loglikelihood_data$k <- gsub(pattern = "[.]out",
+                             replacement = "",
+                             loglikelihood_data$k)
+
+## Convert column values to numeric:
+loglikelihood_data$k <- as.numeric(loglikelihood_data$k)
+
+## Subset to k=20:
+loglikelihood_data <- subset(loglikelihood_data,
+                             k <= 20)
+
+## Plot using ggplot:
+loglikelihood_scatterplot <- ggplot(loglikelihood_data,
+                                    aes(x = k,
+                                        y = loglikelihood)) +
+        xlab(expression(italic("K"))) +
+        ylab("Estimated loglikelihood") +
+        geom_point(size = 3) +
+        theme_minimal()
+
+## Make axes text font bigger:
+loglikelihood_scatterplot <- loglikelihood_scatterplot +
+        theme(axis.text = element_text(size = 12),
+              axis.title = element_text(size = 12,
+                                        face = "bold"))
+
+## Print to console:
+loglikelihood_scatterplot
+```
+
+Combine plots and save:
+
+```{r}
+## Combine plots:
+ggarrange(admixture_scatterplot,
+          loglikelihood_scatterplot,
+          ncol = 2,
+          nrow = 1,
+          labels = c("A",
+                     "B"))
+
+## Save as .png file:
+dir.create(path = "./results")
+ggsave(file = "./results/supplemental_3_admixture_plots.png",
+       height = 6,
+       width = 10)
+
+## Save as .pdf file:
+ggsave(file = "./results/supplemental_3_admixture_plots.pdf",
+       dpi = 600,
+       height = 6,
+       width = 10)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "./plot_admixture_results.Rmd")
+```
