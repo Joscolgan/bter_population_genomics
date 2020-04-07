@@ -35,7 +35,7 @@ Next step is to load input files (R objects)
 load(file = "./results/map_of_britain.RData")
 load(file = "./input/pca_plot/pca_plots.Rdata")
 load(file = "./results/manhattan_plot.RData")
-load(file = "./results/figures/combined_go_terms_barchart.Rdata")
+load(file = "./input/go_barchart/combined_go_terms_barchart.RData")
 load(file = "./results/histogram_snp_by_variant_type.Rdata")
 ```
 
@@ -87,55 +87,6 @@ pca_plot <- ggplot(tab,
                   axis.title = element_text(size = 15,
                   face = "bold")) +
             theme(legend.position = "none")
-
-## Perform correlation test:
-cor.test(tab$EV2,
-         tab$latitude,
-         methd = "pearson")
-
-## Update latitude plot with points:
-lat_correlation <- ggplot(tab,
-            aes(x = EV2,
-                y = latitude)) +
-            xlab(paste("Principal component",
-                       2,
-                       " ",
-                       "(",
-                       round(pc_percent[2],
-                             2), "%", ")",
-                       sep = "")) +
-            ylab("Latitude (°N)") +
-        geom_point(size = 5,
-                aes(color = latitude,
-                    fill = latitude)) +
-        geom_label_repel(aes(label = site_id)) +
-        theme_minimal() +
-            theme(axis.text = element_text(size = 10,
-                  face = "plain"),
-                  axis.title = element_text(size = 15,
-                  face = "bold")) +
-            theme(legend.position = "none")
-
-## Perform correlation test:
-cor.test(tab$EV2,
-         tab$latitude)
-
-## Annotate plot with results from cor.test
-lat_correlation <- lat_correlation +
-        annotate(geom = "text",
-                           y = 55.5,
-                           x = -0.15,
-                           label = "r = 0.75",
-                 size = 5) +
-        annotate(geom = "text",
-                           y = 55.2,
-                           x = -0.15,
-                           label = "p < 1e-08",
-                 size = 5)
-
-ggsave(file = "./results/correlation_latitude.png",
-       height = 8,
-       width = 10)
 ```
 
 3) Generate a combined plot for map and PCA:
@@ -178,8 +129,8 @@ variant_histogram <- variant_histogram +
 ## Generate a combined plot:
 manhattan_and_hist_plot <- ggarrange(manhattan_plot,
                                      variant_histogram,
-                                     ncol = 1,
-                                     nrow = 2,
+                                     ncol = 2,
+                                     nrow = 1,
                                      align = "hv",
                                      widths = c(1, 1),
                                      labels = c("C", "D"))
@@ -199,10 +150,11 @@ combined_terms_plot <- combined_terms_plot +
 ## Generate a combined plot:
 man_hist_barchart_plot <- ggarrange(manhattan_and_hist_plot,
                                     combined_terms_plot,
-                                    ncol = 2,
-                                    nrow = 1,
+                                    ncol = 1,
+                                    nrow = 2,
                                     labels = c("C",
-                                               "E"))
+                                               "E"),
+                                    heights = c(1, 1.5))
 ```
 
 Third, generate a final combined plot consisting of:
@@ -215,22 +167,40 @@ combined_plot <- ggarrange(map_and_pca_plot,
                            man_hist_barchart_plot,
                            ncol = 1,
                            nrow = 2,
-                           heights = c(0.75, 1)
+                           heights = c(0.75, 1.5)
                            )
 
 ## Print to console:
 combined_plot
+```
 
-## Save combined plot to file:
-ggsave(file = "./results/figure_1_map_pca_plus_manhattan.png",
-        width = 13,
-        height = 16)
+Save output:
 
-## Save as PDF:
-ggsave(file = "./results/figure_1_map_pca_plus_manhattan.pdf",
-       dpi = 600,
-        width = 13,
-        height = 16)
+```{r, message = FALSE}
+output_file_name <- "figure_1_map_pca_plus_manhattan"
+
+## Create multiple image files:
+for (extension in c("png",
+                    "pdf")) {
+         ## Create output path:
+         path_to_dir <- paste("results/",
+                              extension,
+                              "/",
+                              sep = "")
+         ## Create output directory:
+         dir.create(path = path_to_dir,
+                    recursive = TRUE)
+         ## Save:
+         print(output_file_name)
+         ggsave(file = paste(path_to_dir,
+                             output_file_name,
+                             ".",
+                             extension,
+                             sep = ""),
+                dpi = 300,
+                height = 20,
+                width = 13)
+}
 ```
 
 Save also as an R object:
