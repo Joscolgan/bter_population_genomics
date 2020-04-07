@@ -20,7 +20,7 @@ for (lib in libraries) {
     } else {
         print("Installing")
         source("https://bioconductor.org/biocLite.R")
-        library(lib, character.only = TRUE )
+        library(lib, character.only = TRUE)
     }
 }
 
