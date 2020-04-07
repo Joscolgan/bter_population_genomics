@@ -43,13 +43,13 @@ Load in genelist and database files.
 ```{r}
 ## Step One:
 ## Define input:
-input <- "./input/topgo/mart_export_dmel_bter_go_terms.converted.output.txt"
+input <- "./input/database/dmel_bter_go_term_database.txt"
 
 ## GO annotations
 gene_to_go_mapping_file <- input
 
 ## file of significant genes (2 column file: i.e. gene id and pvalue) file:
-nsl_ranked_file <- "./input/gene_length_correct/nsl_scores_per_gene.txt"
+nsl_ranked_file <- "./input/nsl/top_nsl_for_all_genes_plus_length.txt"
 
 ## Define node size:
 node_size <- 50
@@ -62,7 +62,8 @@ if (file.exists(output_directory)) {
   stop("The output directory:", output_directory, ", already exists",
        "Let's avoid overwriting")
 } else {
-  dir.create(output_directory)
+  dir.create(output_directory,
+             recursive = TRUE)
 }
 ```
 
@@ -74,25 +75,32 @@ nsl_ranked <- read.table(file = nsl_ranked_file,
                          col.names = c("locus",
                                        "nsl_score",
                                        "length"))
+
+nsl_ranked$length <- as.numeric(unlist(nsl_ranked$length))
+
+one_percent <- subset(nsl_ranked, nsl_score > quantile(nsl_ranked$nsl_score, 0.99))
+five_percent <- subset(nsl_ranked, nsl_score > quantile(nsl_ranked$nsl_score, 0.95))
+
+nsl_ranked <- subset(nsl_ranked,
+                     nsl_score > 0)
+
 ## Sort by adjusted p value:
 nsl_ranked_sorted <- nsl_ranked[order(-nsl_ranked$nsl_score), ]
 
 ## Remove na values:
 ## NA values are present for certain genes without expression, such as tRNAs:
-nsl_ranked_sorted_filtered <- subset(x      = nsl_ranked_sorted,
-                                   subset = !is.na(nsl_score))
+#nsl_ranked_sorted_filtered <- subset(x      = nsl_ranked_sorted,
+#                                   subset = !is.na(nsl_score))
 
 ## Divide nsl score by gene length:
-nsl_ranked_sorted_filtered$nsl_corrected_by_length <- nsl_ranked_sorted_filtered$nsl_score/nsl_ranked_sorted_filtered$length
-
-nsl_ranked_sorted_filtered <- nsl_ranked_sorted_filtered[order(-nsl_ranked_sorted_filtered$nsl_corrected_by_length), ]
+nsl_ranked_sorted$nsl_corrected_by_length <- nsl_ranked_sorted$nsl_score/nsl_ranked_sorted$length
 
 ## Read in GO annotations:  
 gene_to_go_mapping <- readMappings(file = gene_to_go_mapping_file)
 
 ## Convert into topgo's genelist format:
-topgo_genelist        <- nsl_ranked_sorted_filtered$nsl_corrected_by_length
-names(topgo_genelist) <- nsl_ranked_sorted_filtered$locus
+topgo_genelist        <- nsl_ranked_sorted$nsl_corrected_by_length
+names(topgo_genelist) <- nsl_ranked_sorted$locus
 
 #topgo_genelist <-  1 - topgo_genelist / max(topgo_genelist)
 # Define a cut-off for running fisher's exact test:  
