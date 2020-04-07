@@ -1,10 +1,11 @@
 ---
-title: "Bombus pesticide exposure: gene expression in head"
-output: GO_enrichment.html
+title: "Bombus population genomics"
+output: go_enrichment_analysis_ks.html
+authors: Joe Colgan (joscolgan)
 ---
 
 # Introduction 
-This script is for gene ontology (GO) enrichment analysis of differentiallly expressed genes to explore the biological processes and molecular functions associated with DE genes, using the R package 'TopGO' (https://www.bioconductor.org/packages/3.7/bioc/vignettes/topGO/inst/doc/topGO.pdf).
+This script is for gene ontology (GO) enrichment analysis of differentiallly expressed genes to explore the biological processes and molecular functions associated with DE genes, using the R package [TopGO] (https://www.bioconductor.org/packages/3.7/bioc/vignettes/topGO/inst/doc/topGO.pdf).
 Twp input files are required for the running of the test:  
 1) A genelist file:  
 The genelist file is a tab-delimited file containing two columns:  
