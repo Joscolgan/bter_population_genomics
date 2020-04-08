@@ -1,0 +1,83 @@
+---
+title: "Bombus population genomics"
+output: calculate_zscores_nsl.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("lintr",
+               "ggplot2",
+               "ggpubr")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE)
+        }
+}
+
+## Create output folder:
+dir.create(path = "./results/figures",
+           recursive = TRUE)
+```
+
+Read in input data:
+
+```{r, message = FALSE}
+## Read in input file:
+data <- read.table(file = "./input/combined_all_nsl_annotated_snps_n46_snp_positions.annotated.txt",
+                   header = FALSE)
+
+## Updated column names:
+colnames(data) <- c("chrom",
+                    "position",
+                    "nsl_score",
+                    "annotation")
+
+## Calculate z-score for nsl:
+data_nsl_sd <- sd(data$nsl_score) *
+                 sqrt((length(data$nsl_score) - 1) /
+                              (length(data$nsl_score)))
+data_nsl_mean <- mean(data$nsl_score)
+
+data$nsl_zscores <- (data$nsl_score - data_nsl_mean) / data_nsl_sd
+data$nsl_pvalue2sided <- 2 * pnorm(-abs(data$nsl_zscores))
+
+## Subset based on threshold of significance:
+data_sig <- subset(x = data,
+                   nsl_score > 2.56)
+nrow(data_sig)
+summary(data_sig$nsl_score)
+summary(data_sig$nsl_zscores)
+```
+
+Write the output to file:
+
+```{r, message = FALSE}
+## Turn off scientific notation:
+options(scipen = 999)
+
+## write to output
+write.table(x = data,
+            file = "./results/zscore_normalised.txt",
+            row.names = FALSE,
+            col.names = TRUE,
+            quote = FALSE,
+            sep = "\t")
+```
+
+Subset regions with significant high or low nucleotide diversity:
+
+```{r, message = FALSE}
+## Save output:
+save(data, file = "./results/zscore_normalised.Rdata")
+```
+Run lintr
+
+```{r, message = FALSE}
+lintr::lint(file = "./calculate_zscores.Rmd")
+```
