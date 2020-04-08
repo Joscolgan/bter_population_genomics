@@ -25,7 +25,7 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 ```
@@ -68,7 +68,7 @@ nsl_input_subset <- subset(nsl_data,
                             position > start &
                             position < end)
 
-## subset sites above 2.56 to highlight on plot:
+## subset sites above 2.72 (i.e. top 10% of genes) to highlight on plot:
 nsl_snps_highlight <- subset(nsl_input_subset,
                             nsl_score > 2.72)
 ```
@@ -143,7 +143,7 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                       ymax = Inf),
                   fill = "light blue",
                   alpha = 0.008) +
-                geom_line() +
+        geom_line() +
         scale_x_continuous(labels = scales::comma,
                            limits = c(start, end),
                            position = "top") +
@@ -155,48 +155,10 @@ nuc_div_plot <- ggplot(nuc_div_subset,
               axis.title.x = element_blank())
 ```
 
-Read in SNP genotype matrix:
+Save image:
 
-```{r, message=FALSE}
-## Load previously generated arrow and heatmap plots:
-load(file = "results/plots/wolbachia_arrow_plot.Rdata")
-load(file = "results/plots/wolbachia_snp_plot.Rdata")
-load(file = "results/plots/wolbachia_boxplot.Rdata")
-load(file = "results/protein_domain_plus_pies.Rdata")
-```
-
-Generate combined plots:
-
-```{r, message=FALSE}
-## Combine RNA expression and pie charts into a single pane:
-fifth_panel <- ggarrange(life_wolbachia_stages_plot,
-          combined_fig,
-          ncol = 2,
-          align = "hv",
-          nrow = 1,
-          labels = c("D",
-                     "E"))
-
-## Generate a combined plot:
-ggarrange(arrow_plot,
-          nsl_plot,
-          heatmap_plot,
-          fifth_panel,
-          nrow = 4,
-          ncol = 1,
-          labels = c("A",
-                     "B",
-                     "C"),
-          heights = c(0.5,
-                     1.3,
-                     1.5,
-                     1.5),
-          align = "hv")
-
-## Save:
-ggsave(file = "results/wolbachia_combined_plot_test.png",
-       width = 12,
-       height = 12)
+```{r, message = FALSE}
+save.image(file = "results/plots/wolbachia_sweep_scatterplot.RData")
 ```
 
 Run lintr:
