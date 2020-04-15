@@ -46,20 +46,20 @@ Load in genelist and database files.
 ```{r}
 ## Step One:
 ## Define input:
-input <- "./input/database/dmel_bter_go_term_database.txt"
+input <- "data/dmel_bter_go_term_database.txt"
 
 ## GO annotations
 gene_to_go_mapping_file <- input
 
 ## file of significant genes (2 column file: i.e. gene id and pvalue) file:
-nsl_ranked_file <- "./input/nsl/top_nsl_for_all_genes_plus_length.txt"
+nsl_ranked_file <- "./input/top_nsl_for_all_genes_plus_length.txt"
 
 ## Define node size:
 node_size <- 50
 
 output_directory <- paste("results/output_",
                           node_size,
-                          "_ks_bonferroni",
+                          "_ks_bh_0.01",
                           sep = "")
 if (file.exists(output_directory)) {
   stop("The output directory:", output_directory, ", already exists",
@@ -81,8 +81,12 @@ nsl_ranked <- read.table(file = nsl_ranked_file,
 
 nsl_ranked$length <- as.numeric(unlist(nsl_ranked$length))
 
-one_percent <- subset(nsl_ranked, nsl_score > quantile(nsl_ranked$nsl_score, 0.99))
-five_percent <- subset(nsl_ranked, nsl_score > quantile(nsl_ranked$nsl_score, 0.95))
+one_percent <- subset(nsl_ranked,
+                      nsl_score > quantile(nsl_ranked$nsl_score,
+                                                       0.99))
+five_percent <- subset(nsl_ranked,
+                       nsl_score > quantile(nsl_ranked$nsl_score,
+                                            0.95))
 
 nsl_ranked <- subset(nsl_ranked,
                      nsl_score > 0)
@@ -158,13 +162,13 @@ for (go_category in c("BP", "MF", "CC")) {
   result_weight_output$weight_ks <- as.numeric(result_weight_output$weight_ks)
   result_weight_output$weight_fisher <- as.numeric(result_weight_output$weight_fisher)
   result_weight_output$weight_ks_adjusted <- p.adjust(p = result_weight_output$weight_ks,
-                                                      method = c("bonferroni"))
+                                                      method = c("BH"))
   result_weight_output$weight_fisher_adjusted <- p.adjust(p = result_weight_output$weight_fisher,
-                                                          method = c("bonferroni"))
+                                                          method = c("BH"))
   ## Subset calls with significance higher than expected:
   result_weight_output_sig <- subset(x      = result_weight_output,
                                      subset = (Significant > Expected) &
-                                             (weight_ks_adjusted < 0.05))
+                                             (weight_ks_adjusted < 0.01))
   ## Print to console one of the GO terms of interest to check the distribution of that GO term across ranked genes:
   print(showGroupDensity(object  = my_go_data,
                          whichGO = head(result_weight_output_sig$GO.ID,
