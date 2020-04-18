@@ -27,21 +27,11 @@ colnames(data) <- c("chrom",
 Extract SNPs in the top 1% with strongest signatures of selection:
 
 ```{r, message = FALSE}
-nsl_top_one_percent <- quantile(data$nsl_score,
-                                0.99)
-
-## Within regions under selection:
-nsl_top_one_percent_df <- subset(data,
-                          nsl_score > nsl_top_one_percent)
-```
-
-
-```{r, message = FALSE}
 data$annotation_simplified <- data$annotation
 levels(data$annotation_simplified)[grep(x = levels(data$annotation_simplified),
                                         pattern = "UTR")] <- "UTR"
 levels(data$annotation_simplified)[grep(x = levels(data$annotation_simplified),
-                                        pattern = "stream")] <- "5kb up/down-stream"
+                                        pattern = "stream")] <- "Intron"
 levels(data$annotation_simplified)[grep(x = levels(data$annotation_simplified),
                                         pattern = "intron")] <- "Intron"
 levels(data$annotation_simplified)[grep(x = levels(data$annotation_simplified),
@@ -61,6 +51,8 @@ data$annotation_simplified <- factor(data$annotation_simplified,
                                                     "5kb up/down-stream",
                                                     "Intron")))
 ```
+
+Extract SNPs in the top 1% with strongest signatures of selection:
 
 ```{r, message = FALSE}
 nsl_top_one_percent <- quantile(data$nsl_score,
