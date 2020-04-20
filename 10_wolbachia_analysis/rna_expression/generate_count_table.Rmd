@@ -5,7 +5,9 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:  
-The purpose of this script is to take an R object containing gene-levels TPM counts as estimated by [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html), convert to a dataframe and output as a text file.
+The purpose of this script is to take an R object containing gene-levels TPM counts as 
+estimated by [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html),
+convert to a dataframe and output as a text file.
 
 ```{r, message = FALSE}
 ## Load R object:
@@ -29,7 +31,7 @@ dir.create(path = "results")
 write.table(x = counts_df,
             file = "results/wolbachia_count_table.txt",
             col.names = TRUE,
-            row.names = FALSE,
+            row.names = TRUE,
             quote = FALSE,
             sep = "\t")
 ```
