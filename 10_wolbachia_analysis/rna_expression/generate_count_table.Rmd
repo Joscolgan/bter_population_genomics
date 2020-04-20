@@ -1,4 +1,11 @@
+---
+title: "Bombus population genomics"
+output: generate_count_table.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
 
+## Introduction:  
+The purpose of this script is to take an R object containing gene-levels TPM counts as estimated by [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html), convert to a dataframe and output as a text file.
 
 ```{r, message = FALSE}
 ## Load R object:
