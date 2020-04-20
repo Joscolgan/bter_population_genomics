@@ -1,0 +1,34 @@
+
+
+```{r, message = FALSE}
+## Load R object:
+load(file = "input/txi_count_estimates.Rdata")
+```
+
+Extract count table:
+
+```{r, message = FALSE}
+## Convert count matrix into a dataframe:
+counts_df <- as.data.frame(txi_counts$counts)
+```
+
+Save to file:
+
+```{r, message = FALSE}
+## Create output directory:
+dir.create(path = "results")
+
+## Write table to file:
+write.table(x = counts_df,
+            file = "results/wolbachia_count_table.txt",
+            col.names = TRUE,
+            row.names = FALSE,
+            quote = FALSE,
+            sep = "\t")
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "generate_count_table.Rmd")
+```
