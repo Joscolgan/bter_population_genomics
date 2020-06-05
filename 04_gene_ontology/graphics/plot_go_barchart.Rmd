@@ -36,17 +36,17 @@ Load results from diapause samples:
 
 ```{r, message = FALSE}
 ## Read in biological processes GO terms:
-bp_terms <- read.table(file = "input/gene_ontology_input/BP_sig.tsv",
+bp_terms <- read.table(file = "results/output_50_ks_bh_0.01/BP_sig.tsv",
                        header = TRUE)
 bp_terms$category <- "BP"
 
 ## Read in molecular function GO terms:
-mf_terms <- read.table(file = "input/gene_ontology_input/MF_sig.tsv",
+mf_terms <- read.table(file = "results/output_50_ks_bh_0.01/MF_sig.tsv",
                        header = TRUE)
 mf_terms$category <- "MF"
 
 ## Read in molecular function GO terms:
-cc_terms <- read.table(file = "input/gene_ontology_input/CC_sig.tsv",
+cc_terms <- read.table(file = "results/output_50_ks_bh_0.01/CC_sig.tsv",
                        header = TRUE)
 cc_terms$category <- "CC"
 ```
@@ -120,6 +120,12 @@ combined_terms_plot
 
 ## Save picture:
 ggsave(file = "results/figures/combined_go_terms_barchart.png",
+       height = 16,
+       width = 14)
+
+## Save picture:
+ggsave(file = "results/figures/combined_go_terms_barchart.pdf",
+       dpi = 600,
        height = 16,
        width = 14)
 
