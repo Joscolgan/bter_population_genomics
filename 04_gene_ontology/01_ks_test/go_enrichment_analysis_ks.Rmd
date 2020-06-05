@@ -100,9 +100,9 @@ nsl_ranked_sorted <- nsl_ranked[order(-nsl_ranked$nsl_score), ]
 #                                   subset = !is.na(nsl_score))
 
 ## Divide nsl score by gene length:
-nsl_ranked_sorted$nsl_corrected_by_length <- nsl_ranked_sorted$nsl_score/nsl_ranked_sorted$length
+nsl_ranked_sorted$nsl_corrected_by_length <- nsl_ranked_sorted$nsl_score / nsl_ranked_sorted$length
 
-## Read in GO annotations:  
+## Read in GO annotations: 
 gene_to_go_mapping <- readMappings(file = gene_to_go_mapping_file)
 
 ## Convert into topgo's genelist format:
@@ -110,7 +110,7 @@ topgo_genelist        <- nsl_ranked_sorted$nsl_corrected_by_length
 names(topgo_genelist) <- nsl_ranked_sorted$locus
 
 #topgo_genelist <-  1 - topgo_genelist / max(topgo_genelist)
-# Define a cut-off for running fisher's exact test:  
+# Define a cut-off for running fisher's exact test: 
 cutoff_for_top_fivepercent <- quantile(x = topgo_genelist,
                                        probs = 0.05)
 ```
@@ -176,7 +176,7 @@ for (go_category in c("BP", "MF", "CC")) {
                          ranks   = TRUE,
                          rm.one  = FALSE))
   ## Print out all GO terms of interest:
-  for (go_term in 1:nrow(result_weight_output_sig)){
+  for (go_term in 1:nrow(result_weight_output_sig)) {
           output_name <- head(result_weight_output_sig$GO.ID,
                               n = go_term)
           output_name <- paste("./",
@@ -206,5 +206,5 @@ Run lintr:
 
 ```{r, message = FALSE}
 ## Check style:
-lintr::lint(file = "./GO_enrichment_ks_rank_test.Rmd")
+lintr::lint(file = "./go_enrichment_analysis_ks.Rmd")
 ```
