@@ -21,7 +21,7 @@ for (lib in libraries) {
         print("Installing")
         source("https://bioconductor.org/biocLite.R")
         avebiocLite(pkgs = lib)
-        library(lib, character.only = TRUE )
+        library(lib, character.only = TRUE)
     }
 }
 ```
@@ -110,7 +110,7 @@ variant_histogram <- ggplot(data = data,
                                   face = "bold"),
               axis.text = element_text(size = 10,
                                   face = "plain"),
-              axis.title.y = element_blank(), 
+              axis.title.y = element_blank(),
               legend.text = element_text(size = 10,
                                          face = "plain"),
               legend.title = element_text(size = 10,
@@ -130,7 +130,7 @@ ggsave(file = "./results/histogram_snp_by_variant_type.pdf",
 
 ## Save object:
 save(data = variant_histogram,
-     file = "./results/histogram_snp_by_variant_type.Rdata")
+     file = "./results/histogram_snp_by_variant_type.RData")
 ```
 
 Run lintr:
