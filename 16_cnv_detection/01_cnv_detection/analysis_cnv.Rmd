@@ -22,7 +22,7 @@ assessment of variability at each locus.
 8) Read depth supported duplicated loci were compared against randomly chosen loci of similar
 size across the genome. 
 
-```{r}
+```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("reshape2",
                "ggplot2",
@@ -56,7 +56,7 @@ rownames(duplications) <- paste(as.character(duplications$V1),
 duplications <- duplications[, -c(1)]  ## Remove this column
 
 ## Read in file containing sample list:
-samples <- scan("data/samples_list.txt",
+samples <- scan("data/sample_list.txt",
                 as.character())
 ## Rename samples:
 ## Renaming the sample.ids
@@ -80,7 +80,6 @@ colnames(duplications) <- samples
 total_read_numbers <- read.table("input/stat/sample_mapping_stats.txt",
                                  header = FALSE)
 
-total_read_numbers$V1 <- NULL
 total_read_tranpose <- as.data.frame(t(total_read_numbers))
 
 ## Add column names similar to experimental data:
@@ -124,9 +123,7 @@ plot(counts_normalized_sd_sorted,
      xlab = "CNV bins",
      ylab = "Standard deviation",
      main = "Variance amongst LumpySV called bins")
-## Sort by standard deviation
-## DOESN'T SORT APPROPRIATELY - SORTS BY HEADER RATHER THAN NUMERIC VALUE
-## counts.normalized.sdsorted <- counts.normalized[order(counts.normalized.sd),]
+## Sort by standard deviation:
 ## One approach is to add the standard deviation values to the dataframe containing the normalized counts
 counts_normalized_plus_sd <- cbind(counts_normalized,
                                    counts_normalized_sd)
@@ -142,7 +139,7 @@ counts_normalized_plus_sd_sorted_top20$counts_normalized_sd <- NULL
 ## Step Six: Generate heatmap of log transformed normalised read depth:
 The data was log2 transformed. To allow for visualisation with ggplot2, the data was transposed and reformatted using melt().
 
-```{r}
+```{r, message = FALSE}
 ## Log2 transfrom data:
 counts_normalized_plus_sd_sorted_top20_log_transformed <- as.matrix(log2(counts_normalized_plus_sd_sorted_top20))
 ## Transpose the normalised matrix and output as a dataframe
@@ -181,7 +178,7 @@ heatmap <- ggplot(data = df_melt,
                                         face = "bold"),
              axis.title = element_text(size = 14,
                                      face = "bold")) +
-        theme(legend.position="top") +
+        theme(legend.position = "top") +
         scale_y_discrete(position = "right")
 ```
 
@@ -249,21 +246,22 @@ k	Min. % within k standard    Max. % beyond k standard
 9	98.7654%	                1.2346%
 10	99%	                        1%
 
-```{r}
+```{r, message = FALSE}
 ## Normalise experimental dataset using number of reads aligned to reference genome (ie. library size)
 ## Combine random and experimental medians and plot
 combined_counts_normalized$status <- combined_counts$status
 combined_counts_normalized_melt <- melt(combined_counts_normalized)
 
-##Basic plot of points
-## PLotting density - raw standard deviation
+## Basic plot of points:
+## Plotting density - raw standard deviation
 ## Subset back into random and deletions:
 random_melted       <-  combined_counts_normalized_melt[combined_counts_normalized_melt$status == "random", ]
 duplications_melted <-  combined_counts_normalized_melt[combined_counts_normalized_melt$status == "duplication", ]
 ## Calculate median:
 random_melted_median       <- median(random_melted$value)
 duplications_melted_median <- median(duplications_melted$value)
-## Calculate the standard deviation for random sites
+
+## Calculate the standard deviation for random sites:
 random_mean <- mean(random_melted$value)
 sd1 <- (sd(random_melted$value) + random_mean)
 sd2 <- (sd(random_melted$value) * 2) + random_mean
@@ -277,8 +275,8 @@ den_plot <- ggplot(data = combined_counts_normalized_melt,
                        fill = status)) +
         geom_density(aes(colour = status,
                          fill = status),
-                     alpha = 0.5) + 
-        xlim(0, 10e-07) + 
+                     alpha = 0.5) +
+        xlim(0, 10e-07) +
         xlab("Normalised read depth") +
         geom_vline(xintercept =  sd3,
                    colour = "blue",
@@ -300,13 +298,16 @@ den_plot <- ggplot(data = combined_counts_normalized_melt,
                                         face = "bold"),
               legend.position = "top")
         
-## Print to console:       
+## Print to console:      
 den_plot
+
 ## How many sites > greater than 3 standard deviations from the mean?
 ## For the random sites:
 nrow(combined_counts_normalized_melt[which(combined_counts_normalized_melt$status == "duplication"), ]) # 12558
 potential_sig_dups <- combined_counts_normalized_melt[which(combined_counts_normalized_melt$status == "duplication" & combined_counts_normalized_melt$value > sd3), ] #2747
+
 nrow(combined_counts_normalized_melt[which(combined_counts_normalized_melt$status == "random" & combined_counts_normalized_melt$value > sd3), ]) #199
+
 nrow(combined_counts_normalized_melt[which(combined_counts_normalized_melt$status == "random"), ]) #38870
 ## Revised examination:
 # 3 standard deviation accounts for 78.17% of the experimental sites
@@ -321,72 +322,76 @@ sort(table(potential_sig_dups$`rownames(combined_counts_normalized)`))
 ## Step Eight: Identification of the number of sites per individual falling within duplicated regions:
 
 ```{r}
-## Subset the number of putatively duplicated sites with RD higher than 2 standard deviation from mean of randomly chosen sites.
-high_read_depth <- subset(combined_counts_normalized_melt,
-                          status == "duplication" &
-                                  value > sd3)
-
-colnames(high_read_depth) <- c("position",
-                               "status",
-                               "variable",
-                               "value")
-
+## Subset the number of putatively duplicated sites with RD higher than 3 standard deviation from mean of randomly chosen sites.
+## Update column names:
 colnames(combined_counts_normalized_melt) <- c("position",
-                                               "status",
-                                               "variable",
-                                               "value")
+                                               "structural_variant",
+                                               "sample",
+                                               "read_depth")
+
+high_read_depth <- subset(combined_counts_normalized_melt,
+                          structural_variant == "duplication" &
+                                  read_depth > sd3)
 
 high_read_depth$position <- as.character(unlist(high_read_depth$position))
+
 ## Change the column names
 colnames(high_read_depth) <- c("site",
                                "structural_variant",
                                "sample",
-                               "read_depth")
+                               "normalised_read_depth")
 
 colnames(combined_counts_normalized_melt) <- c("site",
-                               "structural_variant",
-                               "sample",
-                               "read_depth")
+                                               "structural_variant",
+                                               "sample",
+                                               "normalised_read_depth")
 
 ## Identification of the number of sites with at least one individual that has a RD higher than 3 standard deviations:
 length(unique(high_read_depth$site)) #135 sites
+
 # Identification of samples per site
 # For example how many sites have high RD with five individuals at this site
 counts <- table(high_read_depth$site)
 length(counts)
-## 133 sites with at least one individual with more than 3 standard deviations from the random mean:
+
+## 135 sites with at least one individual with more than 3 standard deviations from the random mean:
 high_read_depth_sites <- unique(high_read_depth$site)
 high_read_depth_sites_vector <- as.character(high_read_depth_sites)
 
 high_read_depth_sites_df <- subset(x = combined_counts_normalized_melt,
                                    site %in% high_read_depth_sites_vector)
 
-## Examine the number of individuals with reduced median read depth
-l <- list()
+## Examine the number of individuals with reduced median read depth:
+conserved_sites <- list()
 for (name in high_read_depth_sites) {
         count <- nrow(subset(x = combined_counts_normalized_melt,
                              structural_variant == "duplication" &
-                             read_depth > sd3  &
+                             normalised_read_depth > sd3  &
                              site == name))
         info <- subset(x = combined_counts_normalized_melt,
                        structural_variant == "duplication" &
-                               read_depth > sd3  &
+                               normalised_read_depth > sd3  &
                                site == name)
         if (count ==  46) {
                 print(head(as.character(info$site),
                            n = 1))
+                conserved_sites[name] <- head(as.character(info$site),
+                                              n = 1)
                 }
 }
-## There appears to be a problem with the use of
+
+## Unlist and convert to vector:
+conserved_sites <- as.vector(unlist(conserved_sites))
+
 high_read_counts_table <- sort(round((table(as.character(high_read_depth$site))) / 46,
                                      2))
 high_read_counts_table_df <- as.data.frame(high_read_counts_table)
 
 ## Plot frequency of duplications:
-dup_freq_hist<- qplot(high_read_counts_table_df$Freq,
+dup_freq_hist <- qplot(high_read_counts_table_df$Freq,
                       geom = "histogram",
-                      binwidth = 0.05, 
-                      xlab = "Frequency", 
+                      binwidth = 0.05,
+                      xlab = "Frequency",
                       fill = I("grey"),
                       col = I("black"),
                       alpha = I(.2)) +
@@ -397,10 +402,9 @@ high_read_counts_table_df <- subset(x = high_read_counts_table_df,
                                    Freq == 1)
 nrow(high_read_counts_table_df)
 
-
 ## Write low RD sites to file:
-write.table(highRD_sites_vector,
-            file = "results/highRD_sites_vector_n133_dups.txt",
+write.table(x = high_read_depth_sites_vector,
+            file = "results/list_of_putative_duplicated_sites.txt",
             col.names = FALSE,
             row.names = FALSE,
             quote = FALSE,
@@ -415,9 +419,39 @@ write.table(x = high_read_counts_table_df,
             sep = "\t")
 ```
 
+Subset raw and normalised counts of duplicated sites:
+
+```{r, message = FALSE}
+## Extract raw counts for duplicated sites:
+high_read_depth_sites_raw <- subset(combined_counts,
+                                    rownames(combined_counts) %in% high_read_depth_sites_vector)
+high_read_depth_sites_raw$status <- NULL
+
+## Write to file:
+write.table(x = high_read_depth_sites_raw,
+            file = "results/conserved_highRD_sites_dups_raw_counts.txt",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE,
+            sep = "\t")
+
+## Extract normalised counts for duplicated sites:
+combined_counts_normalized$`rownames(combined_counts_normalized)` <- NULL
+
+high_read_depth_sites_norm <- subset(combined_counts_normalized,
+                                   rownames(combined_counts_normalized) %in% high_read_depth_sites_vector)
+high_read_depth_sites_df$status <- NULL
+
+write.table(x = high_read_depth_sites_norm,
+            file = "results/conserved_highRD_sites_dups_norm_counts.txt",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE,
+            sep = "\t")
+```
+
 Run lintr:
 
 ```{r, message = FALSE}
 lintr::lint(file = "analysis_cnv.Rmd")
 ```
-
