@@ -23,4 +23,5 @@ The present repository contains scripts for:
   - 2) Investigating regions of extended haplotype homozygosity using [selscan](https://github.com/szpiech/selscan).  
   - Copy number variation (selection_analysis/copy_number_variation)
 - Gene ontology term enrichment analysis using [topGO](https://bioconductor.org/packages/release/bioc/html/topGO.html).   
+- Functional domain enrichment analysis (functional_domain_analysis/)
 - Scripts for visualisation of data for manuscript/publication (graphics/)  
