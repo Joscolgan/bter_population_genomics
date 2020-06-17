@@ -1,0 +1,302 @@
+---
+title: "Bombus population genomics"
+output: plot_chrom_1_sweep.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+This script takes four tab-delimited files as input:
+1) A file containing absolute nsl scores assigned to each SNP in the British population.
+2) A file containing absolute iHS scores assigned to each SNP in the British population. Both the nsl and iHS scores were calculated by [selscan](https://github.com/szpiech/selscan).
+3) A file containing population-scaled recombination rate as calculaed by [ldhelmet](https://sourceforge.net/projects/ldhelmet/).
+4) A file containing nucleotide diversity estimates for sliding windows of 10kb as calculated by [popgenome](https://cran.r-project.org/web/packages/PopGenome/index.html).
+The input files are used to generate individual scatterplots using [ggplot2](https://ggplot2.tidyverse.org/).
+The script also loads arrow-plots and heatmaps generated as output by other scripts.
+The scripts generates a combined multiple graph using [ggpubr](https://rpkgs.datanovia.com/ggpubr/index.html), which is output to file.
+Code style is checked using [lintr](https://cran.r-project.org/web/packages/lintr/index.html).
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("ggplot2",
+               "SNPRelate",
+               "reshape2",
+               "ggpubr",
+               "stringr",
+               "gggenes")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE )
+        }
+}
+
+load(file = "large_sweep_chrom_one_combined_plot.Rdata")
+
+```
+
+This script plots nsl score, ihs score, population-scaled recombination rate, nucleotide diversity and Tajima's D estimates.
+
+```{r, message = FALSE}
+## Read in data:
+nsl_data <- read.table(file = "./input/nsl/combined_all_nsl_annotated_snps_n46_snp_positions.annotated.txt",
+                       col.names = c("chrom",
+                                     "position",
+                                     "nsl_score",
+                                     "annotation"))
+
+## Both nucleotide diversity and Tajima D are in the same input file:
+nuc_div_data_10kb <- read.table(file = "./input/nuc_div/bter_all_chrom_10kb.txt",
+                                header = TRUE)
+
+nuc_div_data_100kb <- read.table(file = "./input/nuc_div/bter_all_chrom_100kb.txt",
+                                 header = TRUE)
+```
+
+This region of interest contains 53 genes.
+
+```{r, message=FALSE}
+## Assign the coordinates of the gene to variables plus 100kb 
+## up and downstream of the gene:
+chrom <- "NC_015762.1"
+start_position <- 362267 - 100000
+end_position <- 566568 + 100000
+```
+
+Subset the regions of interest:
+
+```{r, message=FALSE}
+## Subset nsl values for plotting:
+nsl_input_subset <- subset(nsl_data,
+                           chrom == "NC_015762.1" &
+                            position > start_position &
+                            position < end_position)
+
+## subset sites above 2.56 to highlight on plot:
+nsl_snps_highlight <- subset(nsl_input_subset,
+                            nsl_score > 2.72)
+```
+
+Generate plot of EHH:
+
+```{r, message = FALSE}
+nsl_plot <- ggplot(nsl_input_subset,
+                   aes(x = position,
+                       y = nsl_score)) +
+                xlab("Genomic coordinates (bp)") +
+                ylab("|nsl| value") +
+                geom_rect(aes(xmin = 362267,
+                              xmax = 566568,
+                              ymin = -Inf,
+                              ymax = Inf),
+                          fill = "light blue",
+                          alpha = 0.008) +
+        geom_hline(yintercept = c(2.72),
+                   linetype = "dashed",
+                   colour = "purple") +
+                geom_point(colour = "black",
+                           size = 3,
+                           alpha = 0.5) +
+                geom_point(data = nsl_snps_highlight,
+                           aes(x = position,
+                               y = nsl_score),
+                           colour = "blue",
+                           pch = 21,
+                           size = 3,
+                           alpha = 0.8) +
+               theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title.y = element_text(size = 12,
+                                          face = "bold"),
+              axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank())
+```
+
+Subset genomic region to plot nucleotide diversity:
+
+```{r, message = FALSE}
+## Subset region:
+nuc_div_subset <- subset(nuc_div_data_10kb,
+                         chrom == "NC_015762.1" &
+                         start > 362267 - 100000 &
+                         end < 566568 + 100000)
+
+nuc_div_subset$start <- as.numeric(nuc_div_subset$start)
+
+## Calculate mean nucleotide diversity:
+nucdiv_median <- median(nuc_div_data_10kb$nuc_diversity)
+
+## Generate plot:
+nuc_div_plot <- ggplot(nuc_div_subset,
+                       aes(x = midpoint,
+                           y = nuc_diversity)) +
+        geom_point(colour = "black",
+                   size = 0,
+                   alpha = 0.75) +
+        geom_line() +
+        xlab("Genomic coordinates (bp)") +
+        ylab("Nucleotide diversity (pi)") +
+        geom_hline(yintercept = c(nucdiv_median),
+                   linetype = "dashed",
+                   colour = "orange") +
+                geom_rect(aes(xmin = 362267,
+                              xmax = 566568,
+                      ymin = -Inf,
+                      ymax = Inf),
+                  fill = "light blue",
+                  alpha = 0.009) +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(265001, 665000),
+                           position = "top") +
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 12,
+                                        face = "bold"),
+              axis.title.x = element_blank())
+```
+
+Plot nucleotide diversity across 100kb chunks:
+
+```{r, message = FALSE}
+## Add column containing information on status:
+nuc_div_data_100kb$is_low <- nuc_div_data_100kb$seg_sites <= 20
+
+## Plot 100kb chunks:
+region_histo_plot <- ggplot(data = nuc_div_data_100kb) +
+        geom_histogram(aes(x = seg_sites,
+                           fill = is_low),
+                       bins = 100) +
+        xlab("Number of segregating sites") +
+        ylab("Count") +
+        theme_bw() +
+        theme(legend.position = "none",
+              axis.title = element_text(size = 12,
+                                        face = "bold"),
+              axis.text = element_text(size = 10,
+                                       face = "plain")) +
+        scale_fill_manual(name = "Count",
+                          values = c("orange",
+                                     "blue"))
+```
+
+Load previously generated arrow plot:
+
+```{r, message = FALSE}
+## Load arrow plot:
+load(file = "./results/chrom_1_arrow_plot.Rdata")
+load(file = "./results/plots/chrom_1_snp_plot.Rdata")
+load(file = "input/combined_apis_plots.Rdata")
+```
+
+Generate combined plots:
+
+```{r, message=FALSE}
+## Generate a combined plot:
+bter_combined <- ggarrange(region_histo_plot,
+        ggarrange(arrow_plot,
+          nuc_div_plot,
+          heatmap_plot,
+          nrow = 3,
+          ncol = 1,
+          labels = c("B",
+                     "C",
+                     "D"),
+          heights = c(0.3,
+                     1,
+                     1),
+          align = "hv"),
+        ncol = 2,
+        nrow = 1,
+        labels = c("A"),
+        align = "v",
+        widths = c(0.8,
+                   1.2))
+
+apidae_chrom_1 <- ggarrange(bter_combined,
+                            combined_apis_plot,
+                            nrow = 2,
+                            ncol = 1,
+                            heights = c(1.5,
+                                        0.8),
+                            align = "hv")
+
+## Save:
+ggsave(file = "results/apidae_sweep_chrom_one_combined_plot.pdf",
+       dpi = 600,
+       width = 10,
+       height = 8)
+
+ggsave(file = "results/apidae_sweep_chrom_one_combined_plot.png",
+       width = 10,
+       height = 8)
+
+## Save as an R object:
+save.image(file = "results/multi_image_plot_chrom_one.RData")
+```
+
+For talk:
+```{r, message = FALSE}
+talk_slide <- ggarrange(arrow_plot,
+          nuc_div_plot,
+          nrow = 2,
+          ncol = 1,
+          heights = c(0.7,
+                     2),
+          align = "hv")
+
+ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot_talk.png",
+       width = 10,
+       height = 8)
+
+## Print to console:
+region_histo_plot
+
+ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot_histo_talk.png",
+       width = 10,
+       height = 8)
+```
+
+Alternative plot:
+
+```{r, message = FALSE}
+## Generate a combined plot:
+ggarrange(region_histo_plot,
+          labels = c("A"),
+          ggarrange(arrow_plot,
+          nuc_div_plot,
+          nsl_plot,
+          heatmap_plot,
+          nrow = 4,
+          ncol = 1,
+          labels = c("B",
+                     "C",
+                     "D",
+                     "E"),
+          heights = c(0.7,
+                     1.6,
+                     1.6,
+                     2.0),
+          align = "hv"),
+          ncol = 2,
+          nrow = 1,
+          widths = c(0.8, 
+                     1.2))
+
+## Save:
+ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot_alt.png",
+       width = 12,
+       height = 10)
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+## Run lintr:
+lintr::lint(file = "./plot_chrom_1_region.Rmd")
+```
