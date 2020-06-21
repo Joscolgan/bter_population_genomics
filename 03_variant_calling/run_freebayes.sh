@@ -1,3 +1,13 @@
+#!/bin/env bash
+############################################################################
+##
+## Author: Joe Colgan                      Name: run_freebayes.sh
+##
+## Date: 30/12/2016
+###
+#############################################################################
+
+
 freebayes \
 -f ./data/refseq_files/GCF_000214255.1_Bter_1.0_genomic.fna \
 --bam-list bam_list.txt \
