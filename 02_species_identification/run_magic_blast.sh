@@ -3,7 +3,7 @@
 ##
 ## Author: Joe Colgan                      Name: run_magic_blast.sh
 ##
-## Date: 2018/12/30
+## Date: 30/12/2018/12
 ##
 ## Purpose:
 ## This script takes two fastq files as input from the command line.
@@ -30,14 +30,14 @@ if [ $# -eq 0 ]
 fi
 
 ## Generate index for blast databse:
-../../../../bin/makeblastdb \
+makeblastdb \
 -in "$reference" -dbtype nucl -parse_seqids
 
-## �Print to console:
+##  Print to console:
 echo 'Step One: Running magic-blast'
 
 ## Run magic-blast:
-../../../../bin/magicblast \
+magicblast \
 -db "$reference" \
 -query "$input_forward" \
 -query_mate "$input_reverse" \
@@ -58,4 +58,3 @@ awk '$3=="100"' "$output".tab | \
 awk '$13=='$top_bitscore'' - | \
 cut -f 2 - | sort | uniq -c | \
 sort -k1,1nr - > "$output".species.text
-head -n 1 "$output".species.text
