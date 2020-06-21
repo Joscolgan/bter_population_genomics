@@ -233,22 +233,6 @@ rule sort_sam_to_bam:
         shell("{tools[samtools]} view -bS {input} \
              | {tools[samtools]} sort - -f {output} && [[ -s {output} ]]")
 
-## Add read group information for running freebayes:
-#rule add_RG_information:
-#    input: SORTED_DATA
-#    output: RG_ANNOTATED_DATA
-#    run:
-#        check_files_arent_empty(input)
-#        shell("java -jar {tools[picard]} AddOrReplaceReadGroups \
-#                I={input} \
-#                O={output} \
-#                RGID={input} \
-#                RGLB=lib1 \
-#                RGPL=illumina \
-#                RGPU=unit1 \
-#                RGSM={input} \
-#                && [[ -s {output} ]]")
-
 # Calculate read depth per genomic scaffold base and coverage percentage across individual genomic
 # scaffolds
 rule calculate_coverage:
