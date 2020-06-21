@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 ##############################################################################
 ##############################################################################
-# Author: Joe Colgan                   Program: subsampling_to_QC_snakefile.py
+# Author: Joe Colgan                   Program: subsampling_to_qc_snakefile.py
 #
 # Date: 05/03/2015
 #
@@ -43,9 +43,7 @@ from helper_functions import *
 # sex: D = Male (drone)
 
 ##############################################################################
-#
 # Prior to use
-#
 ##############################################################################
 
 # To run read_filtering_snakefile.py:
