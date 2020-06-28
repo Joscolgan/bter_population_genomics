@@ -46,3 +46,6 @@ new_name="$(echo "$name | cut -d '.' -f 1,2 - )"
 fs "$new_name" -idfile idfile.txt -phasefiles "$new_name".recode.vcf.phase_file \
 -recombfiles "$name" -go
 done
+
+## Run for all chromosomes together:
+~/src/fs-2.0.7/fs bter_fs_analysis -idfile ../data_ids.txt --phasefiles *.phase_file -recombfiles *.genetic_map.txt -go
