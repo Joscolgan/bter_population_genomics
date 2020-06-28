@@ -18,6 +18,11 @@ module load plink
 ## Take input from command line:
 input=$1 ## The first argument on the command line will be taken as input
 
+abbrev_name="$(echo "$input" | cut -d '.' -f 1,2 )"
+
+## Ensure output directory is created:
+mkdir -p results/admixture/"$abbrev_name"
+
 ##############################################################################
 ## Step One: Convert input VCF to plink file format
 ##############################################################################
@@ -26,15 +31,15 @@ input=$1 ## The first argument on the command line will be taken as input
 echo "Step One: Converting VCF to plink file format"
 
 ## Use vcftools to convert VCF to PED file format:
-vcftools --vcf "$input" \
+vcftools --vcf results/"$input" \
          --plink \
-         --out "$input".plink
+         --out results/admixture/"$abbrev_name"/"$input".plink
 
 ## Use plink to convert PED file to BED files:
-plink --file "$input".plink \
+plink --file results/admixture/"$abbrev_name"/"$input".plink \
          --maf 0.1 \
          --make-bed \
-         --out "$input".plink
+         --out results/admixture/"$abbrev_name"/"$input".plink
 
 ## Print to console:
 echo "Step One - complete!"
@@ -47,9 +52,10 @@ echo "Step One - complete!"
 echo "Step Two: Running admixture"
 
 ## Run admixture with 100 interactions for 10 potential populations
-for K in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15;
+for K in {1..20};
 do
-../src/admixture_linux-1.3.0/admixture --cv "$input".plink.bed -j20  $K | tee log${K}.out;
+admixture --cv results/admixture/"$abbrev_name"/"$input".plink.bed \
+-j20 $K | tee results/admixture/"$abbrev_name"/log${K}.out;
 done
 
 ## Print to console:
