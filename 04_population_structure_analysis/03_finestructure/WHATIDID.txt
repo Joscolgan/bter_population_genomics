@@ -1,0 +1,21 @@
+mkdir input
+mkdir data
+mkdir results
+mkdir code
+
+cd input
+ln -s ~/archive-SBCS-Wurmlab/tjcolgan/2017-11-18-Bter_n51_reanalysis/2019-08-n46_analysis/2019-08-05c_nsl_analysis_n46/results/map/NC_0157* .
+
+## Subset SNP position and population scaled recombination rates:
+for name in *ldhelmet.post.txt;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1,2 )";
+tail -n +4 "$name" | awk '{ print $1,$3 }' | sed 's/ /\t/g'  > "$new_name".recomb.txt;
+done
+
+## Generate genetic maps:
+for name in *.recomb.txt;
+do
+new_name="$(echo "$name" | cut -d '.' -f 1,2 )";
+Rscript ../make_genetic_map.R "$new_name".recomb.txt "$new_name".genetic_map.txt;
+done
