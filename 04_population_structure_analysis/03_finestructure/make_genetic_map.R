@@ -19,8 +19,9 @@
 
 ## Provide access to a copy of the command line arguments supplied when R session is invoked
 args <- commandArgs(TRUE)
-recomb_input <- args[1]           # Assign first argument as input
-output <- args[2]
+positions <- args[1]
+recomb_input <- args[2]           # Assign first argument as input
+output <- args[3]
 message(paste("will output to", output))
 
 ## Update chromosome name:
@@ -41,17 +42,29 @@ make_genetic_map <- function(){
         ## Convert rho values
         data$rho <- data$rho * (100 / ( 3 * Ne ))
         ## Calculate the cumulative values of the rho values
-        data$rho <- cumsum(data$rho)
+        #data$rho <- cumsum(data$rho)
+        ## Duplicate last row:
+        data <- rbind(data, data[nrow(data),])
+        ## Read in positions and update:
+        map <- read.table(positions,
+                          header = FALSE,
+                          col.names = c("chrom",
+                                        "snp",
+                                        "recomb_zero",
+                                        "locus"))
         ## Add snp names
-        data$snp <- "."
-        data$chrom <- chromosome
-        ## Rearrange columns:
-        recomb.file <- data[, c(4, 3, 1, 2)]
+        #data$snp <- 1:nrow(data)
+        #data$chrom <- chromosome
+        data$locus <- map$locus
+        ## Convert final recombination value to 0:
+        data$rho[nrow(data)] <- 0
+        colnames(data) <- c("start.pos",
+                            "recom.rate.perbp")
         ## Write to file
-        write.table(recomb.file,
+        write.table(data,
                     file = output,
                     row.names = FALSE,
-                    col.names = FALSE,
+                    col.names = TRUE,
                     quote = FALSE,
                     sep = "\t")
 }
