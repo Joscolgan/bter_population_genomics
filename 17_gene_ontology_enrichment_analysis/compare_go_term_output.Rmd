@@ -1,0 +1,158 @@
+
+
+
+1. Load libraries:
+
+```{r, message =  FALSE}
+require(ggplot2)
+require(limma)
+require(biomaRt)
+require(ggpubr)
+```
+
+2. Read in input:
+
+```{r, message = FALSE}
+## topGO run with length:
+raw_nsl_terms <- read.table(file = "results/output_50_ks_bonferroni_all_genes_raw/BP_sig.tsv",
+                           header = TRUE)
+
+raw_length_terms <- read.table(file = "results/output_50_ks_bonferroni_all_genes_raw_length/BP_sig.tsv",
+                           header = TRUE)
+```
+
+3. Match dataframes:
+
+```{r, message = FALSE}
+raw_nsl_subset_by_length <- subset(x = raw_nsl_terms,
+                                      GO.ID %in% raw_length_terms$GO.ID)
+
+raw_length_subset_by_nsl <- subset(x = raw_length_terms,
+                                         GO.ID %in% raw_nsl_terms$GO.ID)
+
+## Match:
+nsl_matched <- raw_nsl_subset_by_length[match(raw_length_subset_by_nsl$GO.ID,
+                                              raw_nsl_subset_by_length$GO.ID), ]
+
+nsl_matched$length_padj <- raw_length_subset_by_nsl$weight_ks_adjusted
+
+nsl_matched$weight_ks_adj_log <- -log(nsl_matched$weight_ks_adjusted)
+
+nsl_matched$length_padj_log <- -log(nsl_matched$length_padj)
+
+bonferroni_plot <- ggplot(data = nsl_matched,
+       aes(x = Term,
+           y = length_padj_log,
+           colour = "blue")) +
+        xlab("GO term") +
+        ylab("-log10(Bonferroni-adjusted p)") +
+        geom_point() +
+        geom_point(data = nsl_matched,
+                   aes(x = Term,
+                       y = weight_ks_adj_log,
+                       colour = "orange")) +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text.x = element_text(size = 12,
+                                         face = "plain",
+                                         angle = 90),
+              legend.position = "top") +
+        scale_colour_manual(name = "Category",
+                            values = c("blue",
+                                       "orange"),
+                            labels = c("Terms enriched by length",
+                                       "Terms enriched by nsl"))
+
+## Flip axes:
+bonferroni_plot <- bonferroni_plot + coord_flip()
+
+## Count the number of terms more significant in high nsl genes:
+nrow(subset(x = nsl_matched,
+       weight_ks_adjusted < length_padj))
+```
+
+4. Read in input:
+
+```{r, message = FALSE}
+## topGO run with length:
+raw_nsl_bh_terms <- read.table(file = "results/output_50_ks_bh_all_genes_raw/BP_sig.tsv",
+                           header = TRUE)
+
+raw_length_bh_terms <- read.table(file = "results/output_50_ks_bh_all_genes_raw_length/BP_sig.tsv",
+                           header = TRUE)
+```
+
+5. Match dataframes:
+
+```{r, message = FALSE}
+raw_nsl_bh_subset_by_length <- subset(x = raw_nsl_bh_terms,
+                                      GO.ID %in% raw_length_bh_terms$GO.ID)
+
+raw_length_bh_subset_by_nsl <- subset(x = raw_length_bh_terms,
+                                         GO.ID %in% raw_nsl_bh_terms$GO.ID)
+
+## Match:
+nsl_bh_matched <- raw_nsl_bh_subset_by_length[match(raw_length_bh_subset_by_nsl$GO.ID,
+                                              raw_nsl_bh_subset_by_length$GO.ID), ]
+
+nsl_bh_matched$length_padj <- raw_length_bh_subset_by_nsl$weight_ks_adjusted
+
+nsl_bh_matched$weight_ks_adj_log <- -log(nsl_bh_matched$weight_ks_adjusted)
+
+nsl_bh_matched$length_padj_log <- -log(nsl_bh_matched$length_padj)
+
+bh_plot <- ggplot(data = nsl_bh_matched,
+       aes(x = Term,
+           y = length_padj_log,
+           colour = "blue")) +
+        xlab("GO term") +
+        ylab("-log10(BH-adjusted p)") +
+        geom_point() +
+        geom_point(data = nsl_bh_matched,
+                   aes(x = Term,
+                       y = weight_ks_adj_log,
+                       colour = "orange")) +
+        theme_bw() +
+        theme(axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.text.x = element_text(size = 12,
+                                         face = "plain",
+                                         angle = 90),
+              legend.position = "top") +
+        scale_colour_manual(name = "Category",
+                            values = c("blue",
+                                       "orange"),
+                            labels = c("Terms enriched by length",
+                                       "Terms enriched by nsl"))
+## Flip axes:
+bh_plot <- bh_plot + coord_flip()
+
+nrow(subset(x = nsl_bh_matched,
+       weight_ks_adjusted > length_padj))
+```
+
+6. Generate a combined plot:
+
+```{r, message = FALSE}
+ggarrange(bonferroni_plot,
+          bh_plot,
+          nrow = 2,
+          ncol = 1,
+          heights = c(1,
+                      2),
+          labels = c("A",
+                     "B"),
+          common.legend = TRUE)
+
+## Write to output:
+ggsave(file = "results/combined_go_term_plot.png",
+       height = 10,
+       width = 8)
+```
+
+7. Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "compare_go_term_output.Rmd")
+```
