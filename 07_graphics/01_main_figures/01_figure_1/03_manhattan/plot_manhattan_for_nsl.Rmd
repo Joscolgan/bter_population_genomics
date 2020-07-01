@@ -1,8 +1,7 @@
 ---
-title: "plot_manhattan_raw_nsl_go_terms"
-author: "JoeColgan"
-date: "23 June 2018"
-output: html_document
+title: "Bombus population genomics"
+output: plot_manhattan_for_nsl.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ```{r, message = FALSE}
@@ -176,5 +175,5 @@ Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "plot_manhattan_raw_nsl_go_terms.Rmd")
+lintr::lint(file = "plot_manhattan_for_nsl.Rmd")
 ```
