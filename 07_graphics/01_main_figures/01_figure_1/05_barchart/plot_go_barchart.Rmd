@@ -113,7 +113,9 @@ combined_terms_plot <- combined_terms_plot +
                                           face = "bold"),
               axis.text.y = element_text(size = 10,
                                          face = "plain"),
-              legend.position = "top") +
+              legend.position = "top",
+              legend.title = element_text(size = 10,
+                                          face = "bold")) +
         geom_hline(yintercept = 1.301,
                    linetype = "dashed",
                    colour = "black")
