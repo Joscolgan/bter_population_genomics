@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_nsl_by_variant_annotation.html
+output: plot_histogram_for_nsl_variants.html
 authors: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -139,5 +139,5 @@ save(data = variant_histogram,
 Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "plot_nsl_by_variant_annotation_modified.Rmd")
+lintr::lint(file = "plot_histogram_for_nsl_variants.Rmd")
 ```
