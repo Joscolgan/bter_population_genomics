@@ -1,0 +1,125 @@
+---
+title: "Bombus population genomics"
+output: plot_multi_image_figure_2.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
+
+## Introduction:
+This script takes as input R objects containing a variety of plots:
+a) An arrow plot of gene coordinates for region of interest. 
+b) A scatterplot for nsl scores for region of interest.  
+c) A heatmap for a genotype matrix for region of interest.  
+d) Boxplots for caste and sex transcript expression for gene of interest.  
+e) Pie charts for taxonomic diversity.  
+This script generates a multiple image plot using [ggpubr](http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/).  
+This script outputs an image in multiple formats (.png, .pdf)
+
+Load required libraries:
+
+```{r, message = FALSE}
+## Load libraries:
+libraries <- c("devtools",
+               "ggplot2",
+               "ggmap",
+               "SNPRelate",
+               "reshape",
+               "ggpubr",
+               "gplots",
+               "stringr",
+               "gggenes")
+for (lib in libraries) {
+        if (require(package = lib, character.only = TRUE)) {
+                print("Successful")
+        } else {
+                print("Installing")
+                source("https://bioconductor.org/biocLite.R")
+                biocLite(pkgs = lib)
+                library(lib, character.only = TRUE)
+        }
+}
+```
+
+Load saved R objects.
+
+```{r, message=FALSE}
+## Load previously generated arrow and heatmap plots:
+load(file = "results/plots/wolbachia_arrow_plot.Rdata")
+load(file = "results/plots/wolbachia_sweep_scatterplot.RData")
+load(file = "results/plots/wolbachia_snp_plot.Rdata")
+load(file = "results/plots/wolbachia_boxplot.RData")
+load(file = "results/protein_domain_plus_stackedchart.RData")
+```
+
+Generate combined plots:
+
+```{r, message=FALSE}
+## Combine RNA expression and pie charts into a single pane:
+fifth_panel <- ggarrange(life_wolbachia_stages_plot,
+                         combined_domains,
+                         ncol = 2,
+                         align = "hv",
+                         nrow = 1,
+                         labels = c("D",
+                                    "E"))
+
+fifth_panel <- fifth_panel +
+        guides(fill = guide_legend(nrow = 2,
+                                   byrow = TRUE))
+
+## Generate a combined plot:
+ggarrange(arrow_plot,
+          nsl_plot,
+          heatmap_plot,
+          fifth_panel,
+          nrow = 4,
+          ncol = 1,
+          labels = c("A",
+                     "B",
+                     "C"),
+          heights = c(0.5,
+                     1.3,
+                     1.5,
+                     1.8),
+          align = "hv")
+```
+
+Save output:
+
+```{r, message = FALSE}
+output_file_name <- "figure_2_wolbachia_stacked"
+
+## Create multiple image files:
+for (extension in c("png",
+                    "pdf")) {
+         ## Create output path:
+         path_to_dir <- paste("results/",
+                              extension,
+                              "/",
+                              sep = "")
+         ## Create output directory:
+         dir.create(path = path_to_dir,
+                    recursive = TRUE)
+         ## Save:
+         print(output_file_name)
+         ggsave(file = paste(path_to_dir,
+                             output_file_name,
+                             ".",
+                             extension,
+                             sep = ""),
+                dpi = 300,
+                height = 12,
+                width = 14)
+}
+```
+
+Save also as an R object:
+
+```{r, message = FALSE}
+save.image(file = "results/plots/wolbachia_combined_plot.RData")
+```
+
+Run lintr:
+
+```{r, message = FALSE}
+lintr::lint(file = "multi_image_figure_2.Rmd")
+```
