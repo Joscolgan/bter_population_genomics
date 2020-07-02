@@ -1,7 +1,7 @@
 --- 
-title: "Bombus pesticide exposure: gene expression in head"
-output: gene_level_3treatments.html
-authors:  Isabel Fletcher, Joe Colgan, Yannick Wurm http://wurmlab.com
+title: "Bombus population genomics"
+output: gene_level_wolbachia_expression_plus_plot.html
+authors: Joe Colgan, Yannick Wurm http://wurmlab.com
 --- 
 
 # Introduction
@@ -16,13 +16,21 @@ This script produces a results table of genes that are significantly differentia
 This script uses the Wald test in DESeq2 to test for differential expression between treatments.
 This can then be used for further analysis. 
 
-
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
-libraries <- c("tximport", "readr", "DESeq2",
-               "ggplot2", "gplots", "rhdf5",
-               "plyr", "ggfortify", "biomaRt",
-               "vsn", "RColorBrewer", "ReportingTools")
+libraries <- c("tximport",
+               "readr",
+               "DESeq2",
+               "ggplot2",
+               "gplots",
+               "rhdf5",
+               "plyr",
+               "ggfortify",
+               "biomaRt",
+               "reshape2",
+               "vsn",
+               "RColorBrewer",
+               "ReportingTools")
 for (lib in libraries) {
     if (require(package = lib, character.only = TRUE)) {
         print("Successful")
@@ -37,8 +45,8 @@ dir.create("results")
 
 
 ## Step One: Input results from kallisto
-
 We use raw, non-normalised estimated counts.
+
 ```{r} 
 ## Set paths to folders containing output files from kallisto
 paths <- list()
@@ -138,7 +146,6 @@ genes_of_interest_df_tmp$tissue <- gsub(pattern = "_",
                                         genes_of_interest_df_tmp$tissue)
 
 ## Melt:
-require(reshape2)
 genes_of_interest_melt <- melt(genes_of_interest_df_tmp)
 genes_of_interest_melt$sample_id <- paste(
         genes_of_interest_melt$tissue,
@@ -189,6 +196,7 @@ new_order_df$tissue <- gsub("rep ",
 new_order_df$tissue <- gsub("undet ",
                          "",
                          new_order_df$tissue)
+
 new_order_df$sample_id <- factor(new_order_df$sample_id,
        levels = unique(as.character(replacement_order)))
 colnames(new_order_df)[1] <- "caste"
@@ -199,12 +207,21 @@ new_order_df$caste <- gsub("rep_",
 new_order_df$caste <- gsub("undet_",
                          "",
                          new_order_df$caste)
+
 new_order_df$sample_id <- factor(new_order_df$sample_id,
        levels = unique(as.character(replacement_order)))
 colnames(new_order_df)[1] <- "caste"
 
 new_order_df$tissue <- factor(new_order_df$tissue,
-       levels = unique(new_order_df$tissue))
+       levels = c("male larvae",
+                  "queen larvae",
+                  "worker larvae",
+                  "male pupae",
+                  "queen pupae",
+                  "worker pupae",
+                  "male adult",
+                  "queen adult",
+                  "worker adult"))
 
 ## Set levels for tissue:
 new_order_df$caste <- factor(new_order_df$caste,
@@ -215,29 +232,28 @@ life_wolbachia_stages_plot <- ggplot(new_order_df,
        aes(x = tissue,
            y = value,
            fill = caste)) +
-  geom_boxplot(outlier.colour = "red",
-               outlier.shape = 8,
-               outlier.size = 4) +
-                ylab("Gene expression (TPM)") +
-        xlab("Samples") +
+  geom_boxplot() +
+        ylab("Transcripts per million") +
+        xlab("Bumblebee life stages") +
         scale_fill_manual(values = c("brown",
                                      "orange",
-                                     "yellow",
-                                     "white")) +
+                                     "yellow")) +
         ylim(0, 3000) +
         geom_vline(xintercept = 3.5,
                    linetype = "dashed") +
         geom_vline(xintercept = 6.5,
                    linetype = "dashed") +
         theme_bw() +
-        theme(axis.title = element_text(face = "bold"),
-              legend.text = element_text(size = 10,
-                                         face = "plain"),
-              legend.title = element_text(size = 10,
-                                          face = "bold"),
+        theme(axis.title = element_text(face = "bold",
+                                        size = 15),
+              legend.text = element_text(face = "plain",
+                                         size = 10),
+              legend.title = element_text(face = "bold",
+                                          size = 10),
               legend.justification = c(1.1, 1.1),
               legend.position = c(1, 1),
-              axis.title.x = element_blank(),
+              axis.title.x = element_text(face = "bold",
+                                        size = 15),
                 axis.text.x = element_blank(),
               axis.ticks.x = element_blank())
 
@@ -247,7 +263,7 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
         annotate("text",
                  x = 2,
                  y = 2800,
-                 label = "Larval",
+                 label = "Larva",
                  fontface = 2) +
         annotate("text",
                  x = 1,
@@ -268,7 +284,7 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
         annotate("text",
                  x = 5,
                  y = 2800,
-                 label = "Pupal",
+                 label = "Pupa",
                  fontface = 2) +
         annotate("text",
                  x = 4,
@@ -294,20 +310,15 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
         annotate("text",
                  x = 7,
                  y = 750,
-                 label = "(n = 1)",
+                 label = "(n = 3)",
                  fontface = 2) +
         annotate("text",
                  x = 8,
                  y = 750,
-                 label = "(n = 3)",
+                 label = "(n = 4)",
                  fontface = 2) +
         annotate("text",
                  x = 9,
-                 y = 750,
-                 label = "(n = 1)",
-                 fontface = 2) +
-        annotate("text",
-                 x = 10,
                  y = 750,
                  label = "(n = 3)",
                  fontface = 2)
@@ -318,11 +329,11 @@ life_wolbachia_stages_plot <- life_wolbachia_stages_plot +
 
 ## Save plot:
 save(life_wolbachia_stages_plot,
-     file = "./results/plots/wolbachia_boxplot.Rdata")
+     file = "results/plots/wolbachia_boxplot.RData")
 ```
 
 Run lintr:
 ```{r, message = FALSE}
-lintr::lint(file = "./gene_level_wolbachia_expression_plus_plot.Rmd")
+lintr::lint(file = "gene_level_wolbachia_expression_plus_plot.Rmd")
 ```
 
