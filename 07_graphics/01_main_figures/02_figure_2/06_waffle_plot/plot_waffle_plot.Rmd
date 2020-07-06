@@ -1,0 +1,60 @@
+
+
+```{r, message = FALSE}
+install.packages("waffle", repos = "https://cinc.rud.is")
+library(devtools)
+devtools::install_github("hrbrmstr/waffle")
+remotes::install_github("hrbrmstr/hrbrthemes")
+
+library(waffle)
+library(magrittr)
+library(hrbrthemes)
+library(ggplot2)
+library(dplyr)
+```
+
+2. 
+
+```{r, message = FALSE}
+tibble(
+  parts = factor(rep(month.abb[1:3], 3), levels=month.abb[1:3]),
+  values = c(10, 20, 30, 6, 14, 40, 30, 20, 10),
+  fct = c(rep("Thing 1", 3), rep("Thing 2", 3), rep("Thing 3", 3))
+) -> xdf
+
+sequence_1 <- read.table(file = "input/group_counts/sequence_one_count_modified.txt",
+                    header = TRUE)
+sequence_1$status <- "sequence_1"
+
+sequence_2 <- read.table(file = "input/group_counts/sequence_two_count_modified.txt",
+                    header = TRUE)
+sequence_2$status <- "sequence_2"
+
+sequence_3 <- read.table(file = "input/group_counts/sequence_three_count_modified.txt",
+                    header = TRUE)
+sequence_3$status <- "sequence_3"
+
+sequence_4 <- read.table(file = "input/group_counts/sequence_four_count_modified.txt",
+                    header = TRUE)
+sequence_4$status <- "sequence_4"
+
+combined_df <- rbind(sequence_1,
+                     sequence_2,
+                     sequence_3,
+                     sequence_4)
+
+## Generate waffle plot:
+ggplot(combined_df,
+       aes(fill = group,
+           values = count)) +
+        geom_waffle(color = "white",
+                    size = 1.125,
+                    n_rows = 6) +
+        facet_wrap(~status,
+                   ncol = 1) +
+        scale_x_discrete(expand = c(0,0)) +
+        scale_y_discrete(expand = c(0,0)) +
+        ggthemes::scale_fill_tableau(name = NULL) +
+        coord_equal() +
+        theme_enhance_waffle()
+```
