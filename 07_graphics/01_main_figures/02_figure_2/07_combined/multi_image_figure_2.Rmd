@@ -43,17 +43,26 @@ Load saved R objects.
 
 ```{r, message=FALSE}
 ## Load previously generated arrow and heatmap plots:
-load(file = "results/plots/wolbachia_arrow_plot.Rdata")
+load(file = "results/plots/wolbachia_arrow_plot.RData")
 load(file = "results/plots/wolbachia_sweep_scatterplot.RData")
-load(file = "results/plots/wolbachia_snp_plot.Rdata")
+load(file = "results/plots/wolbachia_snp_plot.RData")
 load(file = "results/plots/wolbachia_boxplot.RData")
-load(file = "results/protein_domain_plus_stackedchart.RData")
+load(file = "results/plots/plot_protein_domains.RData")
+load(file = "results/plots/wolbachia_waffle_plot.RData")
 ```
 
 Generate combined plots:
 
 ```{r, message=FALSE}
-## Combine RNA expression and pie charts into a single pane:
+## join protein domain and waffle plot:
+combined_domains <- ggarrange(protein_domain,
+                              waffle_stacked_plot,
+                              nrow = 2,
+                              ncol = 1,
+                              heights = c(0.5,
+                                          2))
+
+## Combine RNA expression and pie charts into a single panel:
 fifth_panel <- ggarrange(life_wolbachia_stages_plot,
                          combined_domains,
                          ncol = 2,
@@ -77,16 +86,16 @@ ggarrange(arrow_plot,
                      "B",
                      "C"),
           heights = c(0.5,
-                     1.3,
                      1.5,
-                     1.8),
+                     1.8,
+                     1.5),
           align = "hv")
 ```
 
 Save output:
 
 ```{r, message = FALSE}
-output_file_name <- "figure_2_wolbachia_stacked"
+output_file_name <- "figure_2_wolbachia_waffled"
 
 ## Create multiple image files:
 for (extension in c("png",
@@ -115,7 +124,7 @@ for (extension in c("png",
 Save also as an R object:
 
 ```{r, message = FALSE}
-save.image(file = "results/plots/wolbachia_combined_plot.RData")
+save.image(file = "results/plots/wolbachia_combined_plot_waffle.RData")
 ```
 
 Run lintr:
