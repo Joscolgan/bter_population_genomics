@@ -62,8 +62,8 @@ ggplot(combined_df,
                     n_rows = 6) +
         facet_wrap(~status,
                    ncol = 1) +
-        scale_x_discrete(expand = c(0,0)) +
-        scale_y_discrete(expand = c(0,0)) +
+        scale_x_discrete(expand = c(0, 0)) +
+        scale_y_discrete(expand = c(0, 0)) +
         ggthemes::scale_fill_tableau(name = NULL) +
         coord_equal() +
         theme_enhance_waffle()
@@ -84,8 +84,8 @@ waffle_stacked_plot <- ggplot(combined_df,
                    nrow = 1,
                    strip.position = "bottom") +
         scale_x_discrete() +
-        scale_y_continuous(labels = function(x) x * 10, # make this multiplyer the same as n_rows
-                     expand = c(0,0)) +
+        scale_y_continuous(labels = function(x) x * 10,
+                     expand = c(0, 0)) +
         ggthemes::scale_fill_tableau(name = NULL) +
         coord_equal() +
         labs(x = "Protein subsections (aa)",
@@ -95,9 +95,11 @@ waffle_stacked_plot <- ggplot(combined_df,
         theme(panel.grid = element_blank(),
         axis.ticks.y = element_line(),
         axis.title = element_text(face = "bold",
-                                  size = 10),
+                                  size = 15),
         axis.text = element_text(face = "plain",
                                  size = 10),
+        legend.title = element_text(face = "bold",
+                                    size = 12),
         legend.position = "bottom") +
   guides(fill = guide_legend(reverse = TRUE))
 
