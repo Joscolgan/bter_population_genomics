@@ -1,11 +1,17 @@
+---
+title: "Bombus population genomics"
+output: plot_waffle_plot.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
+---
 
+Introduction:
+The following scripts takes tab-delimited text files as input and generates waffle plots:
+a) Geom plots:
+b) Stacked bar plot:
+This script output an R object that can be used by a secondary script to generate a multi-image plot. 
+This script can also output images in .png and .pdf format.
 
 ```{r, message = FALSE}
-install.packages("waffle", repos = "https://cinc.rud.is")
-library(devtools)
-devtools::install_github("hrbrmstr/waffle")
-remotes::install_github("hrbrmstr/hrbrthemes")
-
 library(waffle)
 library(magrittr)
 library(hrbrthemes)
@@ -13,36 +19,40 @@ library(ggplot2)
 library(dplyr)
 ```
 
-2. 
+2. Load input data for plotting:
 
 ```{r, message = FALSE}
-tibble(
-  parts = factor(rep(month.abb[1:3], 3), levels=month.abb[1:3]),
-  values = c(10, 20, 30, 6, 14, 40, 30, 20, 10),
-  fct = c(rep("Thing 1", 3), rep("Thing 2", 3), rep("Thing 3", 3))
-) -> xdf
-
 sequence_1 <- read.table(file = "input/group_counts/sequence_one_count_modified.txt",
                     header = TRUE)
-sequence_1$status <- "sequence_1"
+sequence_1$status <- "1 (1-360)"
 
 sequence_2 <- read.table(file = "input/group_counts/sequence_two_count_modified.txt",
                     header = TRUE)
-sequence_2$status <- "sequence_2"
+sequence_2$status <- "2 (361-720)"
 
 sequence_3 <- read.table(file = "input/group_counts/sequence_three_count_modified.txt",
                     header = TRUE)
-sequence_3$status <- "sequence_3"
+sequence_3$status <- "3 (721-1140)"
 
 sequence_4 <- read.table(file = "input/group_counts/sequence_four_count_modified.txt",
                     header = TRUE)
-sequence_4$status <- "sequence_4"
+sequence_4$status <- "4 (1141-1289)"
 
+## Combine sections:
 combined_df <- rbind(sequence_1,
                      sequence_2,
                      sequence_3,
                      sequence_4)
 
+## Update group names:
+combined_df$group <- gsub(pattern = "_",
+                          replacement = " ",
+                          combined_df$group)
+```
+
+3. Generate a geom waffle plot:
+
+```{r, message = FALSE}
 ## Generate waffle plot:
 ggplot(combined_df,
        aes(fill = group,
@@ -57,4 +67,60 @@ ggplot(combined_df,
         ggthemes::scale_fill_tableau(name = NULL) +
         coord_equal() +
         theme_enhance_waffle()
+```
+
+4. Generate a stacked bar chart:
+
+```{r, message = FALSE}
+## Generate plot:
+waffle_stacked_plot <- ggplot(combined_df,
+                              aes(fill = group,
+                                  values = count)) +
+        geom_waffle(color = "white",
+                    size = .25,
+                    n_rows = 10,
+                    flip = TRUE) +
+        facet_wrap(~status,
+                   nrow = 1,
+                   strip.position = "bottom") +
+        scale_x_discrete() +
+        scale_y_continuous(labels = function(x) x * 10, # make this multiplyer the same as n_rows
+                     expand = c(0,0)) +
+        ggthemes::scale_fill_tableau(name = NULL) +
+        coord_equal() +
+        labs(x = "Protein subsections (aa)",
+             y = "BLASTP matches") +
+  #theme_minimal(base_family = "Roboto Condensed") +
+  theme_bw() +
+        theme(panel.grid = element_blank(),
+        axis.ticks.y = element_line(),
+        axis.title = element_text(face = "bold",
+                                  size = 10),
+        axis.text = element_text(face = "plain",
+                                 size = 10),
+        legend.position = "bottom") +
+  guides(fill = guide_legend(reverse = TRUE))
+
+## Update colours:
+waffle_stacked_plot <- waffle_stacked_plot +
+        scale_fill_manual(name = "Taxonomic\ngroup",
+                          values = c("steelblue1",
+                                    "light blue",
+                                     "orange1",
+                                     "sienna3",
+                                     "blue",
+                                     "black"))
+
+```
+
+5. Save image:
+
+```{r, message = FALSE}
+save.image(file = "results/plots/wolbachia_waffle_plot.RData")
+```
+
+6. Check style:
+
+```{r, message = FALSE}
+lintr::lint(file = "plot_waffle_plot.Rmd")
 ```
