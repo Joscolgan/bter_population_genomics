@@ -9,12 +9,12 @@ This script takes as input R objects containing a variety of plots:
 a) An arrow plot of gene coordinates for region of interest. 
 b) A scatterplot for nsl scores for region of interest.  
 c) A heatmap for a genotype matrix for region of interest.  
-d) Boxplots for caste and sex transcript expression for gene of interest.  
-e) Pie charts for taxonomic diversity.  
+d) Boxplots for developmenetal stage, caste and sex transcript expression for gene of interest.  
+e) Waffle charts for taxonomic diversity of sequence similarity searches.  
 This script generates a multiple image plot using [ggpubr](http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/).  
 This script outputs an image in multiple formats (.png, .pdf)
 
-Load required libraries:
+1. Load required libraries:
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -39,7 +39,7 @@ for (lib in libraries) {
 }
 ```
 
-Load saved R objects.
+2. Load saved R objects.
 
 ```{r, message=FALSE}
 ## Load previously generated arrow and heatmap plots:
@@ -51,7 +51,7 @@ load(file = "results/plots/plot_protein_domains.RData")
 load(file = "results/plots/wolbachia_waffle_plot.RData")
 ```
 
-Generate combined plots:
+2. Generate combined plots:
 
 ```{r, message=FALSE}
 ## join protein domain and waffle plot:
@@ -92,7 +92,7 @@ ggarrange(arrow_plot,
           align = "hv")
 ```
 
-Save output:
+3. Save output:
 
 ```{r, message = FALSE}
 output_file_name <- "figure_2_wolbachia_waffled"
@@ -121,13 +121,13 @@ for (extension in c("png",
 }
 ```
 
-Save also as an R object:
+4. Save also as an R object:
 
 ```{r, message = FALSE}
 save.image(file = "results/plots/wolbachia_combined_plot_waffle.RData")
 ```
 
-Run lintr:
+5. Run lintr:
 
 ```{r, message = FALSE}
 lintr::lint(file = "multi_image_figure_2.Rmd")
