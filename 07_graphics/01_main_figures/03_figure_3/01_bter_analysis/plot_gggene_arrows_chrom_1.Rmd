@@ -46,7 +46,7 @@ data  <- read.table(file = input,
 
 ## Assign values to start and end positions:
 start_position <- 362267 - 100000
-end_position <- 560366 + 100000
+end_position   <- 560366 + 100000
 
 ## Turn off scientific notation:
 options(scipen = 999)
@@ -54,23 +54,22 @@ options(scipen = 999)
 data$direction <- ifelse(data$strand == "forward", 1, -1)
 
 ## Plot:
-arrow_plot <- ggplot(data, aes(xmin = as.numeric(start),
-                              xmax = as.numeric(end),
-                              y = strand,
-                              fill = status,
-                              label = gene,
-                              forward = direction)) +
+arrow_plot <- ggplot(data,
+                     aes(xmin = as.numeric(start),
+                         xmax = as.numeric(end),
+                         y = strand,
+                         fill = status,
+                         label = gene,
+                         forward = direction)) +
         xlim(start_position, end_position) +
-  geom_gene_arrow(arrowhead_height = unit(3, "mm"),
-                  arrowhead_width = unit(1, "mm")) +
-  #geom_gene_label(align = "left",
-  #                min.size = 6) +
-  facet_wrap(~ molecule,
-             scales = "free",
-             nrow = 1,
-             shrink = FALSE) +
+        geom_gene_arrow(arrowhead_height = unit(3, "mm"),
+                        arrowhead_width = unit(1, "mm")) +
+        facet_wrap(~ molecule,
+                   scales = "free",
+                   nrow = 1,
+                   shrink = FALSE) +
         scale_fill_manual(values = c("Beige",
-                                     "Bisque4")) +
+                                     "Grey75")) +
         theme_genes() +
         theme(axis.title.y = element_blank(),
               axis.text.y = element_blank(),
@@ -84,7 +83,7 @@ save(arrow_plot,
      file = "results/chrom_1_arrow_plot.Rdata")
 ```
 
-Run lintr
+3. Run lintr
 
 ```{r, message = FALSE}
 ## Run lintr:
