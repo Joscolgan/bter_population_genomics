@@ -45,12 +45,13 @@ data <- read.table(file = input,
                    header = TRUE)
 ## Assign values to start and end positions:
 start_position <- 1649722
-end_position <- 1876527
+end_position   <- 1876527
 ## Turn off scientific notation:
 options(scipen = 999)
 data$direction <- ifelse(data$strand == "forward", 1, -1)
 
-data$highlight <- data$start > 1724000 & data$start < 1770171
+data$highlight <- data$start > 1724000 &
+                  data$start < 1770171
 
 ## Plot:
 arrow_plot <- ggplot(data,
@@ -68,7 +69,7 @@ arrow_plot <- ggplot(data,
                    nrow = 1,
                    shrink = FALSE) +
         scale_fill_manual(values = c("Beige",
-                                     "Bisque4")) +
+                                     "grey75")) +
         theme_genes() +
         theme(axis.title.y = element_blank(),
               axis.text.y = element_blank(),
@@ -76,8 +77,8 @@ arrow_plot <- ggplot(data,
               axis.text.x = element_blank(),
               axis.ticks.x = element_blank(),
               legend.position = "none")
-## Remove forward and revese
-## Combine plot:
+
+## Save image as an R object:
 save(arrow_plot,
        file = "results/plots/wolbachia_arrow_plot.RData")
 ```
