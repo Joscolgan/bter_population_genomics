@@ -30,7 +30,7 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE )
+                library(lib, character.only = TRUE)
         }
 }
 
@@ -54,7 +54,7 @@ nuc_div_data_100kb <- read.table(file = "input/nuc_div/bter_all_chrom_100kb.txt"
 This region of interest contains 53 genes.
 
 ```{r, message=FALSE}
-## Assign the coordinates of the gene to variables plus 100kb 
+## Assign the coordinates of the gene to variables plus 100kb
 ## up and downstream of the gene:
 chrom          <- "NC_015762.1"
 start_position <- 362267 - 100000
@@ -80,11 +80,11 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                        aes(x = midpoint,
                            y = nuc_diversity)) +
                         geom_rect(aes(xmin = 362267,
-                              xmax = 566568,
-                      ymin = -Inf,
-                      ymax = Inf),
-                  fill = "beige",
-                  alpha = 0.01) +
+                                      xmax = 566568,
+                                      ymin = -Inf,
+                                      ymax = Inf),
+                                  fill = "beige",
+                                  alpha = 0.01) +
         geom_point(colour = "black",
                    size = 0,
                    alpha = 0.75) +
@@ -132,7 +132,7 @@ region_histo_plot <- ggplot(data = nuc_div_data_100kb) +
 Generate combined plots:
 
 ```{r, message=FALSE}
-## Generate a combined plot:
+## Generate a combined plot for bumblebee plots:
 bter_combined <- ggarrange(region_histo_plot,
                            ggarrange(arrow_plot,
                                      nuc_div_plot,
@@ -153,6 +153,7 @@ bter_combined <- ggarrange(region_histo_plot,
                            widths = c(0.8,
                                       1.2))
 
+## Generate a combined plot with honeybee plots:
 apidae_chrom_1 <- ggarrange(bter_combined,
                             combined_apis_plot,
                             nrow = 2,
@@ -161,12 +162,13 @@ apidae_chrom_1 <- ggarrange(bter_combined,
                                         0.8),
                             align = "hv")
 
-## Save:
+## Save as PDF:
 ggsave(file = "results/figure_3_combined.pdf",
        dpi = 600,
        width = 13,
        height = 14)
 
+## Save as PNG:
 ggsave(file = "results/figure_3_combined.png",
        width = 13,
        height = 14)
