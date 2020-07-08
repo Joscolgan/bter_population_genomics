@@ -68,8 +68,8 @@ arrow_plot <- ggplot(data,
                    scales = "free",
                    nrow = 1,
                    shrink = FALSE) +
-        scale_fill_manual(values = c("Beige",
-                                     "grey75")) +
+        scale_fill_manual(values = c("Grey75",
+                                     "Beige")) +
         theme_genes() +
         theme(axis.title.y = element_blank(),
               axis.text.y = element_blank(),
