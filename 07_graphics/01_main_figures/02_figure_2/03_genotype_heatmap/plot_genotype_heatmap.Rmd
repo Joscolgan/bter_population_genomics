@@ -145,8 +145,10 @@ dat_new_melted_ordered$variable <- factor(as.character(dat_new_melted_ordered$va
 ## Plot:
 heatmap_plot <- ggplot(dat_new_melted_ordered,
                        aes(variable, samples)) +
-                  geom_tile(aes(fill = value), colour = "white") +
-                  scale_fill_gradient(low = "beige", high = "bisque4") +
+                  geom_tile(aes(fill = value),
+                            colour = "grey") +
+                  scale_fill_gradient(low = "bisque4",
+                                      high = "beige") +
                   ylab("Samples") +
                   xlab("Genomic position (bp)") +
         theme(legend.title = element_text(size = 12),
@@ -176,5 +178,5 @@ Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr
-lintr::lint(file = "plot_snp_heatmap_wolbachia.Rmd")
+lintr::lint(file = "plot_genotype_heatmap.Rmd")
 ```
