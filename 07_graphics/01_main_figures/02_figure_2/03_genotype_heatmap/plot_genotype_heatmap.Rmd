@@ -8,9 +8,9 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 This script reads in a VCF file and generates a genotype matrix.
 Using data contained in the genotype matrix, a heatmap is generated showing the location of
 major and minor alleles.
-The output is a .png plot of the heatmap.
+The script outputs an R object containing the genotype heatmap that can be used by secondary scripts to generate a multi-image plot.
 
-## Load libraries:
+1. Load libraries:
 
 ```{r, message = FALSE}
 libraries <- c("lintr",
@@ -33,6 +33,7 @@ dir.create(path = "./results/figures",
            recursive = TRUE)
 ```
 
+2. Read in input VCF:
 
 ```{r, echo = FALSE}
 ## Define path to input files:
@@ -68,7 +69,7 @@ sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
 snpgdsClose(input_vcf_gds_genofile)
 ```
 
-Plot heatmap to demonstrate representation of haplotypes within population:
+3. Plot heatmap to demonstrate representation of haplotypes within population:
 
 ```{r}
 ## Format change '2' to '1':
@@ -165,16 +166,16 @@ heatmap_plot <- ggplot(dat_new_melted_ordered,
                                                                             rep(F, 20))])
 ```
 
-Save the heatmap to output:
+4. Save the heatmap to output:
 
 ```{r, message = FALSE}
 ## Save:
 dir.create(path = "results/plots/")
 save(heatmap_plot,
-     file = "results/plots/wolbachia_snp_plot.RData")
+     file = "results/plots/plot_genotype_heatmap.RData")
 ```
 
-Run lintr:
+5. Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr
