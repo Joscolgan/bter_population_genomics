@@ -101,6 +101,7 @@ combined_terms_plot <- ggbarplot(combined_terms,
 
 ## Make font bigger and bold:
 combined_terms_plot <- combined_terms_plot +
+        labs(x = expression(bold("Gene Ontology terms enriched for genes with strongest |"~italic(n)*S[L]*"| scores"))) +
         scale_y_continuous(expand = c(0, 2)) +
         theme(axis.text.x = element_text(size = 10,
                                          angle = 90,
@@ -112,13 +113,37 @@ combined_terms_plot <- combined_terms_plot +
               axis.title.y = element_text(size = 15,
                                           face = "bold"),
               axis.text.y = element_text(size = 10,
-                                         face = "plain"),
-              legend.position = "top",
-              legend.title = element_text(size = 10,
-                                          face = "bold")) +
+                                         face = "bold"),
+              legend.position = "none") +
         geom_hline(yintercept = 1.301,
                    linetype = "dashed",
                    colour = "black")
+
+## Add annotation to the plot:
+combined_terms_plot <-  combined_terms_plot +
+        annotate("text",
+                 x = nrow(bp_terms) / 2,
+                 y = 21,
+                 label = "Biological process",
+                 fontface = 2,
+                 size = 5,
+                 colour = "royalblue3") +
+        annotate("text",
+                 x = nrow(bp_terms) + (nrow(cc_terms) / 2),
+                 y = 21,
+                 label = c("Cellular component"),
+                 fontface = 2,
+                 size = 5,
+                 colour = "goldenrod3") +
+        annotate("text",
+                 x = nrow(bp_terms) +
+                         nrow(cc_terms) +
+                         nrow(mf_terms) / 2,
+                 y = 21,
+                 label = c("Molecular function"),
+                 fontface = 2,
+                 size = 5,
+                 colour = "grey34")
 
 ## Print to console:
 combined_terms_plot
@@ -136,7 +161,7 @@ ggsave(file = "results/figures/combined_go_terms_barchart.pdf",
 
 ## Save as R object:
 save(combined_terms_plot,
-     file = "./results/figures/combined_go_terms_barchart.RData")
+     file = "results/figures/combined_go_terms_barchart.RData")
 ```
 
 Run lintr:
