@@ -80,17 +80,17 @@ colnames(combined_df) <- c("chrom",
                            "midpoint")
 ```
 
-This region of interest contains 53 genes.
+These two regions of interest contain 46 genes.
 
 ```{r, message=FALSE}
 ## Assign the coordinates of the gene to variables plus 100kb
 ## up and downstream of the gene:
 chrom <- "NC_037638.1"
 region_one_start <- 20537332 - 100000
-region_one_end <- 20616537 + 100000
+region_one_end   <- 20616537 + 100000
 
 region_two_start <- 25036596 - 100000
-region_two_end <- 25143386 + 100000
+region_two_end   <- 25143386 + 100000
 ```
 
 Subset genomic region to plot nucleotide diversity:
@@ -114,23 +114,23 @@ nucdiv_median <- median(c(combined_df$africa_nd,
                           combined_df$western_nd))
 
 ## Subset nucleotide diversity measurements:
-combined_nd_df <- combined_df[, c(4, 6, 8, 10, 12)]
+combined_nd_df      <- combined_df[, c(4, 6, 8, 10, 12)]
 combined_nd_df$mean <- rowMeans(combined_nd_df[, c(1:4)])
-genome_wide_mean <- mean(combined_nd_df$mean)
-african_nd_mean <- mean(nuc_div_subset_one$africa_nd)
-asian_nd_mean <- mean(nuc_div_subset_one$asia_nd)
-eastern_nd_mean <- mean(nuc_div_subset_one$eastern_nd)
-western_nd_mean <- mean(nuc_div_subset_one$western_nd)
+genome_wide_mean    <- mean(combined_nd_df$mean)
+african_nd_mean     <- mean(nuc_div_subset_one$africa_nd)
+asian_nd_mean       <- mean(nuc_div_subset_one$asia_nd)
+eastern_nd_mean     <- mean(nuc_div_subset_one$eastern_nd)
+western_nd_mean     <- mean(nuc_div_subset_one$western_nd)
 
 genome_wide_mean / african_nd_mean
 genome_wide_mean / asian_nd_mean
 genome_wide_mean / eastern_nd_mean
 genome_wide_mean / western_nd_mean
 
-african_nd_mean <- mean(nuc_div_subset_two$africa_nd)
-asian_nd_mean <- mean(nuc_div_subset_two$asia_nd)
-eastern_nd_mean <- mean(nuc_div_subset_two$eastern_nd)
-western_nd_mean <- mean(nuc_div_subset_two$western_nd)
+african_nd_mean     <- mean(nuc_div_subset_two$africa_nd)
+asian_nd_mean       <- mean(nuc_div_subset_two$asia_nd)
+eastern_nd_mean     <- mean(nuc_div_subset_two$eastern_nd)
+western_nd_mean     <- mean(nuc_div_subset_two$western_nd)
 
 genome_wide_mean / african_nd_mean
 genome_wide_mean / asian_nd_mean
@@ -139,11 +139,16 @@ genome_wide_mean / western_nd_mean
 
 combined_nd_df$mean <- NULL
 
+## Reshape:
 combined_nd_melt <- melt(combined_nd_df,
                          id.vars = "midpoint")
+
+## Update column names:
 colnames(combined_nd_melt) <- c("midpoint",
                                 "population",
                                 "nuc_diversity")
+
+## Reformat population name for plotting:
 combined_nd_melt$population <- gsub("africa_nd",
                                     "Africa",
                                     combined_nd_melt$population)
@@ -160,15 +165,15 @@ combined_nd_melt$population <- gsub("western_nd",
 ## Generate plot:
 region_one_plot <- ggplot(combined_nd_melt,
                           aes(x = midpoint,
-                           y = nuc_diversity,
-                           colour = population)) +
+                              y = nuc_diversity,
+                              colour = population)) +
         geom_rect(xmin = 20537332,
-                      xmax = 20625795,
-                      ymin = -Inf,
-                      ymax = Inf,
+                  xmax = 20625795,
+                  ymin = -Inf,
+                  ymax = Inf,
                   fill = "beige",
                   color = NA,
-                  alpha = 0.01) +
+                  alpha = 0.03) +
         geom_point(colour = "black",
                    size = 0,
                    alpha = 0.75) +
@@ -194,7 +199,7 @@ region_one_plot <- ggplot(combined_nd_melt,
               axis.title = element_text(size = 12,
                                         face = "bold"),
               axis.title.x = element_blank(),
-                legend.text = element_text(size = 6,
+              legend.text = element_text(size = 6,
                                          face = "plain"),
               legend.title = element_text(size = 6,
                                           face = "bold"),
@@ -204,16 +209,16 @@ region_one_plot <- ggplot(combined_nd_melt,
 
 ## Generate plot for region 2:
 region_two_plot <- ggplot(combined_nd_melt,
-                       aes(x = midpoint,
-                           y = nuc_diversity,
-                           colour = population)) +
+                          aes(x = midpoint,
+                              y = nuc_diversity,
+                              colour = population)) +
         geom_rect(xmin = 25036596,
                   xmax = 25143386,
-                      ymin = -Inf,
-                      ymax = Inf,
+                  ymin = -Inf,
+                  ymax = Inf,
                   fill = "beige",
                   color = NA,
-                  alpha = 0.01) +
+                  alpha = 0.03) +
         geom_point(colour = "black",
                    size = 0,
                    alpha = 0.75) +
@@ -229,7 +234,7 @@ region_two_plot <- ggplot(combined_nd_melt,
                                       region_two_end),
                            position = "top") +
         scale_color_manual(name = "Population",
-                values = c("blue",
+                           values = c("blue",
                                       "orange",
                                       "black",
                                       "purple")) +
@@ -265,16 +270,18 @@ load(file = "results/plots/chrom_1_arrow_plot_region_2.Rdata")
 Generate combined plots:
 
 ```{r, message=FALSE}
-## Generate a combined plot:
+## Update colour scheme for arrow plots:
 arrow_plot_one <- arrow_plot_one +
         theme(legend.position = "none") +
-        scale_fill_manual(values = c("bisque4",
+        scale_fill_manual(values = c("grey75",
                                      "beige"))
 arrow_plot_two <- arrow_plot_two +
         theme(legend.position = "none") +
-        scale_fill_manual(values = c("bisque4",
+        scale_fill_manual(values = c("grey75",
                                      "beige"))
-region_two_plot <- region_two_plot + theme(legend.position = "none")
+## Remove legend from second plot:
+region_two_plot <- region_two_plot +
+        theme(legend.position = "none")
 
 ## Generate a multi-figure plot:
 combined_apis_plot <- ggarrange(arrow_plot_one,
