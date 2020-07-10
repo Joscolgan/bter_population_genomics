@@ -10,6 +10,8 @@ This script loads R objects containing:
 2) A principal component analysis of sites (highlighted by landuse type)
 3) A principal component analysis of sites (highlighted by latitude)
 
+1. Load libraries:
+
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
 libraries <- c("ggplot2",
@@ -28,6 +30,7 @@ for (lib in libraries) {
 ## Create output directory:
 dir.create("results")
 ```
+2. Load input files:
 Next step is to load input files (R objects)
 
 ```{r, message = FALSE}
@@ -39,7 +42,7 @@ load(file = "results/figures/combined_go_terms_barchart.RData")
 load(file = "results/histogram_snp_by_variant_type.RData")
 ```
 
-1) Plot map:
+3. Plot map:
 
 ```{r, message = FALSE}
 ## Read in data:
@@ -56,7 +59,7 @@ britain_map <- britain_map +
                   face = "bold"))
 ```
 
-2) Plot PCA:
+4. Plot PCA:
 
 ```{r, message = FALSE}
 ## Update latitude plot with points:
@@ -89,7 +92,7 @@ pca_plot <- ggplot(tab,
             theme(legend.position = "none")
 ```
 
-3) Generate a combined plot for map and PCA:
+5. Generate a combined plot for map and PCA:
 
 ```{r, message = FALSE}
 ## Combine and plot together:
@@ -102,7 +105,7 @@ map_and_pca_plot <- ggarrange(britain_map,
                               labels = c("A", "B"))
 ```
 
-4) Generate a second multi-image plot for:
+6. Generate a second multi-image plot for:
 i)   Manhattan plot of nsl values
 ii)  Histogram of functional variant types
 iii) Barchart of enriched Gene Ontology terms:
@@ -112,6 +115,7 @@ First, generate a combined plot of manhattan (i) and histogram (ii) plots:
 ```{r, message = FALSE}
 ## Ensure axis titles are the same size across plots:
 manhattan_plot <- manhattan_plot +
+        labs(y = expression(bold("|"~italic(n)*S[L]*"| score"))) + 
                 scale_y_continuous(breaks = c(0:5.5),
                            limits = c(0, 5.5)) +
         theme(axis.text = element_text(size = 10,
@@ -147,7 +151,7 @@ combined_terms_plot <- combined_terms_plot +
                                        face = "plain"),
               axis.title = element_text(size = 15,
                                         face = "bold")) +
-        theme(legend.position = "top")
+        theme(legend.position = "none")
 
 ## Generate a combined plot:
 man_hist_barchart_plot <- ggarrange(manhattan_and_hist_plot,
@@ -179,7 +183,7 @@ combined_plot
 Save output:
 
 ```{r, message = FALSE}
-output_file_name <- "figure_1_map_pca_plus_manhattan_new"
+output_file_name <- "figure_1_map_pca_plus_manhattan_dpi_300"
 
 ## Create multiple image files:
 for (extension in c("png",
