@@ -38,6 +38,7 @@ for (lib in libraries) {
 load(file = "results/plots/chrom_1_genotype_heatmap.RData")
 load(file = "results/combined_apis_plots.RData")
 load(file = "large_sweep_chrom_one_combined_plot.Rdata")
+load(file = "results/chrom_1_arrow_plot.Rdata")
 ```
 
 This script plots nsl score, ihs score, population-scaled recombination rate, nucleotide diversity and Tajima's D estimates.
@@ -84,7 +85,7 @@ nuc_div_plot <- ggplot(nuc_div_subset,
                                       ymin = -Inf,
                                       ymax = Inf),
                                   fill = "beige",
-                                  alpha = 0.01) +
+                                  alpha = 0.03) +
         geom_point(colour = "black",
                    size = 0,
                    alpha = 0.75) +
