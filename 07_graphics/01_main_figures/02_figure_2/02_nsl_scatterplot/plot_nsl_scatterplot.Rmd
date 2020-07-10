@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_wolbachia_sweep.html
+output: plot_nsl_scatterplot.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -119,7 +119,7 @@ nsl_plot <- ggplot(nsl_input_subset,
 5. Save image:
 
 ```{r, message = FALSE}
-save.image(file = "results/plots/wolbachia_sweep_scatterplot.RData")
+save.image(file = "results/plots/plot_nsl_scatterplot.RData")
 ```
 
 6. Run lintr:
