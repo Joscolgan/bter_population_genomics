@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_gggenes_arrows_tf.html
+output: plot_gggene_arrows.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -12,11 +12,10 @@ This script takes a tab-delimited file as input containing the following columns
 4) Gene name
 5) Strand
 6) Status - if you want to highlight a gene of interest
+The script generates an arrow plot for a gene of interest indicating the presence of functional domains.  
+The script saves the arrow plot as an R object.
 
-N.B. I tested out the code using the example_data that comes with the package and everything worked. Created my own dataframe using the same column headers in R but there was an issue with the plots making all genes
-the same size in the plot. Unsure of what the problem is. Easiest fix
-was to output the example data file and manually change values for plots. 
-No issues since. 
+1. Load required libraries:  
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -34,6 +33,10 @@ for (lib in libraries) {
                 library(lib, character.only = TRUE)
         }
 }
+
+## Create output directory:
+dir.create(path = "results/plots",
+           recursive = TRUE)
 ```
 
 2. Read in input files:
@@ -52,7 +55,12 @@ data$direction <- ifelse(data$strand == "forward", 1, -1)
 
 data$highlight <- data$start > 1724000 &
                   data$start < 1770171
+                  
+```
 
+3. Generate arrow plot:
+
+```{r, message = FALSE)
 ## Plot:
 arrow_plot <- ggplot(data,
                      aes(xmin = as.numeric(start),
@@ -80,10 +88,10 @@ arrow_plot <- ggplot(data,
 
 ## Save image as an R object:
 save(arrow_plot,
-       file = "results/plots/wolbachia_arrow_plot.RData")
+       file = "results/plots/plot_gggene_arrows.RData")
 ```
 
-Run lintr
+4. Run lintr to check style:
 
 ```{r, message = FALSE}
 ## Run lintr:
