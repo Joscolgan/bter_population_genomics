@@ -150,6 +150,7 @@ UNMAPPED_DATA     = "filtered_temp/01_aligned/{samples}_unmapped/"
 # Output sorted and merged BAM files here
 SORTED_DATA       = "filtered_temp/02_sorted/{samples}.bam"
 
+# Output BAM file annotated with read group information here
 RG_ANNOTATED_DATA = "filtered_temp/02_sorted/{samples}_RGadded.bam"
 
 # Output text file containing read depth information here
@@ -222,7 +223,6 @@ rule align_to_genome:
                                 -2 {input[7]} \
                                 -U {input[8]} \
                                 -S {output[0]} && [[ -s {output[0]} ]]")
-
 
 # Convert SAM file to BAM format and sort
 rule sort_sam_to_bam:
