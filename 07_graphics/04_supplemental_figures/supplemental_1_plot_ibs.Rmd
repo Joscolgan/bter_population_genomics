@@ -8,7 +8,7 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 This script loads an R object and plots a correlation plot of values estimated through an 'identity-by-descent' (IBD) analysis performed by [SNPRelate](https://bioconductor.org/packages/release/bioc/html/SNPRelate.html).
 The output is a saved image (.png, .pdf) of a heatmap.
 
-Load required libraries:
+1. Load required libraries:
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
@@ -28,19 +28,19 @@ for (lib in libraries) {
 dir.create("results")
 ```
 
-Load input file:
+2. Load input file:
 
 ```{r, message = FALSE}
 ## Load R object:
 load(file = "input/pca_plots.Rdata")
 ```
 
-Generate correlation plot:
+3. Generate correlation plot:
 
 ```{r, message = FALSE}
 ## Updated column names:
-colnames(input_for_melt) <- as.character(unlist(new_names))
-rownames(input_for_melt) <- as.character(unlist(new_names))
+colnames(input_for_melt) <- tab$site_id
+rownames(input_for_melt) <- tab$site_id
 input_for_melt_melted    <- melt(input_for_melt)
 
 ## Round for plotting:
@@ -91,8 +91,8 @@ ggsave(file = "results/supplemental_1_ibs_correlation_plot.pdf",
        width = 10)
 ```
 
-Run lintr:
+4. Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "./supplemental_1_plot_ibs.Rmd")
+lintr::lint(file = "supplemental_1_plot_ibs.Rmd")
 ```
