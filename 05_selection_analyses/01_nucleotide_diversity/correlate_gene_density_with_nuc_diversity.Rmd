@@ -4,11 +4,22 @@ output: correlate_gene_density_with_nuc_diversity.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
-# Introduction:
-This script takes in an tab-delimited input file containing two columns:
-1) Number of segregating sites.
-2) Number of genes present.
-The output is a scatterplot.  
+# Introduction:  
+This script investigates the relationship between SNP and gene density.
+This script takes in an tab-delimited input file containing six columns:
+1) Chromosome name for where a 100kb sliding window analysis is performed
+2) Genomic position of the start (bp) of a 100kb sliding window
+3) Genomic position of the end (bp) of a 100kb sliding window 
+4) Nucleotide diversity for a 100kb sliding window as calculated by [PopGenome](https://cran.r-project.org/web/packages/PopGenome/index.html).
+5) Gene density within a 100kb sliding window.
+6) Number of intronic SNPs within a 100kb sliding window.
+
+The script performs a correlation test between:
+1) Gene density and nucleotide diversity
+2) Gene density and intronic SNP density
+The script also generates a scatterplot to visualise the potential relationsip between SNP and gene density.
+
+1. Load libraries:
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -31,7 +42,7 @@ dir.create(path = "./results/figures",
            recursive = TRUE)
 ```
 
-Read in input file:
+2. Read in input file:
 
 ```{r, message = FALSE}
 data <- read.table(file = "./results/input_for_r.txt",
@@ -48,15 +59,21 @@ region_of_interest <- subset(data,
                                      start > 250000 &
                                      end < 650000)
 
-## Check correlation:
+## Test for correlation between:
+## 1) Gene density and nucleotide diversity:
 cor.test(x = data$gene_density,
          y = data$nuc_div,
          method = "pearson")
 
+## 2) Gene density and intronic SNPs:
 cor.test(x = data$gene_density,
          y = data$intronic_snps,
          method = "pearson")
+```         
 
+3. Generate plots:
+
+```{r, message = FALSE)
 ## Plot:
 gene_density <- ggplot(data = data,
        aes(x = gene_density,
@@ -105,7 +122,8 @@ intron_density <- intron_density + stat_cor(method = "pearson",
                         label.y = 1000)
 ```
 
-Run lintr:
+4. Run lintr:
+
 ```{r, message = FALSE}
-lintr::lint(file = "./correlate_gene_density_with_nuc_diversity.Rmd")
+lintr::lint(file = "correlate_gene_density_with_nuc_diversity.Rmd")
 ```
