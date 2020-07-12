@@ -4,10 +4,10 @@
 ## Author: Joe Colgan                      Name: run_freebayes.sh
 ##
 ## Date: 30/12/2016
-###
+##
 #############################################################################
 
-
+## Run freebayes:
 freebayes \
 -f ./data/refseq_files/GCF_000214255.1_Bter_1.0_genomic.fna \
 --bam-list bam_list.txt \
@@ -21,5 +21,4 @@ freebayes \
 --min-mapping-quality 1 \
 --min-alternate-fraction 0.25 \
 --min-coverage 1 \
---use-reference-allele > results/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.vcf 
-
+--use-reference-allele > results/freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.vcf
