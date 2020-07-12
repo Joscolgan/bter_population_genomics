@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
-#######################################################################
+#############################################################################
 ##
-## Author: Joe Colgan           Program: quant_depth.R
+## Author: Joe Colgan                                Program: quant_depth.R
 ##
 ## Date:   2019/12/02
 ##
@@ -19,17 +19,17 @@
 ## - Start position for region of interest
 ## - End position for region of interest
 ## The user defines the name of output file.
-#######################################################################
+##############################################################################
 
 ## Create output directory:
 dir.create("results")
 
 ## Take arguments from the command line:
 ## Provide access to a copy of the command line arguments supplied when R session is invoked
-args <- commandArgs(TRUE)
+args               <- commandArgs(TRUE)
 region_of_interest <- args[1]
-depth_file <- args[2]
-output <- args[3]
+depth_file         <- args[2]
+output             <- args[3]
 message(paste("will output to",
               output))
 
