@@ -26,6 +26,6 @@ The present repository contains scripts for:
 - Functional domain enrichment analysis (functional_domain_analysis/)
 - Investigation of genes of interest:  
   - 1) Insecticide response genes  
-  - 2) Wolbachia HGT event  
+  - 2) _Wolbachia_ HGT event  
   - 3) Region of low nucleotide diversity on chromosome one  
 - Scripts for visualisation of data for manuscript/publication (graphics/)  
