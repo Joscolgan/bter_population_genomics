@@ -3,7 +3,7 @@
 ##
 ## Author: Joe Colgan                           Program: nuc_div_calculator.R
 ##
-## Date: 04-03-2018
+## Date: 2018-03-04
 ##
 ## Purpose:
 ##  - Read in text file containing information of VCF file for each chromosome, as well
@@ -19,11 +19,6 @@
 ##      g) midpoint position of genomic window
 ##
 ##########################################################################################
-
-input <- "./chromosome_info.txt"
-bin_width <- 100000
-input_gff <- "../gff/Bombus_terrestris.Bter_1.0.44.gff"
-output <- "./bter_all_chrom_100kb_approx_F_jump_size_zero.txt"
 
 # Load libraries; install from scratch if needed
 libraries <- c("ggplot2",
@@ -42,6 +37,20 @@ for (lib in libraries) {
 
 #install.packages("WhopGenome")
 
+
+## Define input files required for running script:
+## Provide path to chromosome info file which contains three columns:
+## 1) Name of and relative path to tabix-indexed bgzipd chromosome-level VCF file
+## 2) Start position of chromosome
+## 3) End position of chromosome
+input     <- "./chromosome_info.txt"
+## Define window size:
+bin_width <- 100000
+## Provide relatve path to input annotation file (i.e. GFF)
+input_gff <- "../gff/Bombus_terrestris.Bter_1.0.44.gff"
+## Define output file name:
+output    <- "bter_all_chrom_100kb_approx_F_jump_size_zero.txt"
+
 ## Load data
 ## Read in the tabix indexed VCF
 ## The input parameters include:
@@ -53,12 +62,12 @@ for (lib in libraries) {
 ## An additional parameter is to include a gff
 
 ## Scan in information about chromosomes:
-chrom_data <- read.table(input, header=F)
+chrom_data <- read.table(input,
+                         header = FALSE)
 chrom_data <- as.matrix(chrom_data)
 
 ## Divide each chromosome into sliding windows (window size: 10kb, jump size:5kb)
-##
-count <- 0
+count              <- 0
 nucdiv_combined_df <- data.frame()
 
 ## Define jumpwidth:
@@ -70,11 +79,24 @@ print(chrom_data)
 ## genomic windows of user-defined size:
 for (item in 1:nrow(chrom_data)){
         ## Extract name of chromosome:
-        chrom <- gsub(".recode.vcf.bgz", "", chrom_data[item,][1])
+        chrom <- gsub(pattern = ".recode.vcf.bgz",
+                      replacement = "",
+                      chrom_data[item,][1])
         ## Read in VCF file:
-        chrom_data_item <- readVCF(chrom_data[item,][1], bin_width, chrom, chrom_data[item,][2], chrom_data[item,][3], gffpath = input_gff, approx = FALSE, include.unknown=TRUE)
-        ##
-        chrom_data_item      <- sliding.window.transform(chrom_data_item, bin_width, jump_width, type=2, whole.data = F)
+        chrom_data_item <- readVCF(chrom_data[item,][1],
+                                   bin_width,
+                                   chrom,
+                                   chrom_data[item,][2],
+                                   chrom_data[item,][3],
+                                   gffpath = input_gff,
+                                   approx = FALSE,
+                                   include.unknown=TRUE)
+        ## Perform sliding window transformation:
+        chrom_data_item      <- sliding.window.transform(chrom_data_item,
+                                                         bin_width,
+                                                         jump_width,
+                                                         type = 2,
+                                                         whole.data = FALSE)
         ## Extract region names, which contains window coordinates:
         region_names         <- chrom_data_item@region.names
         region_names.df      <- str_split_fixed(region_names, " ", 4)[,4]
@@ -87,7 +109,8 @@ for (item in 1:nrow(chrom_data)){
         ## Calculation of nucleotide diversity:
         nucdiv_item          <- chrom_data_item@nuc.diversity.within
         nucdiv_item          <- nucdiv_item/bin_width
-        nucdiv_item.df <- as.data.frame(cbind(nucdiv_item, region_names.df))
+        nucdiv_item.df       <- as.data.frame(cbind(nucdiv_item,
+                                                    region_names.df))
         nucdiv_item.df$chrom <- chrom
         nucdiv_item.df$tajima_d <- chrom_data_item@Tajima.D
         ## Subset information on the number of segregating sites:
@@ -120,8 +143,8 @@ nucdiv_combined_df$midpoint      <- round((nucdiv_combined_df$start + nucdiv_com
 
 ## Export table:
 write.table(nucdiv_combined_df,
-output,
-row.names = FALSE,
-col.names = TRUE,
-quote = FALSE,
-sep="\t")
+            output,
+            row.names = FALSE,
+            col.names = TRUE,
+            quote = FALSE,
+            sep = "\t")
