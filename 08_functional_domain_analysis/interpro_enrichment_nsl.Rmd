@@ -7,14 +7,16 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ## Introduction:
 This script takes a tab-delimited text file as input containing four columns:
 1. Gene ID (locus)
-2. |iHS| score
-3. |nSL| score
-4. List of interproscan domains, which was obtained from ensembl.
+2. |nSL| score
+3. Length of gene
+3. List of interproscan domains, which was obtained from ensembl.
 This scripts performs a wilcoxon test to identify interpro functional domains significantly enriched in genes with high |nsl| values.
 This script outputs a tab-delimited text file containing two columns:
 1. interpro domain accession ID
 2. Bonferroni-adjusted p-value
 This output file can be used to plot a barchart of enriched interpro domains.
+
+1. Load libraries:
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -31,11 +33,11 @@ for (lib in libraries) {
 }
 ```
 
-Read in input files:
+2. Read in input files:
 
 ```{r}
 ## Read data from file:
-nsl_interpro_database <- read.table("./input/nsl/interproscan_input_plus_nsl_top_scores_per_gene_new.txt",
+nsl_interpro_database <- read.table("input/nsl/interproscan_input_plus_nsl_top_scores_per_gene_new.txt",
                                     col.names = c("locus",
                                                   "nsl",
                                                   "length",
@@ -44,11 +46,12 @@ nsl_interpro_database <- read.table("./input/nsl/interproscan_input_plus_nsl_top
 
 ## Ensure nsl and ihs scores are numeric:
 nsl_interpro_database$nsl <- as.numeric(as.character(nsl_interpro_database$nsl))
-# we suppose that all values of 0 mean NO nsl was calculated
+
+## Ensure only sites with nsl scores assigned are included:
 nsl_interpro_database_nozero <- subset(nsl_interpro_database,
                                        nsl > 0)
         
-nsl_interpro_database_nozero$nsl_corrected <- nsl_interpro_database_nozero$nsl/as.numeric(unlist(nsl_interpro_database_nozero$length))
+##nsl_interpro_database_nozero$nsl_corrected <- nsl_interpro_database_nozero$nsl / as.numeric(unlist(nsl_interpro_database_nozero$length))
 
 ## Ensure sorted by nsl:
 nsl_interpro_database_nozero <- nsl_interpro_database_nozero[order(nsl_interpro_database_nozero$nsl_corrected), ]
@@ -56,8 +59,9 @@ nsl_interpro_database_nozero <- nsl_interpro_database_nozero[order(nsl_interpro_
 ## Read in a file containing interproscans at least found in 20 genes:
 interpros_to_check <- read.table("input/database/interproscan_of_interest_input_for_wilcoxon.n20.txt")$V1
 
+## Create empty vector:
 wilcox_pvalues <- rep(NA,
-               times = length(interpros_to_check))
+                      times = length(interpros_to_check))
 names(wilcox_pvalues) <- interpros_to_check
 
 ks_pvalues <- rep(NA,
@@ -105,19 +109,22 @@ cor.test(pvalues_adjust_df$wilcox_pvalues_adjust,
          pvalues_adjust_df$ks_pvalues_adjust)
 
 pvalues_adjust_sig <- pvalues_adjust_sig[order(pvalues_adjust_sig$wilcox_pvalues_adjust), ]
+```
 
+3. Write file:
+
+```{r, message = FALSE}
 dir.create(path = "./results")
-
 ## Write to output:
 write.table(pvalues_adjust_sig,
-      file = "./results/signficiant_ipr_domains_length_corrected_new.txt",
+      file = "results/signficiant_ipr_domains_length_corrected_new.txt",
       row.names = FALSE,
       col.names = TRUE,
       sep = "\t",
       quote = FALSE)
 ```
 
-Run lintr:
+4. Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr
