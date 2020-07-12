@@ -11,7 +11,7 @@ convert to a dataframe and output as a text file.
 
 ```{r, message = FALSE}
 ## Load R object:
-load(file = "input/txi_count_estimates.Rdata")
+load(file = "input/txi_count_estimates.RData")
 ```
 
 Extract count table:
