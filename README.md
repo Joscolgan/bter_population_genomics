@@ -24,4 +24,8 @@ The present repository contains scripts for:
   - Copy number variation (selection_analysis/copy_number_variation)
 - Gene ontology term enrichment analysis using [topGO](https://bioconductor.org/packages/release/bioc/html/topGO.html).   
 - Functional domain enrichment analysis (functional_domain_analysis/)
+- Investigation of genes of interest:  
+  - 1) Insecticide response genes  
+  - 2) Wolbachia HGT event  
+  - 3) Region of low nucleotide diversity on chromosome one  
 - Scripts for visualisation of data for manuscript/publication (graphics/)  
