@@ -100,7 +100,6 @@ MAX_THREADS = 40
 ##############################################################################
 
 # Open file and read in contents - one sample per line
-
 SAMPLES = open('sample_list.txt').read().splitlines()
 for sample in SAMPLES:
     if sample.find('.') != -1:
