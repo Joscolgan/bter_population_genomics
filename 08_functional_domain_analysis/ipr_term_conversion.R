@@ -1,15 +1,15 @@
 #!/usr/bin/env Rscript
 ##############################################################################
-# Author: Joe Colgan                   Program: GO_term_conversion.R
+# Author: Joe Colgan                   Program: ipr_term_conversion.R
 #
 # Date: 16/08/2017
 #
 # Purpose:
 # This script takes one tab delimited text file as input, which contains two columns:
-# first column: Seqname; second column: GOs.
-# The script concatenates GO terms associated to each individual protein sequence (Seqname),
-# and generates a nonredundant list of GO terms for each proteins.
-# GO terms associated with protein were assigned to encoding genes.  .
+# first column: Seqname; second column: Interproscan (IPR) domains.
+# The script concatenates IPR terms associated to each individual protein sequence (Seqname),
+# and generates a nonredundant list of IPR terms for each proteins.
+# IPR terms associated with protein were assigned to encoding genes.
 #
 ##############################################################################
 
