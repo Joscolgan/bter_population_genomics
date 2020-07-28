@@ -112,7 +112,7 @@ write.table(snpset_df,
 ## Perform PCA and store output in variable:  
 pca        <- snpgdsPCA(input_vcf_gds_genofile,
                           num.thread = 40,
-                          snp.id = snpset.id,
+                          #snp.id = snpset.id,
                           autosome.only = FALSE)
 
 ## Calculate percentages for principal components:  
@@ -131,12 +131,18 @@ sample_id     <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
 pop_code_df <- read.table(file = "input/population_information.txt",
                           header = FALSE)
 
+## Print to console:
+print("Population information loaded")
+
 ## Rename columns:
 colnames(pop_code_df) <- c("sample",
                            "revised_site_number",
                            "landuse",
                            "original_site_number",
                            "latitude")
+
+## Print to console:
+print("Columns updated")
 
 ## Add landuse information to population information:
 pop_code <- pop_code_df$landuse
@@ -156,18 +162,24 @@ tab <- data.frame(sample.id = pca$sample.id,
 ## Renaming the sample.ids
 new_names <- list()
 
+print(sample_id)
+
 ## Create a list:
 for (name in sample_id){
+        print(name)
         new_names[name] <- paste(strsplit(name, "_")[[1]][5],
-        "_", strsplit(name, "_")[[1]][6],
-        sep = "")
+                                 "_", strsplit(name, "_")[[1]][6],
+                                 sep = "")
 }
+
+print(new_names)
 
 ## Unlist as a character string and update sample ids:
 tab$sample.id <- as.character(unlist(new_names))
 
 ## Add another column for site_id:
-tab$site_id <- pop_code_df$site_number
+tab$site_id <- pop_code_df$revised_site_number
+print(tab$site_id)
 
 ## Add column for latitude:
 tab$latitude <- pop_code_df$latitude
@@ -186,6 +198,8 @@ for (i in 1:length(tab$site_id)){
                 new_site_id <- c(new_site_id, paste(tab$site_id[i], "B", sep=""))
         }
 }
+
+print(new_site_id)
 
 ## Update site information: 
 tab$site_id <- new_site_id
