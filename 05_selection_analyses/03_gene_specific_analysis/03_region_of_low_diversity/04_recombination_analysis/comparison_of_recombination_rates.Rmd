@@ -27,17 +27,26 @@ Read in input files:
 
 ```{r, message = TRUE}
 ## Read in input:
-region_of_interest_df <- read.table(file = "./input/region_of_interest.txt",
+genome_wide_df <- read.table(file = "input/genome_wide_pop_scaled_recombination_rates.txt",
                                     col.names = c("chrom",
                                                   "left_snp",
                                                   "right_snp",
                                                   "rho"))
 
-genome_wide_df <- read.table(file = "./input/genome_wide_pop_scaled_recombination_rates.txt",
-                                    col.names = c("chrom",
-                                                  "left_snp",
-                                                  "right_snp",
-                                                  "rho"))
+## Region of interest:
+region_of_interest <- read.table(file = "data/region_of_interest.bed",
+                                 col.names = c("chrom",
+                                               "start",
+                                               "end"))
+```
+
+Subset region of interest:
+
+```{r, message = FALSE}
+region_of_interest_df <- subset(genome_wide_df,
+                                chrom %in% region_of_interest$chrom &
+                                left_snp > region_of_interest$start &
+                                right_snp < region_of_interest$end)
 ```
 
 Comparison of recombination rates:
@@ -61,5 +70,5 @@ quantile(genome_wide_df$rho,
 Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "./comparison_of_recombination_rates.Rmd")
+lintr::lint(file = "comparison_of_recombination_rates.Rmd")
 ```
