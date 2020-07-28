@@ -147,4 +147,18 @@ ldhelmet post_to_text \
   "$name"
 done
 
+
+## Add chromosome name:
+for name in results/NC*txt;
+do
+chrom_name="$(echo "$name" | cut -d '.' -f 1,2)";
+tail -n +4 "$name" > "$chrom_name".tmp;
+echo "$chrom_name";
+while read line;
+do
+echo "$chrom_name" >> "$chrom_name"_list.tmp;
+done < "$chrom_name".tmp;
+paste  "$chrom_name"_list.tmp "$chrom_name".tmp > "$chrom_name"_chrom_added.txt;
+done
+
 echo 'Step 7: Converting from post to text - complete'
