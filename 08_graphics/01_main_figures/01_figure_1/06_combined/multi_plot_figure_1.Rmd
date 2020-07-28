@@ -36,9 +36,9 @@ Next step is to load input files (R objects)
 ```{r, message = FALSE}
 ## Load objects:
 load(file = "results/map_of_britain.RData")
-load(file = "results/pca_plots.Rdata")
+load(file = "results/pca_plots.RData")
 load(file = "results/manhattan_plot.RData")
-load(file = "results/figures/combined_go_terms_barchart.RData")
+load(file = "results/combined_go_terms_barchart.RData")
 load(file = "results/histogram_snp_by_variant_type.RData")
 ```
 
@@ -115,7 +115,7 @@ First, generate a combined plot of manhattan (i) and histogram (ii) plots:
 ```{r, message = FALSE}
 ## Ensure axis titles are the same size across plots:
 manhattan_plot <- manhattan_plot +
-        labs(y = expression(bold("|"~italic(n)*S[L]*"| score"))) + 
+        labs(y = expression(bold("|"~italic(n)*S[L]*"| score"))) +
                 scale_y_continuous(breaks = c(0:5.5),
                            limits = c(0, 5.5)) +
         theme(axis.text = element_text(size = 10,
