@@ -33,7 +33,7 @@ Next step is to load input files (R objects)
 
 ```{r, message = FALSE}
 ## Load objects:
-load(file = "./input/pca_plot/pca_plots.Rdata")
+load(file = "results/pca_plots.RData")
 ```
 
 1) Plot PCA and Latitude:
@@ -42,51 +42,51 @@ load(file = "./input/pca_plot/pca_plots.Rdata")
 ## Perform correlation test:
 cor.test(tab$EV2,
          tab$latitude,
-         methd = "pearson")
+         method = "pearson")
 
 ## Update latitude plot with points:
 lat_correlation <- ggplot(tab,
-            aes(x = EV2,
-                y = latitude)) +
-            xlab(paste("Principal component ",
-                       2,
-                       " ",
-                       "(",
-                       round(pc_percent[2],
-                             2), "%", ")",
-                       sep = "")) +
-            ylab("Latitude (°N)") +
+                          aes(x = EV2,
+                              y = latitude)) +
+        xlab(paste("Principal component ",
+                   2,
+                   " ",
+                   "(",
+                   round(pc_percent[2],
+                         2), "%", ")",
+                   sep = "")) +
+        ylab("Latitude (°N)") +
         geom_point(size = 5,
-                aes(color = latitude,
-                    fill = latitude)) +
+                   aes(color = latitude,
+                       fill = latitude)) +
         geom_label_repel(aes(label = site_id)) +
         theme_minimal() +
-            theme(axis.text = element_text(size = 10,
-                  face = "plain"),
-                  axis.title = element_text(size = 15,
-                  face = "bold")) +
-            theme(legend.position = "none")
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold")) +
+        theme(legend.position = "none")
 
 ## Annotate plot with results from cor.test
 lat_correlation <- lat_correlation +
         annotate(geom = "text",
-                           y = 55.5,
-                           x = -0.15,
-                           label = "r = 0.75",
+                 y = 55.5,
+                 x = -0.15,
+                 label = "r = 0.8",
                  size = 5) +
         annotate(geom = "text",
-                           y = 55.2,
-                           x = -0.15,
-                           label = "p < 1e-08",
+                 y = 55.2,
+                 x = -0.15,
+                 label = "p < 1e-10",
                  size = 5)
 
 ## Save as .png:
-ggsave(file = "./results/supplemental_1_pca_correlation.png",
+ggsave(file = "./results/supplemental_3_pca_correlation.png",
        height = 8,
        width = 10)
 
 ## Save as .pdf
-ggsave(file = "./results/supplemental_1_pca_correlation.pdf",
+ggsave(file = "./results/supplemental_3_pca_correlation.pdf",
        dpi = 600,
        height = 8,
        width = 10)
@@ -95,11 +95,11 @@ ggsave(file = "./results/supplemental_1_pca_correlation.pdf",
 Save also as an R object:
 
 ```{r, message = FALSE}
-save.image(file = "./results/supplemental_1_pca_correlation.RData")
+save.image(file = "results/supplemental_3_pca_correlation.RData")
 ```
 
 Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "./supplemental_1_pca_correlation.Rmd")
+lintr::lint(file = "supplemental_3_pca_correlation.Rmd")
 ```

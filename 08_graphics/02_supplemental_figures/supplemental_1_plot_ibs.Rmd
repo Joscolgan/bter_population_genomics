@@ -32,7 +32,7 @@ dir.create("results")
 
 ```{r, message = FALSE}
 ## Load R object:
-load(file = "input/pca_plots.Rdata")
+load(file = "results/pca_plots.RData")
 ```
 
 3. Generate correlation plot:
