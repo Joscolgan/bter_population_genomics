@@ -36,8 +36,6 @@ from helper_functions import *
 # rule combine:
 #     - Prior to k-mer counting (a step that takes all samples as input), filtered and merged files
 #     are combined together.
-# rule remove_orphans_from_filtered_reads:
-#     - Drop orphan sequences from interleaved input.
 # rule count_kmers:
 #     - Builds a k-mer count table populated by k-mers (size=31) present within input.
 # rule calculate_distribution:
@@ -121,10 +119,6 @@ from helper_functions import *
 # For rule trim_reads, assign path for input data
 RAW_DATA                      = "./input/{sample}/combined/{sample}{pair}.fastq.gz"
 
-FORWARD_ADAPTOR               = "AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT"
-
-REVERSE_ADAPTOR               = "GATCGGAAGAGCACACGTCTGAACTCCAGTCACATCACGATCTCGTATGCCGTCTTCTGCTTG"
-
 # For rule filter_merged_reads specify phred quality score type (33 for Illumina HiSeq reads)
 QUAL_PHRED                    = 33
 
@@ -167,6 +161,12 @@ PAIR        = ["_1", "_2"]
 ##############################################################################
 # Specify all input/output files in terms of sample wildcards
 ##############################################################################
+# Output adaptor removed data here
+ADAPTOR_REMOVED      = "temp/01_adaptor_removed/{sample}.R1.fastq",\
+                       "temp/01_adaptor_removed/{sample}.R1.unpaired.fastq",\
+                       "temp/01_adaptor_removed/{sample}.R2.fastq",\
+                       "temp/01_adaptor_removed/{sample}.R2.unpaired.fastq"
+
 # Output interleaved data here:
 INTERLEAVED_DATA          = "results/01_interleaved/{sample}.R1_R2.fastq.gz"
 
@@ -204,8 +204,10 @@ CLEANED_DATA         = "results/06_length_filtered/{sample}.R1_R2.fastq.gz"
 # Output split final cleaned data here
 PAIRED_DATA          = "results/07_extract_clean/{sample}.R1_R2.fastq.gz"
 
+# Output single "orphan" reads here
 SINGLE_DATA          = "results/07_extract_clean/{sample}.R1_R2_single.fastq.gz"
 
+## Output cleaned data here
 SPLIT_DATA           = ["results/08_split_clean/{sample}.R1.fastq.gz",
                        "results/08_split_clean/{sample}.R2.fastq.gz"]
 
@@ -223,14 +225,12 @@ tools = {}
 ve_path = 'KhmerEnv/bin/'
 print(ve_path)
 
-tools['fastp']                = os.path.join(dirs['src'], 'fastp')
 tools['interleave']           = os.path.join(ve_path, 'interleave-reads.py')
 tools['filter_abund']         = os.path.join(ve_path, 'filter-abund.py')
 tools['load_into_counting']   = os.path.join(ve_path, 'load-into-counting.py')
 tools['abundance_dist']       = os.path.join(ve_path, 'abundance-dist.py')
 tools['extract']              = os.path.join(ve_path, 'extract-paired-reads.py')
 tools['split']                = os.path.join(ve_path, 'split-paired-reads.py')
-tools['seqtk']                = os.path.join(dirs['src'], 'seqtk')
 check_tools(tools)  # Probably redundant - Snakemake will fail and throw error if can't locate tool
 
 ##############################################################################
@@ -242,41 +242,41 @@ check_tools(tools)  # Probably redundant - Snakemake will fail and throw error i
 # First rule is list the final output
 rule all:
     input: expand(KMER_FREE_DATA, sample=SAMPLES, pair=PAIR)
+        
+# Second rule is to identify and trim adaptors
+rule adaptor_removal:
+    input:  expand(RAW_DATA, sample=SAMPLES, pair=PAIR)
+    output: ADAPTOR_REMOVED
+    run:
+        check_files_arent_empty(input)
+        shell("java -jar {tools[trim]} PE {input[0]} {input[1]} {output[0]} {output[1]}\
+               {output[2]} {output[3]} ILLUMINACLIP:combined.TruSeq_adaptors.fa:2:30:10 MINLEN:36")
 
-# Second rule is to interleave paired-end reads:
+# Interleave paired-end data and output
 rule interleave_reads:
-    input: expand("input/{{sample}}/combined/{{sample}}{pair}.fastq.gz", pair=PAIR)
-    output: INTERLEAVED_DATA
+    input: expand("temp/02_trimmed/{{sample}}.{pair}.fastq", pair=PAIR)
+    output: MERGED_DATA
     run:
         try:
             if len(input) != 2:
                 raise ValueError("Was expecting two input files, got: {input}")
-            #check_identical_fastq_headers(input[0], input[1])
-            shell("{tools[interleave]} {input[0]} {input[1]} -o {output} --gzip && [[ -s {output} ]]")
+            check_identical_fastq_headers(input[0], input[1])
+            shell("{tools[interleave]} {input[0]} {input[1]} -o {output} && [[ -s {output} ]]")
         except ValueError:
             raise IOError("%s does not exist" % (input))
     # seqtk interleaving is incompatible with split-paired-reads.py
 
-
-# Each rule will specify an intermediate step
-# Trim raw sequences and output
-rule filter_reads:
-    input: INTERLEAVED_DATA
+# Filter interleaved data by base score and remove ambiguous bases
+rule filter_merged_reads:
+    input:  ADAPTOR_REMOVED
     output: FILTERED_DATA
     run:
         check_files_arent_empty(input)
-        shell("{tools[fastp]} -i {input} \
-              -o {output} \
-              --adapter_sequence {FORWARD_ADAPTOR} \
-              --adapter_sequence_r2 {REVERSE_ADAPTOR} \
-              --detect_adapter_for_pe \
+        shell("{tools[fastq_quality_filter]} \
+              -Q {QUAL_PHRED} \
               -q {MIN_QUALITY} \
-              -u {PERCENT_BASES} \
-              --n_base_limit {N_BASES} \
-              -l {MIN_LENGTH} \
-              -p \
-              --thread {MAX_THREADS} \
-              && [[ -s {output} ]]")
+              -p {PERCENT_BASES} \
+              -i {input[0]} > {output} && [[ -s {output} ]]")
 
 # Combine all sequences
 rule combine_samples:
