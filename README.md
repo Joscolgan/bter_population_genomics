@@ -7,7 +7,9 @@ Colgan, T.J., Arce, A.N., Gill, R.J., Ramos Rodrigues, A., Kanteh, A., Duncan, E
 __Genomics of adaptation to a changing world in a wild pollinator__, in prep for submission.  
 
 The present repository contains scripts for:  
+01_quality_assessment/  
 - The quality assessment of raw sequencing data using [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
+02_species_identification/  
 - Filtering of raw Illumina FASTQ data (data_analysis/) using the following steps:
 - 1) Adaptor identification and removal using [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
 - 2) Interleaving of adaptor removed pairs using [Khmer](https://github.com/dib-lab/khmer). 
@@ -21,11 +23,16 @@ The present repository contains scripts for:
 - Investigate signatures of selection, including:  
   - 1) Investigating regions of reduced nucleotide diversity using [PopGenome](https://cran.r-project.org/web/packages/PopGenome/index.html).  
   - 2) Investigating regions of extended haplotype homozygosity using [selscan](https://github.com/szpiech/selscan).  
-  - Copy number variation (selection_analysis/copy_number_variation)
+03_variant_calling/  
+04_population_structure_analysis/  
+05_selection_analyses/  
+06_copy_number_variation_analysis  
+- Copy number variation   
+07_functional_term_enrichment_analysis/  
 - Gene ontology term enrichment analysis using [topGO](https://bioconductor.org/packages/release/bioc/html/topGO.html).   
-- Functional domain enrichment analysis (functional_domain_analysis/)
+- Functional domain enrichment analysis
 - Investigation of genes of interest:  
   - 1) Insecticide response genes  
   - 2) _Wolbachia_ HGT event  
   - 3) Region of low nucleotide diversity on chromosome one  
-- Scripts for visualisation of data for manuscript/publication (graphics/)  
+- Scripts for visualisation of data for manuscript/publication (08_graphics/)  
