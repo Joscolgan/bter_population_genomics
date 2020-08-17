@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_gggenes_arrows_chrom_1.html
+output: plot_gggenes_arrows_chrom_2.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -12,11 +12,9 @@ This script takes a tab-delimited file as input containing the following columns
 4) Gene name
 5) Strand
 6) Status - if you want to highlight a gene of interest
+The script generates an arrow plot and outputs plots as saved R objects (.RData).  
 
-N.B. I tested out the code using the example_data that comes with the package and everything worked. Created my own dataframe using the same column headers in R but there was an issue with the plots making all genes
-the same size in the plot. Unsure of what the problem is. Easiest fix
-was to output the example data file and manually change values for plots. 
-No issues since. 
+1. Load libraries:  
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -38,6 +36,8 @@ for (lib in libraries) {
 dir.create(path = "./results/plots",
            recursive = TRUE)
 ```
+
+2. Load input data:  
 
 ```{r, message = FALSE}
 ## Read in file for plotting:
@@ -97,10 +97,10 @@ save(arrow_plot_two,
        file = "./results/plots/chrom_1_arrow_plot_region_2.Rdata")
 ```
 
-Run lintr
+3. Run lintr:  
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "./plot_gggene_arrows_chrom_1_region_2.Rmd")
+lintr::lint(file = "plot_gggene_arrows_chrom_1_region_2.Rmd")
 ```
 
