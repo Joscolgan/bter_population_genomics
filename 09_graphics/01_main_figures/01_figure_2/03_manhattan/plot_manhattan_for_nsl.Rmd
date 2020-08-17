@@ -1,9 +1,18 @@
 ---
-title: "plot_manhattan_raw_nsl_go_terms"
-author: "JoeColgan"
-date: "23 June 2018"
-output: html_document
+title: "Bombus population genomics"
+output: plot_manhattan_for_nsl.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
+
+## Introduction:  
+This script takes a tab-delimited file containinng five columns:  
+- Column 1: Chromosome (CHR)
+- Column 2: Base pair position on chromosome (BP)  
+- Column 3: Normalised nsL score per position (P)  
+- Column 4: Variant annotation generted by [SnpEff](https://pcingola.github.io/SnpEff/index.html)  
+- Column 5: Locus ID  
+The script generates a Manhattan plot for normalised nsL scores.  
+The script outputs the plot as a saved R object (.RData), as well as in .png and .pdf format.   
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -176,5 +185,5 @@ Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "plot_manhattan_raw_nsl_go_terms.Rmd")
+lintr::lint(file = plot_manhattan_for_nsl.Rmd")
 ```
