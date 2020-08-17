@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_multi_image_figure_2.html
+output: plot_multi_image_figure_3.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -130,5 +130,5 @@ save.image(file = "results/plots/wolbachia_combined_plot_waffle.RData")
 5. Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "multi_image_figure_2.Rmd")
+lintr::lint(file = "plot_multi_image_figure_3.Rmd")
 ```
