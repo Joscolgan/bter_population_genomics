@@ -1,14 +1,13 @@
 ---
 title: "Bombus population genomics"
-output: multi_plot_figure_1.html
+output: multi_plot_figure_2.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
 This script loads R objects containing:
 1) A map of Britain detailing collection sites (highlighted by latitude);
-2) A principal component analysis of sites (highlighted by landuse type)
-3) A principal component analysis of sites (highlighted by latitude)
+2) A principal component analysis of sites (highlighted by latitude)
 
 1. Load libraries:
 
@@ -218,5 +217,5 @@ save.image(file = "results/figure_1_map_pca_plus_manhattan.RData")
 Run lintr:
 
 ```{r, message = FALSE}
-lintr::lint(file = "multi_plot_figure_1.Rmd")
+lintr::lint(file = "multi_plot_figure_2.Rmd")
 ```
