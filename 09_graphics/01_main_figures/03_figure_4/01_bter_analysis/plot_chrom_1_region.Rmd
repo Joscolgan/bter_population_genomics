@@ -1,19 +1,21 @@
 ---
 title: "Bombus population genomics"
-output: plot_chrom_1_sweep.html
+output: plot_chrom_1_region.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
 This script takes four tab-delimited files as input:
 1) A file containing absolute nsl scores assigned to each SNP in the British population.
-2) A file containing absolute iHS scores assigned to each SNP in the British population. Both the nsl and iHS scores were calculated by [selscan](https://github.com/szpiech/selscan).
+2) |nsl| scores were calculated by [selscan](https://github.com/szpiech/selscan).
 3) A file containing population-scaled recombination rate as calculaed by [ldhelmet](https://sourceforge.net/projects/ldhelmet/).
 4) A file containing nucleotide diversity estimates for sliding windows of 10kb as calculated by [popgenome](https://cran.r-project.org/web/packages/PopGenome/index.html).
 The input files are used to generate individual scatterplots using [ggplot2](https://ggplot2.tidyverse.org/).
 The script also loads arrow-plots and heatmaps generated as output by other scripts.
 The scripts generates a combined multiple graph using [ggpubr](https://rpkgs.datanovia.com/ggpubr/index.html), which is output to file.
 Code style is checked using [lintr](https://cran.r-project.org/web/packages/lintr/index.html).
+
+1. Load libraries:  
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -35,6 +37,7 @@ for (lib in libraries) {
 }
 ```
 
+2. Load input files:  
 This script plots nsl score, ihs score, population-scaled recombination rate, nucleotide diversity and Tajima's D estimates.
 
 ```{r, message = FALSE}
@@ -53,6 +56,8 @@ nuc_div_data_100kb <- read.table(file = "./input/nuc_div/bter_all_chrom_100kb.tx
                                  header = TRUE)
 ```
 
+3. Define region of interest:
+Region of interest identified through manual checks of alignments using IGV.  
 This region of interest contains 53 genes.
 
 ```{r, message=FALSE}
@@ -63,7 +68,7 @@ start_position <- 362267 - 100000
 end_position <- 566568 + 100000
 ```
 
-Subset the regions of interest:
+4. Subset the regions of interest:  
 
 ```{r, message=FALSE}
 ## Subset nsl values for plotting:
@@ -77,7 +82,7 @@ nsl_snps_highlight <- subset(nsl_input_subset,
                             nsl_score > 2.72)
 ```
 
-Generate plot of EHH:
+5. Generate plot of EHH:  
 
 ```{r, message = FALSE}
 nsl_plot <- ggplot(nsl_input_subset,
@@ -114,7 +119,7 @@ nsl_plot <- ggplot(nsl_input_subset,
               axis.ticks.x = element_blank())
 ```
 
-Subset genomic region to plot nucleotide diversity:
+6. Subset genomic region to plot nucleotide diversity:  
 
 ```{r, message = FALSE}
 ## Subset region:
@@ -158,7 +163,7 @@ nuc_div_plot <- ggplot(nuc_div_subset,
               axis.title.x = element_blank())
 ```
 
-Plot nucleotide diversity across 100kb chunks:
+7. Plot nucleotide diversity across 100kb chunks:  
 
 ```{r, message = FALSE}
 ## Add column containing information on status:
@@ -182,7 +187,7 @@ region_histo_plot <- ggplot(data = nuc_div_data_100kb) +
                                      "blue"))
 ```
 
-Load previously generated arrow plot:
+8. Load previously generated arrow plot:  
 
 ```{r, message = FALSE}
 ## Load arrow plot:
@@ -191,7 +196,7 @@ load(file = "./results/plots/chrom_1_snp_plot.Rdata")
 load(file = "./input/apis/combined_apis_plots.Rdata")
 ```
 
-Generate combined plots:
+9. Generate combined plots:  
 
 ```{r, message=FALSE}
 ## Generate a combined plot:
@@ -233,63 +238,9 @@ save(bter_combined,
      file = "./results/plots/large_sweep_chrom_one_combined_plot.Rdata")
 ```
 
-For talk:
-```{r, message = FALSE}
-talk_slide <- ggarrange(arrow_plot,
-          nuc_div_plot,
-          nrow = 2,
-          ncol = 1,
-          heights = c(0.7,
-                     2),
-          align = "hv")
-
-ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot_talk.png",
-       width = 10,
-       height = 8)
-
-## Print to console:
-region_histo_plot
-
-ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot_histo_talk.png",
-       width = 10,
-       height = 8)
-```
-
-Alternative plot:
-
-```{r, message = FALSE}
-## Generate a combined plot:
-ggarrange(region_histo_plot,
-          labels = c("A"),
-          ggarrange(arrow_plot,
-          nuc_div_plot,
-          nsl_plot,
-          heatmap_plot,
-          nrow = 4,
-          ncol = 1,
-          labels = c("B",
-                     "C",
-                     "D",
-                     "E"),
-          heights = c(0.7,
-                     1.6,
-                     1.6,
-                     2.0),
-          align = "hv"),
-          ncol = 2,
-          nrow = 1,
-          widths = c(0.8, 
-                     1.2))
-
-## Save:
-ggsave(file = "results/plots/large_sweep_chrom_one_combined_plot_alt.png",
-       width = 12,
-       height = 10)
-```
-
-Run lintr:
+10. Run lintr:  
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "./plot_chrom_1_region.Rmd")
+lintr::lint(file = "plot_chrom_1_region.Rmd")
 ```
