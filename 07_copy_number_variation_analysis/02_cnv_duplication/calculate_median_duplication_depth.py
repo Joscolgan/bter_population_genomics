@@ -11,10 +11,9 @@ import os.path
 
 from helper_functions import *
 
-# """
 # This script takes an alignment BAM file per sample and intersects with multiple BED files
-# containing the genomic positions of individual putative duplication events (generated through
-# CNVnator). The intersection process outputs individual BAM files containing reads aligned
+# containing the genomic positions of individual putative duplication events. 
+# The intersection process outputs individual BAM files containing reads aligned
 # to each putative duplication (bin). The number of aligned reads per BAM are calculated for
 # each genomic base per individual. The median number of aligned reads is calculated and output
 # to a text file for loadiing into R.
@@ -34,7 +33,6 @@ from helper_functions import *
 # Sample information
 ##############################################################################
 # Bumblebee (Bombus terrestris) males were collected summer 2014
-# Sample sites (n=26) were from across the UK
 # Each individual and site were assigned unique identifiers
 # Example: '2014_Bter_P_D_14_260_head'
 # Explanation:{year_collected}_{species}_{site_type}_{sex}_{site_number}_{tube_number}_{tissue_type}
@@ -74,8 +72,8 @@ from helper_functions import *
 ##############################################################################
 # Assign global variables for use in rules (see below)
 ##############################################################################
-# Assign name for list of duplications
-DUPLICATION_LIST = "CNV_duplications.raw.06.01.txt"
+# Assign name for list of paths for files containing putative duplications
+DUPLICATION_LIST = "CNV_duplications.txt"
 
 ##############################################################################
 # Assignment of wildcards to be used within rules
@@ -167,9 +165,6 @@ rule calculate_median:
     run:
         check_files_arent_empty(input)
         shell("Rscript median_counter_test.R {input} {output} && [[ -s {output} ]]")
-
-## Original code used to calculate the mean depth.
-## shell("awk '{{ sum += $3 }} END {{ print sum/NR}}' {input} > {output} && [[ -s {output} ]]")
 
 # Paste the means for each sample per row
 rule paste_means:
