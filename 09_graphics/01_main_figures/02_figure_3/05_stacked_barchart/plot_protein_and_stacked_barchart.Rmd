@@ -177,7 +177,7 @@ ggsave(file = "results/protein_domain_barchart.png",
 save.image(file = ".results/protein_domain_plus_stackedchart.RData")
 ```
 
-6. Run lintr::
+6. Run lintr:
 
 ```{r, message = FALSE}
 lintr::lint(file = "plot_protein_and_stacked_barchart.Rmd")
