@@ -4,12 +4,14 @@ output: plot_waffle_plot.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
-Introduction:
+## Introduction:
 The following scripts takes tab-delimited text files as input and generates waffle plots:
 a) Geom plots:
 b) Stacked bar plot:
 This script output an R object that can be used by a secondary script to generate a multi-image plot. 
-This script can also output images in .png and .pdf format.
+This script can also output images in .png and .pdf format.  
+
+1. Load libraries:  
 
 ```{r, message = FALSE}
 library(waffle)
@@ -69,7 +71,7 @@ ggplot(combined_df,
         theme_enhance_waffle()
 ```
 
-4. Generate a stacked bar chart:
+4. Generate a stacked waffle chart:
 
 ```{r, message = FALSE}
 ## Generate plot:
@@ -121,7 +123,7 @@ waffle_stacked_plot <- waffle_stacked_plot +
 save.image(file = "results/plots/wolbachia_waffle_plot.RData")
 ```
 
-6. Check style:
+6. Run lintr:
 
 ```{r, message = FALSE}
 lintr::lint(file = "plot_waffle_plot.Rmd")
