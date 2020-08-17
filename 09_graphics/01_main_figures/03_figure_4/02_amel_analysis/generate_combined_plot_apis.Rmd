@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_chrom_1_region_amel_combined_populations.html
+output: generate_combined_plot_apis.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -14,6 +14,8 @@ The input files are used to generate individual scatterplots using [ggplot2](htt
 The script also loads arrow-plots and heatmaps generated as output by other scripts.
 The scripts generates a combined multiple graph using [ggpubr](https://rpkgs.datanovia.com/ggpubr/index.html), which is output to file.
 Code style is checked using [lintr](https://cran.r-project.org/web/packages/lintr/index.html).
+
+1. Load libraries:  
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -35,7 +37,8 @@ for (lib in libraries) {
 }
 ```
 
-This script plots nsl score, ihs score, population-scaled recombination rate, nucleotide diversity and Tajima's D estimates.
+2. Load input files:  
+For each population (n = 4) of honeybees, load nucleotide diversity estimates for sliding windows of 10kb.  
 
 ```{r, message = FALSE}
 ## Both nucleotide diversity and Tajima D are in the same input file:
@@ -80,7 +83,8 @@ colnames(combined_df) <- c("chrom",
                            "midpoint")
 ```
 
-These two regions of interest contain 46 genes.
+3. Define region of interest:   
+These two regions of interest contain 46 genes.  
 
 ```{r, message=FALSE}
 ## Assign the coordinates of the gene to variables plus 100kb
@@ -93,7 +97,7 @@ region_two_start <- 25036596 - 100000
 region_two_end   <- 25143386 + 100000
 ```
 
-Subset genomic region to plot nucleotide diversity:
+4. Subset genomic region to plot nucleotide diversity:  
 
 ```{r, message = FALSE}
 ## Subset region:
@@ -249,7 +253,8 @@ region_two_plot <- ggplot(combined_nd_melt,
               axis.ticks.y = element_blank())
 ```
 
-Generate combined plot:
+5. Generate combined plot:  
+
 ```{r, message = FALSE}
 ggarrange(region_one_plot,
           region_two_plot,
@@ -259,7 +264,7 @@ ggarrange(region_one_plot,
           align = "hv")
 ```
 
-Load previously generated arrow plot:
+6. Load previously generated arrow plot:  
 
 ```{r, message = FALSE}
 ## Load arrow plot:
@@ -267,7 +272,7 @@ load(file = "results/plots/chrom_1_arrow_plot_region_1.Rdata")
 load(file = "results/plots/chrom_1_arrow_plot_region_2.Rdata")
 ```
 
-Generate combined plots:
+7. Generate combined plots:  
 
 ```{r, message=FALSE}
 ## Update colour scheme for arrow plots:
@@ -306,7 +311,7 @@ ggsave(file = "results/chrom_one_combined_plot.png",
        height = 5)
 ```
 
-Run lintr:
+8. Run lintr:  
 
 ```{r, message = FALSE}
 ## Run lintr:
