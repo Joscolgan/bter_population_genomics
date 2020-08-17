@@ -13,10 +13,7 @@ This script takes a tab-delimited file as input containing the following columns
 5) Strand
 6) Status - if you want to highlight a gene of interest
 
-N.B. I tested out the code using the example_data that comes with the package and everything worked. Created my own dataframe using the same column headers in R but there was an issue with the plots making all genes
-the same size in the plot. Unsure of what the problem is. Easiest fix
-was to output the example data file and manually change values for plots. 
-No issues since. 
+1. Load libraries:
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -83,10 +80,9 @@ save(arrow_plot,
      file = "results/chrom_1_arrow_plot.Rdata")
 ```
 
-3. Run lintr
+3. Run lintr to check style-guide:
 
 ```{r, message = FALSE}
 ## Run lintr:
 lintr::lint(file = "plot_gggene_arrows_chrom_1.Rmd")
 ```
-
