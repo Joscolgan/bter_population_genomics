@@ -16,7 +16,7 @@ Using a user-defined genomic region, it parses the region and generates two plot
 2) The second is a plot of alternate allele frequencies.
 The script outputs either the two plots individually or generates a combined plot using [ggpubr](http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/).
 
-## Load libraries:
+1. Load libraries:
 
 ```{r, message = FALSE}
 require(ggplot2)
@@ -26,7 +26,7 @@ require(ggpubr)
 require(ggrepel)
 ```
 
-## Load input data:
+2. Load input data:
 
 ```{r, message = FALSE}
 ## Read in data:
@@ -37,7 +37,7 @@ data <- read.table(file = "./input/plot_snp_distance/input_for_plot.txt",
                                  "alt_freq"))
 ```
 
-Subset region of interest:
+3. Subset region of interest:
 
 ```{r, message = FALSE}
 ## Define genomic positions for region to parse:
@@ -84,7 +84,7 @@ data_subset_df$variant <- gsub("_", " ", data_subset_df$variant)
 data_subset_df$locus <- variants$locus
 ```
 
-Generate plot:
+4. Generate plot:
 
 ```{r, message = FALSE}
 ## Turn of scientific notation:
@@ -189,10 +189,10 @@ ggsave(file = "results/plot_of_allele_frequencies.png",
 
 ```
 
-Run lintr:
+5. Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "./plot_distance_between_snps.Rmd")
+lintr::lint(file = "plot_distance_between_snps.Rmd")
 ```
 
