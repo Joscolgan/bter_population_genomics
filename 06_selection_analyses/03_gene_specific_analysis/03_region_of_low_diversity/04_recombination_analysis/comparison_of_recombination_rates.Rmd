@@ -7,7 +7,8 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ## Introduction:
 The purpose of this script is to compare the population-scaled recombination rates (rho) for a region of interest and compare against the genome-wide mean using a t-test.
 
-Load libraries:
+1. Load libraries:  
+
 ```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("lintr")
@@ -23,7 +24,7 @@ for (lib in libraries) {
 }
 ```
 
-Read in input files:
+2. Read in input files:  
 
 ```{r, message = TRUE}
 ## Read in input:
@@ -40,7 +41,7 @@ region_of_interest <- read.table(file = "data/region_of_interest.bed",
                                                "end"))
 ```
 
-Subset region of interest:
+3. Subset region of interest:  
 
 ```{r, message = FALSE}
 region_of_interest_df <- subset(genome_wide_df,
@@ -49,7 +50,7 @@ region_of_interest_df <- subset(genome_wide_df,
                                 right_snp < region_of_interest$end)
 ```
 
-Comparison of recombination rates:
+4. Comparison of recombination rates:  
 
 ```{r, message = FALSE}
 ## First, comparison of means:
@@ -67,7 +68,7 @@ quantile(genome_wide_df$rho,
          0.01)
 ```
 
-Run lintr:
+5. Run lintr:
 
 ```{r, message = FALSE}
 lintr::lint(file = "comparison_of_recombination_rates.Rmd")
