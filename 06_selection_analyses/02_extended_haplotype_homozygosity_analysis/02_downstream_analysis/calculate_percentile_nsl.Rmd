@@ -10,11 +10,13 @@ The input consists of tab-delimited text files, one per bumblebee chromosome, wh
 1) Locus ID (chromosome name)
 2) Physical position
 3) '1' Freq
-4) ihs1
-5) ihs0
-6) Unstandardised ihs
-7) Standardised ihs
+4) nsl1
+5) nsl0
+6) Unstandardised nsl
+7) Standardised nsl
 8) Indicator of 'unsual' or not (1 = unsual; 0 = not)
+
+1. Load libraries:
 
 ```{r, message = FALSE}
 ## Load libraries; install from scratch if needed
@@ -29,7 +31,8 @@ for (lib in libraries) {
     }
 }
 ```
-Read in file and calculate the top 1% value:
+
+2. Read in file and calculate the top 1% value:
 
 ```{r, message = FALSE}
 ## Read in input file:
@@ -50,7 +53,7 @@ output <- "./results/nsl_quantile.Rdata"
 save(nsl_quantile, file = output)
 ```
 
-Use lintr to check style:
+3. Use lintr to check style:
 
 ```{r, message = TRUE}
 lintr::lint(file = "calculate_percentile_nsl.Rmd")
