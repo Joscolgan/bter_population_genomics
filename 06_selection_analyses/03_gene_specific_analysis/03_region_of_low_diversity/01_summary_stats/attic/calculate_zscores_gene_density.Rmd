@@ -4,6 +4,14 @@ output: calculate_zscores_gene_density.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
+## Introduction:  
+The purpose of this script is to examine gene density across the genome with a particular interest in a region of low diversity on chromosome one.  
+The script takes a tab-delimited text file containing gene density per 100kb sliding windows, z-score transforms and calculates p values for
+genomic regions. The script subsets regions with significantly low and high gene densities.  
+The script outputs a tab-delimited text file, as well as an R object.  
+
+1. Load libraries:
+
 ```{r, message = FALSE}
 ## Load libraries:
 libraries <- c("lintr",
@@ -25,11 +33,11 @@ dir.create(path = "./results/figures",
            recursive = TRUE)
 ```
 
-Read in input data:
+2. Read in input data:
 
 ```{r, message = FALSE}
 ## Read in input file:
-data <- read.table(file = "./input/gene_density_200kb_plus_coordinates.txt",
+data <- read.table(file = "./input/gene_density_100kb_plus_coordinates.txt",
                    header = FALSE)
 
 ## Updated column names:
@@ -54,7 +62,7 @@ data_sig <- subset(data,
                    gene_density_pvalue2sided < 0.05)
 ```
 
-Write the output to file:
+3. Write the output to file:
 
 ```{r, message = FALSE}
 ## Turn off scientific notation:
@@ -69,14 +77,15 @@ write.table(x = data,
             sep = "\t")
 ```
 
-Subset regions with significant high or low nucleotide diversity:
+4. Subset regions with significant high or low nucleotide diversity:
 
 ```{r, message = FALSE}
 ## Save output:
-save(data, file = "./results/zscore_normalised.Rdata")
+save(data, file = "./results/gene_density_zscore_normalised.Rdata")
 ```
-Run lintr
+
+5. Run lintr:  
 
 ```{r, message = FALSE}
-lintr::lint(file = "./calculate_zscores.Rmd")
+lintr::lint(file = "./calculate_zscores_gene_density.Rmd")
 ```
