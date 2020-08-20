@@ -1,7 +1,7 @@
 --- 
-title: "Bombus pesticide exposure: gene expression in head"
-output: gene_level_3treatments.html
-authors:  Isabel Fletcher, Joe Colgan, Yannick Wurm http://wurmlab.com
+title: "Bombus population genomics"
+output: calculate_rna_expression_lewis.html
+authors:  Joe Colgan, Yannick Wurm http://wurmlab.com
 --- 
 
 # Introduction
@@ -14,8 +14,11 @@ This script will import abundance files from Kallisto and use the R package [DES
 differential expression based on a model using negative binomial distribution.
 This script produces a results table of genes that are significantly differentially expressed. 
 This script uses the Wald test in DESeq2 to test for differential expression between treatments.
-This can then be used for further analysis. 
+This can then be used for further analysis.  
 
+This script is modified from [Colgan et al.](https://onlinelibrary.wiley.com/doi/full/10.1111/mec.15047).   
+
+1. Load libraries:  
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
@@ -35,10 +38,10 @@ for (lib in libraries) {
 dir.create("results")
 ```
 
+2. Input results from kallisto.  
 
-## Step One: Input results from kallisto
+We use raw, non-normalised estimated counts.  
 
-We use raw, non-normalised estimated counts.
 ```{r} 
 ## Set paths to folders containing output files from kallisto
 paths <- list()
@@ -67,8 +70,7 @@ for (filenumber in 1:length(paths$kallisto_files)) {
 }
 ```
 
-
-## Step Two: Put sample names and treatments into a samples dataframe for DESeqDataSetFromTximport
+3. Put sample names and treatments into a samples dataframe for DESeqDataSetFromTximport
 
 ```{r}
 ## Extract sample names and put into df for tximport
@@ -93,21 +95,14 @@ if (FALSE == all(samples$life_stage %in% rownames(samples_information))) {
 }
 samples_information
 ```
-## Step Three: Import kallisto quantification files using Tximport
+
+4. Import kallisto quantification files using Tximport  
 
 We used kallisto to obtain estimated counts for each transcript in each condition. 
 We load these raw counts into R for DEseq using tximport. 
 Because we do a gene-level analysis first, transcript abundances are summarised per gene during import.
 
 ```{r}
-# Read in file corresponding to transcripts to gene ids
-#ensembl <- useMart(biomart = "metazoa_mart",
-#                  host = "jul2018-metazoa.ensembl.org",
-#                  dataset = "bterrestris_eg_gene")
-#transcript_to_gene <- getBM(attributes = c("ensembl_transcript_id",
-#                                           "ensembl_gene_id"),
-#                            mart = ensembl)
-
 transcript_to_gene <- read.table(file      = "./input/kallisto_lewis_temp/01_quantified/rna_and_corresponding_gene_ids.txt", 
                       header    = FALSE, 
                       col.names = c("TXNAME","GENEID")) # i.e., transcript name, gene name
