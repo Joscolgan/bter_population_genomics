@@ -5,7 +5,6 @@
 ##
 ## Date:
 ## 
-##
 ## Purpose:
 ## This script the following commands:
 ## - Index of input cDNA file for pseudoalignment.
