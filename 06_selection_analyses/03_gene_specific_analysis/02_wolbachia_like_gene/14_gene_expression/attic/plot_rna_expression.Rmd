@@ -6,7 +6,9 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 
 ## Introduction:
 This script takes gene-level counts calculated by tximport from kallisto estimated counts as input and
-generates a line plot for a user-defined subset of genes. The output of the script is a PDF image.
+generates a line plot for a user-defined subset of genes. The output of the script is a PDF image.  
+
+1. Load libraries:
 
 ```{r, message = FALSE}
 require(ggplot2)
@@ -14,7 +16,7 @@ require(reshape2)
 require(lintr)
 ```
 
-## Load input data:
+2. Load input data:  
 Read in data for two datasets:
 1. The "Harrison" dataset consists of gene-level counts for 27 libraries consisting of different bumblebee life-cycle stages.
 2. The "Lewis" datasets contains representative tissues of male and female germline and somatic tissues, respectively.
@@ -22,10 +24,10 @@ The gene level counts for each dataset are stored in R objects.
 
 ```{r, message = FALSE}
 ## Load R objects:
-load(file = "./results/count_estimates/harrison_txi_count_estimates.Rdata")
+load(file = "results/count_estimates/harrison_txi_count_estimates.Rdata")
 ```
 
-## Read in a list of genes of interest:
+3. Read in a list of genes of interest:
 
 ```{r, message = FALSE}
 ## Genes of interest:
@@ -41,7 +43,7 @@ sample_information <- read.table(file = "./input/kallisto_rna_temp/worker_male_d
 
 ```
 
-Subset gene-level counts for genes of interest:
+4. Subset gene-level counts for genes of interest:
 
 ```{r, message = FALSE}
 ## Subset genes of interest:
@@ -59,7 +61,7 @@ genes_of_interest_df_trans$sex <- as.character(unlist(sample_information$sex))
 genes_of_interest_df_trans$life_stage <- gsub("_", " ", genes_of_interest_df_trans$life_stage)
 ```
 
-Generate a scatterplot:
+5. Generate a scatterplot:
 
 ```{r, message = FALSE}
 require(reshape2)
