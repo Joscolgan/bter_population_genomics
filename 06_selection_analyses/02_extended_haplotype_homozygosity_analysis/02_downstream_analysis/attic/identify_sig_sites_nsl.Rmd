@@ -16,6 +16,8 @@ The input consists of tab-delimited text files, one per bumblebee chromosome, wh
 7) Standardised nsl
 8) Indicator of 'unsual' or not (1 = unsual; 0 = not)
 
+1. Load libraries:  
+
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
 libraries <- c("ggplot2", "ggpubr", "lintr",
@@ -34,7 +36,7 @@ for (lib in libraries) {
 dir.create("nsl_significant_sites")
 ```
 
-Read in input:
+2. Read in input:  
 
 ```{r, message=FALSE}
 ## Read in data:
@@ -58,7 +60,7 @@ NC_015778.1_nsl_data <- read.table("./input/nsl/NC_015778.1.nsl.out.100bins.norm
 NC_015779.1_nsl_data <- read.table("./input/nsl/NC_015779.1.nsl.out.100bins.norm")
 ```
 
-Create a list:
+3. Create a list:  
 
 ```{r, message = FALSE}
 ## Make a list:
@@ -82,12 +84,12 @@ nsl_samples <- list(NC_015762.1_nsl_data = NC_015762.1_nsl_data,
                     NC_015779.1_nsl_data = NC_015779.1_nsl_data)
 ```
 
-##Step Two:
-## For the examination of interest peak regions with certain size windows:
-## The following command will take the absolute nsl values and for nonoverlapping 50kb sites,
-## calculate the number of SNPs with nsl values with a value higher than 2 (potentially interesting)
-## divided by the total number of SNPs i.e. get the proportion of interesting SNPs within a particular
-## region.
+4. Identify significant peaks:
+For the examination of interest peak regions with certain size windows:
+The following command will take the absolute nsl values and for nonoverlapping 100kb sites,
+calculate the number of SNPs with nsl values with a value higher than 2 (potentially interesting)
+divided by the total number of SNPs i.e. get the proportion of interesting SNPs within a particular
+region.
 
 ```{r, message = FALSE}
 ## Create an empty dataframe:
@@ -131,10 +133,6 @@ unlisted.df.sig <- unlisted.df[which(unlisted.df$binom_test_adjusted < 0.05), ]
 table(unlisted.df.sig$df)
 ```
 
-## Convert the input text files into zoo formatted files:
-#for (item in 1:length(names(nsl.samples))){
-#        nsl.samples[[item]] <- zoo((nsl.samples)[[item]])
-#}
 
 ```{r, message=FALSE}
 ## Before examining individual sites:
@@ -149,7 +147,7 @@ for (item in 1:length(names(nsl_samples))){
 }
 ```
 
-Exploration of a Manhattan plot using qqman:
+4. Exploration of a Manhattan plot using qqman:
 
 ```{r, message = FALSE}
 ## Create an empty dataframe:
