@@ -35,9 +35,6 @@ for (lib in libraries) {
     }
 }
 
-#install.packages("WhopGenome")
-
-
 ## Define input files required for running script:
 ## Provide path to chromosome info file which contains three columns:
 ## 1) Name of and relative path to tabix-indexed bgzipd chromosome-level VCF file
@@ -112,11 +109,11 @@ for (item in 1:nrow(chrom_data)){
         nucdiv_item.df       <- as.data.frame(cbind(nucdiv_item,
                                                     region_names.df))
         nucdiv_item.df$chrom <- chrom
-        nucdiv_item.df$tajima_d <- chrom_data_item@Tajima.D
+        nucdiv_item.df$tajima_d  <- chrom_data_item@Tajima.D
         ## Subset information on the number of segregating sites:
         nucdiv_item.df$seg_sites <- chrom_data_item@n.segregating.sites
         ## Combine nucleotide diversity statistics across windows:
-        nucdiv_combined_df <- rbind(nucdiv_combined_df, nucdiv_item.df)
+        nucdiv_combined_df       <- rbind(nucdiv_combined_df, nucdiv_item.df)
 }
 
 ## Rename columns:
@@ -128,7 +125,7 @@ colnames(nucdiv_combined_df) <- c("nuc_diversity",
                                   "seg_sites")
 
 ## Rearrange order:
-nucdiv_combined_df <- nucdiv_combined_df[c(4,2,3,1,5,6)]
+nucdiv_combined_df <- nucdiv_combined_df[c(4, 2, 3, 1, 5, 6)]
 
 ## Calcule median nucletide diversity
 nucdiv_median <- median(as.numeric(as.character(nucdiv_combined_df$nuc_diversity)))
@@ -139,7 +136,7 @@ nucdiv_combined_df$start         <- as.numeric(as.character(nucdiv_combined_df$s
 nucdiv_combined_df$end           <- as.numeric(as.character(nucdiv_combined_df$end))
 nucdiv_combined_df$seg_sites     <- as.numeric(as.character(nucdiv_combined_df$seg_sites))
 nucdiv_combined_df$tajima_d      <- as.numeric(as.character(nucdiv_combined_df$tajima_d))
-nucdiv_combined_df$midpoint      <- round((nucdiv_combined_df$start + nucdiv_combined_df$end)/2)
+nucdiv_combined_df$midpoint      <- round((nucdiv_combined_df$start + nucdiv_combined_df$end) / 2)
 
 ## Export table:
 write.table(nucdiv_combined_df,
