@@ -11,15 +11,15 @@ The purpose of this script is to calculate the proportion of members of three ma
 
 ```{r}
 ## Total number of CYP450 in the Bombus terrestris proteome:
-cyp450_total_genes = 54
-cyp450_genes_under_selection = 9
+cyp450_total_genes <- 54
+cyp450_genes_under_selection <- 9
 cyp450_genes_not_under_selection <- cyp450_total_genes - cyp450_genes_under_selection
 
-total_number_of_genes_in_genome = 11727
-total_number_of_genes_under_selection = 1785
-total_number_of_genes_not_under_selection = total_number_of_genes_in_genome - total_number_of_genes_under_selection
+total_number_of_genes_in_genome <- 11727
+total_number_of_genes_under_selection <- 1785
+total_number_of_genes_not_under_selection <- total_number_of_genes_in_genome - total_number_of_genes_under_selection
 
-## Run the Fisher test: 
+## Run a Fisher's Exact test:
 fisher.test(rbind(c(cyp450_genes_under_selection, (total_number_of_genes_under_selection - cyp450_genes_under_selection)),
             c(cyp450_genes_not_under_selection, (total_number_of_genes_not_under_selection - cyp450_genes_not_under_selection))))
 ```
@@ -28,11 +28,11 @@ fisher.test(rbind(c(cyp450_genes_under_selection, (total_number_of_genes_under_s
 
 ```{r}
 ## Total number of CCEs in the Bombus terrestris proteome:
-cce_total_genes = 29
-cce_genes_under_selection = 9
+cce_total_genes <- 29
+cce_genes_under_selection <- 9
 cce_genes_not_under_selection <- cce_total_genes - cce_genes_under_selection
 
-## Run the Fisher test: 
+## Run a Fisher's Exact test: 
 fisher.test(rbind(c(cce_genes_under_selection, (total_number_of_genes_under_selection - cce_genes_under_selection)),
             c(cce_genes_not_under_selection, (total_number_of_genes_not_under_selection - cce_genes_not_under_selection))))
 ```
@@ -41,11 +41,11 @@ fisher.test(rbind(c(cce_genes_under_selection, (total_number_of_genes_under_sele
 
 ```{r}
 ## Total number of GSTs in the Bombus terrestris proteome:
-gst_total_genes = 15
-gst_genes_under_selection = 2
+gst_total_genes <- 15
+gst_genes_under_selection <- 2
 gst_genes_not_under_selection <- gst_total_genes - gst_genes_under_selection
 
-## Run the Fisher test: 
+## Run a Fisher's Exact test:
 fisher.test(rbind(c(gst_genes_under_selection, (total_number_of_genes_under_selection - gst_genes_under_selection)),
             c(gst_genes_not_under_selection, (total_number_of_genes_not_under_selection - gst_genes_not_under_selection))))
 ```
