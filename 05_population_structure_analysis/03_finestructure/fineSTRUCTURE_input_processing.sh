@@ -1,6 +1,5 @@
 
 ## Processing of data for running fineSTRUCTURE:
-
 module load plink
 
 ## Run plink: Plink converts VCF into a ped and map file. 
