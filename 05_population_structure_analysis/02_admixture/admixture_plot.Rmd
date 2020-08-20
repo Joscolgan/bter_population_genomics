@@ -7,6 +7,8 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ## Introduction:
 This script takes the output Q-Scores from ADMIXTURE and plots.  
 
+1. Load libraries:  
+
 ```{r, message=FALSE}
 ## Load libraries; install from scratch if needed
 libraries <- c("ggpubr", "ggplot2", "lintr")
@@ -21,14 +23,14 @@ for (lib in libraries) {
 }
 ```
 
-Read in data:
+2. Read in data:
 
 ```{r, message=FALSE}
 ## Read in table:
-admix_pop35 <- read.table("./freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n41.NC_only.minQ20.snps_only.no_hets.sites_low_freq.rare_variants_free.maxMeanDP100.recode.ann.vcf.plink.35.Q")
+admix_pop <- read.table("./freebayes_hap0_minQ_1_minaltfrac_0.25_minCov1.Bter_n46.NC_only.minQ20.snps_only.no_hets.sites_low_freq.rare_variants_free.maxMeanDP100.recode.ann.vcf.plink.5.Q")
 ```
 
-Generate plot:
+3. Generate plot:  
 
 ```{r, message = FALSE}
 ## generate a barpot using ggplot2:
@@ -38,5 +40,4 @@ col<- colorRampPalette(c("blue", "white", "red", "yellow", "green"))(20)
 heatmap(x = admix_pop35_cor,
         col = col,
         symm = TRUE)
-
 ```
