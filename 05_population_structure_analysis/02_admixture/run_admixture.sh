@@ -51,7 +51,7 @@ echo "Step One - complete!"
 ## Print to console:
 echo "Step Two: Running admixture"
 
-## Run admixture with 100 interactions for 10 potential populations
+## Run admixture for 20 potential populations:  
 for K in {1..20};
 do
 admixture --cv results/admixture/"$abbrev_name"/"$input".plink.bed \
