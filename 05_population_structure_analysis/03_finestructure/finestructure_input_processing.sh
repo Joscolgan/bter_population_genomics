@@ -1,4 +1,4 @@
-
+#!/usr/bin/env bash  
 ## Processing of data for running fineSTRUCTURE:
 module load plink
 
@@ -17,7 +17,7 @@ done
 ## Run plink2chrompainter.pl:
 for name in NC*vcf
 do
-~/scratch/2015-04-01_bombus_population_genomics/src/fs-2.0.7/scripts/plink2chromopainter.pl \
+~/src/fs-2.0.7/fs-2.0.7/scripts/plink2chromopainter.pl \
 -p="$name".ped \
 -m="$name".map \
 -o="$name".phase_file
