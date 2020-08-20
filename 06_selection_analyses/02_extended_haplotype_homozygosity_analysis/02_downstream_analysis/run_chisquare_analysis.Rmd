@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: run_chi_squared_test.html
+output: run_chisquare_analysis.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -11,6 +11,8 @@ This script takes in as input a tab-delimited text file containing the following
 3) |nsl| score of SNP.  
 4) Functional annotation of SNP.
 The script performs a Chi Squared test to identify enrichment of particular functional variant categories in SNPs with high |nsl| scores (top 1%).  
+
+1. Load libraries:
 
 ```{r, message = FALSE}
 ## Read in data:
@@ -24,7 +26,7 @@ colnames(data) <- c("chrom",
                     "locus")
 ```
 
-Extract SNPs in the top 1% with strongest signatures of selection:
+2. Group SNPs by functional annotation:
 
 ```{r, message = FALSE}
 data$annotation_simplified <- data$annotation
@@ -52,7 +54,7 @@ data$annotation_simplified <- factor(data$annotation_simplified,
                                                     "Intron")))
 ```
 
-Extract SNPs in the top 1% with strongest signatures of selection:
+3. Extract SNPs in the top 1% with strongest signatures of selection:
 
 ```{r, message = FALSE}
 nsl_top_one_percent <- quantile(data$nsl_score,
@@ -62,7 +64,7 @@ nsl_top_one_percent_df <- subset(data,
                           nsl_score > nsl_top_one_percent)
 ```
 
-Next generate counts for each variant type:
+4. Next generate counts for each variant type:
 
 ```{r, message = FALSE}
 ## Get total number of SNPs in dataset:
@@ -100,7 +102,7 @@ run_chiseq_test <- function(data_1,
 }
 ```
 
-Call function for:
+5. Call function for:
 a) Intronic SNPs vs coding regions.
 b) Intergenic SNPs vs coding regions.
 c) 5kb up/downstream SNPs vs coding regions.
@@ -122,7 +124,7 @@ run_chiseq_test(data_1 = data,
                 category_2 = "stream")
 ```
 
-Run lintr:
+6. Run lintr:
 
 ```{r, message = FALSE}
 require(lintr)
