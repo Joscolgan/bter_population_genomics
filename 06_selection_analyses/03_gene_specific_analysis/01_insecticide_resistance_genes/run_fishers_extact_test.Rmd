@@ -1,14 +1,13 @@
 ---
-title: "fisher_tests_insectide_resistant_genes"
-author: "JoeColgan"
-date: "17 July 2018"
-output: html_document
+title: "Bombus population genomics"
+output: run_fishers_extact_test.html
+author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
-Introduction:
+## Introduction:
 The purpose of this script is to calculate the proportion of members of three major detoxification enzyme families (CYP450, CCE and GST) under positive selection in comparison to the rest of the genome. Using a Fisher exact test, a calculation of significance will be obtained for each family. 
 
-Family 1: Cytochrome P450s
+1. Family 1: Cytochrome P450s
 
 ```{r}
 ## Total number of CYP450 in the Bombus terrestris proteome:
@@ -25,7 +24,7 @@ fisher.test(rbind(c(cyp450_genes_under_selection, (total_number_of_genes_under_s
             c(cyp450_genes_not_under_selection, (total_number_of_genes_not_under_selection - cyp450_genes_not_under_selection))))
 ```
 
-Family 2: CCEs
+2. Family 2: CCEs
 
 ```{r}
 ## Total number of CCEs in the Bombus terrestris proteome:
@@ -38,7 +37,7 @@ fisher.test(rbind(c(cce_genes_under_selection, (total_number_of_genes_under_sele
             c(cce_genes_not_under_selection, (total_number_of_genes_not_under_selection - cce_genes_not_under_selection))))
 ```
 
-Family 3: GSTs
+3. Family 3: GSTs
 
 ```{r}
 ## Total number of GSTs in the Bombus terrestris proteome:
