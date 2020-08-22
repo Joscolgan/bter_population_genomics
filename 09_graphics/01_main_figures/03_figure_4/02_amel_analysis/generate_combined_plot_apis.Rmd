@@ -89,7 +89,7 @@ These two regions of interest contain 46 genes.
 ```{r, message=FALSE}
 ## Assign the coordinates of the gene to variables plus 100kb
 ## up and downstream of the gene:
-chrom <- "NC_037638.1"
+chrom            <- "NC_037638.1"
 region_one_start <- 20537332 - 100000
 region_one_end   <- 20616537 + 100000
 
@@ -188,9 +188,9 @@ region_one_plot <- ggplot(combined_nd_melt,
                    linetype = "dashed",
                    colour = "orange") +
         ylim(0, 0.01) +
-        scale_x_continuous(labels = scales::comma,
-                           limits = c(region_one_start,
+        scale_x_continuous(limits = c(region_one_start,
                                       region_one_end),
+                           #labels = scales::comma,
                            position = "top") +
         scale_color_manual(name = "Population",
                            values = c("blue",
@@ -203,9 +203,9 @@ region_one_plot <- ggplot(combined_nd_melt,
               axis.title = element_text(size = 12,
                                         face = "bold"),
               axis.title.x = element_blank(),
-              legend.text = element_text(size = 6,
+              legend.text = element_text(size = 8,
                                          face = "plain"),
-              legend.title = element_text(size = 6,
+              legend.title = element_text(size = 8,
                                           face = "bold"),
               legend.justification = c(1.1, 1.1),
               legend.position = c(1, 1)
@@ -233,9 +233,9 @@ region_two_plot <- ggplot(combined_nd_melt,
                    linetype = "dashed",
                    colour = "orange") +
         ylim(0, 0.01) +
-        scale_x_continuous(labels = scales::comma,
-                           limits = c(region_two_start,
+        scale_x_continuous(limits = c(region_two_start,
                                       region_two_end),
+                           #labels = scales::comma,
                            position = "top") +
         scale_color_manual(name = "Population",
                            values = c("blue",
@@ -258,7 +258,7 @@ region_two_plot <- ggplot(combined_nd_melt,
 ```{r, message = FALSE}
 ggarrange(region_one_plot,
           region_two_plot,
-          labels = c("E", "F"),
+          labels = c("G", "H"),
           ncol = 2,
           nrow = 1,
           align = "hv")
@@ -296,8 +296,10 @@ combined_apis_plot <- ggarrange(arrow_plot_one,
                                 nrow = 2,
                                 ncol = 2,
                                 labels = c("E",
-                                           "F"),
-                                heights = c(0.3,
+                                           "G",
+                                           "F",
+                                           "H"),
+                                heights = c(0.2,
                                             1),
                                 align = "hv")
 
@@ -307,7 +309,11 @@ save(data = combined_apis_plot,
 
 ## Save:
 ggsave(file = "results/chrom_one_combined_plot.png",
-       width = 10,
+       width = 8,
+       height = 5)
+
+ggsave(file = "results/chrom_one_combined_plot.pdf",
+       width = 8,
        height = 5)
 ```
 
