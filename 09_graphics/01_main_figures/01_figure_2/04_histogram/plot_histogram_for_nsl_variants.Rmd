@@ -1,13 +1,15 @@
 ---
 title: "Bombus population genomics"
-output: plot_nsl_by_variant_annotation.html
+output: plot_histogram_for_nsl_variants.html
 authors: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
 This script takes input and generates histogram plots as output.  
 The first plot generates a histogram plot of variant type by raw |nsl| score.
-The second plot generates a histogram plot of max |nsl| score by gene.
+The second plot generates a histogram plot of max |nsl| score by gene.  
+
+1. Load libaries:  
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
@@ -26,7 +28,7 @@ for (lib in libraries) {
 }
 ```
 
-First, investigate the relationship between nsl score and variant annotation.
+2. Load input file:  
 
 ```{r, message = FALSE}
 data <- read.table(file = "input/nsl_input/input_for_r_annotated.txt",
@@ -37,7 +39,7 @@ data <- read.table(file = "input/nsl_input/input_for_r_annotated.txt",
                                  "locus"))
 ```
 
-Subdivide SNPs by annotation type:
+2. Subcategorise SNPs by annotation type:
 
 ```{r, message = FALSE}
 ## Generate plot:
@@ -68,7 +70,11 @@ data$annotation_simplified <- factor(data$annotation_simplified,
                                                     "5kb up/down-stream",
                                                     "Intron")))
 levels(data$annotation_simplified)
+```
 
+3. Generate plot:  
+
+```{r, message = FALSE
 ## Generate histogram:
 variant_histogram <- ggplot(data = data,
                             aes(x = nsl_score,
@@ -136,8 +142,8 @@ save(data = variant_histogram,
      file = "results/histogram_snp_by_variant_type.RData")
 ```
 
-Run lintr:
+4. Run lintr:  
 
 ```{r, message = FALSE}
-lintr::lint(file = "plot_nsl_by_variant_annotation_modified.Rmd")
+lintr::lint(file = "plot_histogram_for_nsl_variants.Rmd")
 ```
