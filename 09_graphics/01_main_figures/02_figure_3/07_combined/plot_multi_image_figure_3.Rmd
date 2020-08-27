@@ -1,20 +1,11 @@
 ---
 title: "Bombus population genomics"
-output: plot_multi_image_figure_3.html
+output: plot_wolbachia_sweep.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
-## Introduction:
-This script takes as input R objects containing a variety of plots:
-a) An arrow plot of gene coordinates for region of interest. 
-b) A scatterplot for nsl scores for region of interest.  
-c) A heatmap for a genotype matrix for region of interest.  
-d) Boxplots for developmenetal stage, caste and sex transcript expression for gene of interest.  
-e) Waffle charts for taxonomic diversity of sequence similarity searches.  
-This script generates a multiple image plot using [ggpubr](http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/).  
-This script outputs an image in multiple formats (.png, .pdf)
 
-1. Load required libraries:
+## Load libraries:
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -34,46 +25,157 @@ for (lib in libraries) {
                 print("Installing")
                 source("https://bioconductor.org/biocLite.R")
                 biocLite(pkgs = lib)
-                library(lib, character.only = TRUE)
+                library(lib, character.only = TRUE )
         }
 }
 ```
 
-2. Load saved R objects.
+This script plots nsl score and nucleotide diversity estimates. It also loads an arrow-plot showing the 
+distribution of gene locations in the region of interest. It also loads a SNP heatmap showing the presence of shared haplotypes amongst individuals.
+
+```{r, message = FALSE}
+## Read in data:
+nsl_input <- "./input/nsl/input_for_r_annotated.txt"
+nsl_data <- read.table(file = nsl_input,
+                       col.names = c("chrom",
+                                     "position",
+                                     "nsl_score",
+                                     "annotation",
+                                     "locus"))
+## Both nucleotide diversity and Tajima D are in the same input file:
+nuc_div_input <- "./input/nuc_div/bter_all_chrom_10kb.txt"
+nuc_div_data <- read.table(file = nuc_div_input,
+                           header = TRUE)
+```
+
+The gene of interest is an uncharacterised gene (LOC105666162), which codes for proteins with sequence similarity to proteins coded for by Wolbachia-like bacteria. The gene is located on chromosome 11:
+NC_015771.1 (1755259..1765481)
+
+```{r, message = FALSE}
+## Assign the coordinates of the gene to variables plus 100kb
+## up and downstream of the gene:
+chromosome <- "NC_015771.1"
+start <- 1749721 - 100000
+end <- 1776527 + 100000
+```
+
+Subset the regions of interest:
+
+```{r, message=FALSE}
+## Subset nsl values for plotting:
+nsl_input_subset <- subset(nsl_data,
+                           chrom == chromosome &
+                            position > start &
+                            position < end)
+
+## subset sites above 2.56 to highlight on plot:
+nsl_snps_highlight <- subset(nsl_input_subset,
+                            nsl_score > 2.72)
+```
+
+Generate plot of EHH:
+
+```{r, message = FALSE}
+## Plot nsl values:
+nsl_input_subset$high_nsl <- nsl_input_subset$nsl_score > 2.72
+nsl_plot <- ggplot(nsl_input_subset,
+                   aes(x = position,
+                       y = nsl_score,
+                       color = high_nsl,
+                       fill = high_nsl)) +
+                xlab("Genomic position (bp)") +
+                ylab("|nsl| score") +
+                geom_rect(aes(xmin = 1725000,
+                              xmax = 1800000,
+                              ymin = -Inf,
+                              ymax = Inf),
+                          fill = "light blue",
+                          alpha = 0.008,
+                          color = NA) +
+        geom_hline(yintercept = c(2.72),
+                   linetype = "dashed",
+                   colour = "purple") +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end)) +
+                geom_point(size = 3,
+                           alpha = 0.5) +
+                theme_bw() +
+        scale_color_manual(values = c("black", "blue")) +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end),
+                           position = "top") +
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.title.x = element_blank(),
+              legend.position = "none")
+```
+
+Subset genomic region to plot nucleotide diversity:
+
+```{r, message = FALSE}
+## Subset genomic region of interest:
+nuc_div_subset <- subset(nuc_div_data,
+                         chrom == "NC_015771.1" &
+                         start > 1649721 &
+                         end < 1876527)
+
+## Calculate mean nucleotide diversity:
+nucdiv_median <- median(nuc_div_data$nuc_diversity)
+
+## Generate plot:
+nuc_div_plot <- ggplot(nuc_div_subset,
+                       aes(x = midpoint,
+                           y = nuc_diversity)) +
+        geom_point(colour = "black",
+                   size = 0,
+                   alpha = 0.75) +
+        xlab("Genomic position (bp)") +
+        ylab("Nucleotide diversity") +
+        geom_hline(yintercept = c(nucdiv_median),
+                   linetype = "dashed",
+                   colour = "orange") +
+                geom_rect(aes(xmin = 1725000,
+                              xmax = 1800000,
+                      ymin = -Inf,
+                      ymax = Inf),
+                  fill = "light blue",
+                  alpha = 0.008) +
+                geom_line() +
+        scale_x_continuous(labels = scales::comma,
+                           limits = c(start, end),
+                           position = "top") +
+        theme_bw() +
+        theme(axis.text = element_text(size = 10,
+                                       face = "plain"),
+              axis.title = element_text(size = 15,
+                                        face = "bold"),
+              axis.title.x = element_blank())
+```
+
+Read in SNP genotype matrix:
 
 ```{r, message=FALSE}
 ## Load previously generated arrow and heatmap plots:
-load(file = "results/plots/wolbachia_arrow_plot.RData")
-load(file = "results/plots/wolbachia_sweep_scatterplot.RData")
-load(file = "results/plots/wolbachia_snp_plot.RData")
-load(file = "results/plots/wolbachia_boxplot.RData")
-load(file = "results/plots/plot_protein_domains.RData")
-load(file = "results/plots/wolbachia_waffle_plot.RData")
+load(file = "results/plots/wolbachia_arrow_plot.Rdata")
+load(file = "results/plots/wolbachia_snp_plot.Rdata")
+load(file = "results/plots/wolbachia_boxplot.Rdata")
+load(file = "results/protein_domain_plus_pies.Rdata")
 ```
 
-2. Generate combined plots:
+Generate combined plots:
 
 ```{r, message=FALSE}
-## join protein domain and waffle plot:
-combined_domains <- ggarrange(protein_domain,
-                              waffle_stacked_plot,
-                              nrow = 2,
-                              ncol = 1,
-                              heights = c(0.5,
-                                          2))
-
-## Combine RNA expression and pie charts into a single panel:
+## Combine RNA expression and pie charts into a single pane:
 fifth_panel <- ggarrange(life_wolbachia_stages_plot,
-                         combined_domains,
-                         ncol = 2,
-                         align = "hv",
-                         nrow = 1,
-                         labels = c("D",
-                                    "E"))
-
-fifth_panel <- fifth_panel +
-        guides(fill = guide_legend(nrow = 2,
-                                   byrow = TRUE))
+          combined_fig,
+          ncol = 2,
+          align = "hv",
+          nrow = 1,
+          labels = c("D",
+                     "E"))
 
 ## Generate a combined plot:
 ggarrange(arrow_plot,
@@ -86,49 +188,20 @@ ggarrange(arrow_plot,
                      "B",
                      "C"),
           heights = c(0.5,
+                     1.3,
                      1.5,
-                     1.8,
                      1.5),
           align = "hv")
+
+## Save:
+ggsave(file = "results/wolbachia_combined_plot_test.png",
+       width = 12,
+       height = 12)
 ```
 
-3. Save output:
+Run lintr:
 
 ```{r, message = FALSE}
-output_file_name <- "figure_2_wolbachia_waffled"
-
-## Create multiple image files:
-for (extension in c("png",
-                    "pdf")) {
-         ## Create output path:
-         path_to_dir <- paste("results/",
-                              extension,
-                              "/",
-                              sep = "")
-         ## Create output directory:
-         dir.create(path = path_to_dir,
-                    recursive = TRUE)
-         ## Save:
-         print(output_file_name)
-         ggsave(file = paste(path_to_dir,
-                             output_file_name,
-                             ".",
-                             extension,
-                             sep = ""),
-                dpi = 300,
-                height = 12,
-                width = 14)
-}
-```
-
-4. Save also as an R object:
-
-```{r, message = FALSE}
-save.image(file = "results/plots/wolbachia_combined_plot_waffle.RData")
-```
-
-5. Run lintr:
-
-```{r, message = FALSE}
-lintr::lint(file = "plot_multi_image_figure_3.Rmd")
+## Run lintr:
+lintr::lint(file = "./plot_wolbachia_sweeps.Rmd")
 ```
