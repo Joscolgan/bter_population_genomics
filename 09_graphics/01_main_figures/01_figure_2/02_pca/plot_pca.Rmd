@@ -5,9 +5,11 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:
-This script loads R objects containing:
-1) A principal component analysis of sites (highlighted by landuse type)
-2) A principal component analysis of sites (highlighted by latitude)
+This script loads an R object containing:
+- A principal component analysis of sites (highlighted by latitude)
+and generates a scatterplot. The script outputs an image file (.PDF, .PNG) and saved R object.
+
+1. Load libraries:  
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
@@ -27,14 +29,15 @@ for (lib in libraries) {
 ## Create output directory:
 dir.create("results")
 ```
-Next step is to load input files (R objects)
+
+2. Next step is to load input files (R objects):  
 
 ```{r, message = FALSE}
 ## Load objects:
 load(file = "results/pca_plots.Rdata")
 ```
 
-1. Plot PCA:
+3. Plot PCA:  
 
 ```{r, message = FALSE}
 ## Update latitude plot with points:
@@ -67,7 +70,7 @@ pca_plot <- ggplot(tab,
             theme(legend.position = "none")
 ```
 
-Save output:
+4. Save output:  
 
 ```{r, message = FALSE}
 output_file_name <- "figure_1_pca"
@@ -95,13 +98,13 @@ for (extension in c("png",
 }
 ```
 
-Save also as an R object:
+5. Save also as an R object:
 
 ```{r, message = FALSE}
 save.image(file = "results/pca_scatterplot_plot.RData")
 ```
 
-Run lintr:
+6. Run lintr:  
 
 ```{r, message = FALSE}
 lintr::lint(file = "plot_pca.Rmd")
