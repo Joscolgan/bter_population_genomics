@@ -7,7 +7,11 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ## Introduction:
 This script loads R objects containing:
 1) A map of Britain detailing collection sites (highlighted by latitude);
-2) A principal component analysis of sites (highlighted by latitude)
+2) A principal component analysis of sites (highlighted by latitude);
+3) A Manhattan plot of |nsl| scores;
+4) A histogram of variant types;
+5) A barchart of enriched Gene Ontology terms.  
+The script generates a multi-image plot and outputs a graphic (.PDF, .PNG), as well as saved R object.
 
 1. Load libraries:
 
@@ -29,6 +33,7 @@ for (lib in libraries) {
 ## Create output directory:
 dir.create("results")
 ```
+
 2. Load input files:
 Next step is to load input files (R objects)
 
@@ -143,7 +148,7 @@ map_manhattan_and_hist_plot <- ggarrange(britain_map,
                                      labels = c("A", "C", "D"))
 ```
 
-Second, combine this plot with barchart (iii)
+8. Second, combine this plot with barchart (iii)
 
 ```{r, message = FALSE}
 ## Ensure axis titles are same size across plots:
@@ -165,9 +170,9 @@ pca_barchart_plot <- ggarrange(pca_plot,
                                                 2.1))
 ```
 
-Third, generate a final combined plot consisting of:
-i) map and pca plot
-ii) Manhattan, histogram and barchart plots
+9. Third, generate a final combined plot consisting of:
+i) map, Manhattan and histogram on row 1;
+ii) scatterplot of PCA and barchart plots on row 2:
 
 ```{r, message = FALSE}
 ## Generate combined plot:
@@ -181,7 +186,7 @@ combined_plot <- ggarrange(map_manhattan_and_hist_plot,
 combined_plot
 ```
 
-Save output:
+10. Save output:
 
 ```{r, message = FALSE}
 output_file_name <- "figure_1_map_pca_plus_manhattan_dpi_300"
@@ -210,13 +215,13 @@ for (extension in c("png",
 }
 ```
 
-Save also as an R object:
+11. Save also as an R object:
 
 ```{r, message = FALSE}
 save.image(file = "results/figure_1_map_pca_plus_manhattan.RData")
 ```
 
-Run lintr:
+12. Run lintr:
 
 ```{r, message = FALSE}
 lintr::lint(file = "multi_plot_figure_2.Rmd")
