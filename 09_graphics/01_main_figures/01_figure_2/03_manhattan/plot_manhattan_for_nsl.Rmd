@@ -11,8 +11,10 @@ This script takes a tab-delimited file containinng five columns:
 - Column 3: Normalised nsL score per position (P)  
 - Column 4: Variant annotation generted by [SnpEff](https://pcingola.github.io/SnpEff/index.html)  
 - Column 5: Locus ID  
-The script generates a Manhattan plot for normalised nsL scores.  
+The script generates a Manhattan plot for normalised raw |nsL| scores.  
 The script outputs the plot as a saved R object (.RData), as well as in .png and .pdf format.   
+
+1. Load libraries:  
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -38,7 +40,7 @@ for (lib in libraries) {
 }
 ```
 
-Read in data
+2. Read in data, format data for Manhattan plot and generate plot:  
 
 ```{r, message = FALSE}
 ## Read in variants:
@@ -181,7 +183,7 @@ ggsave(file = "./results/manhattan_plot.pdf",
        width = 10)
 ```
 
-Run lintr:
+3. Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr:
