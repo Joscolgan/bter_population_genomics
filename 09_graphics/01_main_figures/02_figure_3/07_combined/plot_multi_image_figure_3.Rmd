@@ -1,11 +1,13 @@
 ---
 title: "Bombus population genomics"
-output: plot_wolbachia_sweep.html
+output: plot_multi_image_figure_3.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
+## Introduction:  
+The purpose of this script is to take multiple images saved as R objects and generate a multi image plot that is output in .PNG format, as well as an R object.   
 
-## Load libraries:
+1. Load libraries:
 
 ```{r, message = FALSE}
 ## Load libraries:
@@ -30,7 +32,7 @@ for (lib in libraries) {
 }
 ```
 
-This script plots nsl score and nucleotide diversity estimates. It also loads an arrow-plot showing the 
+2. This script plots nsl score and nucleotide diversity estimates. It also loads an arrow-plot showing the 
 distribution of gene locations in the region of interest. It also loads a SNP heatmap showing the presence of shared haplotypes amongst individuals.
 
 ```{r, message = FALSE}
@@ -48,7 +50,7 @@ nuc_div_data <- read.table(file = nuc_div_input,
                            header = TRUE)
 ```
 
-The gene of interest is an uncharacterised gene (LOC105666162), which codes for proteins with sequence similarity to proteins coded for by Wolbachia-like bacteria. The gene is located on chromosome 11:
+3. The gene of interest is an uncharacterised gene (LOC105666162), which codes for proteins with sequence similarity to proteins coded for by Wolbachia-like bacteria. The gene is located on chromosome 11:
 NC_015771.1 (1755259..1765481)
 
 ```{r, message = FALSE}
@@ -59,7 +61,7 @@ start <- 1749721 - 100000
 end <- 1776527 + 100000
 ```
 
-Subset the regions of interest:
+4. Subset the regions of interest:
 
 ```{r, message=FALSE}
 ## Subset nsl values for plotting:
@@ -73,7 +75,7 @@ nsl_snps_highlight <- subset(nsl_input_subset,
                             nsl_score > 2.72)
 ```
 
-Generate plot of EHH:
+5. Generate plot of nsl:
 
 ```{r, message = FALSE}
 ## Plot nsl values:
@@ -113,7 +115,7 @@ nsl_plot <- ggplot(nsl_input_subset,
               legend.position = "none")
 ```
 
-Subset genomic region to plot nucleotide diversity:
+6. Subset genomic region to plot nucleotide diversity:
 
 ```{r, message = FALSE}
 ## Subset genomic region of interest:
@@ -155,17 +157,17 @@ nuc_div_plot <- ggplot(nuc_div_subset,
               axis.title.x = element_blank())
 ```
 
-Read in SNP genotype matrix:
+7. Read in SNP genotype matrix:
 
 ```{r, message=FALSE}
 ## Load previously generated arrow and heatmap plots:
 load(file = "results/plots/wolbachia_arrow_plot.Rdata")
-load(file = "results/plots/wolbachia_snp_plot.Rdata")
+load(file = "results/plots/wolbachia_genotype_plot.Rdata")
 load(file = "results/plots/wolbachia_boxplot.Rdata")
 load(file = "results/protein_domain_plus_pies.Rdata")
 ```
 
-Generate combined plots:
+6. Generate combined plots:
 
 ```{r, message=FALSE}
 ## Combine RNA expression and pie charts into a single pane:
@@ -194,14 +196,14 @@ ggarrange(arrow_plot,
           align = "hv")
 
 ## Save:
-ggsave(file = "results/wolbachia_combined_plot_test.png",
+ggsave(file = "results/plot_multi_image_figure_3.png",
        width = 12,
        height = 12)
 ```
 
-Run lintr:
+7. Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr:
-lintr::lint(file = "./plot_wolbachia_sweeps.Rmd")
+lintr::lint(file = "./plot_multi_image_figure_3.Rmd")
 ```
