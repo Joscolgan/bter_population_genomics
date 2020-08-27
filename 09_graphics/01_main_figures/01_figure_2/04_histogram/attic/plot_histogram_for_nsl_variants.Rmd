@@ -29,7 +29,7 @@ for (lib in libraries) {
 First, investigate the relationship between nsl score and variant annotation.
 
 ```{r, message = FALSE}
-data <- read.table(file = "./input/nsl_input/input_for_r_annotated.txt",
+data <- read.table(file = "input/nsl_input/input_for_r_annotated.txt",
                    col.names = c("chrom",
                                  "position",
                                  "nsl_score",
@@ -133,7 +133,7 @@ ggsave(file = "results/histogram_snp_by_variant_type.pdf",
 
 ## Save object:
 save(data = variant_histogram,
-     file = "./results/histogram_snp_by_variant_type.RData")
+     file = "results/histogram_snp_by_variant_type.RData")
 ```
 
 Run lintr:
