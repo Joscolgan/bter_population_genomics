@@ -31,7 +31,7 @@ Next step is to load input files (R objects)
 
 ```{r, message = FALSE}
 ## Load objects:
-load(file = "results/results_10000_500_0.2_pca_plots.RData")
+load(file = "results/pca_plots.Rdata")
 ```
 
 1. Plot PCA:
