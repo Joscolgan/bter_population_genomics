@@ -23,8 +23,8 @@ libraries <- c("ggplot2",
                "rnaturalearthdata",
                "rgeos")
 
-install.packages("remotes") # if remotes isn't installed
-remotes::install_github("paleolimbot/ggspatial")
+#install.packages("remotes") # if remotes isn't installed
+#remotes::install_github("paleolimbot/ggspatial")
 
 for (lib in libraries) {
         if (require(package = lib, character.only = TRUE)) {
