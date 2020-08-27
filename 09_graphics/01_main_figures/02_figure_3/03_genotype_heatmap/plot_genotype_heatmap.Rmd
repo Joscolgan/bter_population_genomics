@@ -8,7 +8,7 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 This script reads in a VCF file and generates a genotype matrix.
 Using data contained in the genotype matrix, a heatmap is generated showing the location of
 major and minor alleles.
-The output is a .png plot of the heatmap.
+The output is a heatmap that is output in .PNG format, as well as saved as an R object.  
 
 1. Load libraries:  
 
@@ -178,7 +178,7 @@ theme(legend.title = element_text(size = 15),
 ```{r, message = FALSE}
 ## Save:
 dir.create(path = "results/plots/")
-save(heatmap_plot, file = "results/plots/wolbachia_snp_plot.Rdata")
+save(heatmap_plot, file = "results/plots/plot_genotype_heatmap.Rdata")
 ```
 
 5. Run lintr:
