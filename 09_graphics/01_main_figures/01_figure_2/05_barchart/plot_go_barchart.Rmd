@@ -5,12 +5,9 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:  
-This script is for visualisation of the output of gene ontology (GO) enrichment analyses for raw |nsl| scores performed by [topGo](https://www.bioconductor.org/packages/release/bioc/html/topGO.html).  
-This script takes an input of .csv files containing an output table of GO analyses.  
-This script creates a barchart of the number of significant genes annotated to a particular GO term, with an associated p-value.  
-This script outputs a barchart as a saved R object (.RData) or graphic (.png, .pdf).  
 
-Load libraries:
+This script is for visualisation of the output of gene ontology (GO) analyses using the R package TopGo.
+This script creates a barchart of the number of significant genes annotated to a particular GO term, with an associated p-value. This script takes an input of .csv files containing an output table of GO analyses.
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
@@ -32,7 +29,7 @@ dir.create("results/figures/",
            recursive = TRUE)
 ```
 
-Load input files:  
+## Step One: Load input files
 Read in files for the output of Gene Ontology enrichment analysis.
 
 Load results from diapause samples:
