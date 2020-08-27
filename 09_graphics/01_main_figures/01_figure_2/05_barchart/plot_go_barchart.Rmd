@@ -5,9 +5,10 @@ author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
 ## Introduction:  
-
 This script is for visualisation of the output of gene ontology (GO) analyses using the R package TopGo.
-This script creates a barchart of the number of significant genes annotated to a particular GO term, with an associated p-value. This script takes an input of .csv files containing an output table of GO analyses.
+This script creates a barchart of the number of significant genes annotated to a particular GO term, with an associated p-value. This script takes an input of .tsv files containing an output table of GO analyses.
+
+1. Load libraries:  
 
 ```{r, message = FALSE}
 # Load libraries; install from scratch if needed
@@ -29,10 +30,8 @@ dir.create("results/figures/",
            recursive = TRUE)
 ```
 
-## Step One: Load input files
+2. Load input files:  
 Read in files for the output of Gene Ontology enrichment analysis.
-
-Load results from diapause samples:
 
 ```{r, message = FALSE}
 ## Read in biological processes GO terms:
@@ -51,7 +50,7 @@ cc_terms <- read.table(file = "input/go_term_input/CC_sig.tsv",
 cc_terms$category <- "CC"
 ```
 
-For each time-point, combine gene ontolgy terms for plotting:
+3. Combine gene ontolgy terms for plotting:
 
 ```{r, message = FALSE}
 ## Combine GO terms:
@@ -76,7 +75,11 @@ combined_terms$updated_terms <- paste(combined_terms$Term,
 
 ## Remove underscore:
 combined_terms$updated_terms <- gsub("_", " ", combined_terms$updated_terms)
+```
 
+4. Generate plot:  
+
+```
 ## Generate plot:
 combined_terms_plot <- ggbarplot(combined_terms,
                                  x = "updated_terms",
@@ -164,7 +167,7 @@ save(combined_terms_plot,
      file = "results/figures/combined_go_terms_barchart.RData")
 ```
 
-Run lintr:
+5. Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr
