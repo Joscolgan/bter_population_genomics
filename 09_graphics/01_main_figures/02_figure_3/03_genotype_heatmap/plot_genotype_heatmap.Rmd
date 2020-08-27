@@ -1,6 +1,6 @@
 ---
 title: "Bombus population genomics"
-output: plot_snp_heatmap.html
+output: plot_genotype_heatmap.html
 author: Joe Colgan, Yannick Wurm http://wurmlab.com
 ---
 
@@ -10,7 +10,7 @@ Using data contained in the genotype matrix, a heatmap is generated showing the 
 major and minor alleles.
 The output is a .png plot of the heatmap.
 
-## Load libraries:
+1. Load libraries:  
 
 ```{r, message = FALSE}
 libraries <- c("lintr",
@@ -33,34 +33,44 @@ dir.create(path = "./results/figures",
            recursive = TRUE)
 ```
 
+2. Load input VCF:
 
 ```{r, echo = FALSE}
 ## Define path to input files:
 input_path <- "./input/vcf/"
+
 input_vcf <- paste(input_path,
                    "input_bed_file.snp_positions.recode.vcf",
                    sep = "")
+                   
 ## Use the name of input to designate the name for the GDS file format.
 input_vcf_gds <- gsub("recode.vcf",
                       "recode.gds",
                       input_vcf)
+                      
 ## Reformat VCF into GDS format
 snpgdsVCF2GDS(input_vcf,
               input_vcf_gds,
               method = "biallelic.only")
+
 ## Extract genotype information:
 input_vcf_gds_genofile <- snpgdsOpen(input_vcf_gds)
+
 ## Extract genotype information and generate genotypic matrix:  
 input_vcf_gds_genofile_matrix <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                                       "genotype"))
+
 ## Perform PCA and store output in variable:  
 pca      <- snpgdsPCA(input_vcf_gds_genofile,
                       num.thread = 2,
                       autosome.only = FALSE)
+
 ## Calculate percentages for principal components:  
 pc_percent      <- pca$varprop * 100
+
 ## Print rounded up percentages:  
 print(round(pc_percent, 2))
+
 ## Extract sample names from input:  
 sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
                                        "sample.id"))
@@ -68,9 +78,9 @@ sample.id      <- read.gdsn(index.gdsn(input_vcf_gds_genofile,
 snpgdsClose(input_vcf_gds_genofile)
 ```
 
-Plot heatmap to demonstrate representation of haplotypes within population:
+3. Plot heatmap to demonstrate representation of haplotypes within population:
 
-```{r}
+```{r, message = FALSE}
 ## Format change '2' to '1'
 input_vcf_gds_genofile_matrix[input_vcf_gds_genofile_matrix == 2] <- 1
 
@@ -105,7 +115,7 @@ for (i in 1:length(pop_code_df$site_number)){
         }
 }
 
-##
+## Update row names:
 rownames(input_vcf_gds_genofile_matrix) <- new_names
 
 ## Read in genomic coordinates:
@@ -163,7 +173,7 @@ theme(legend.title = element_text(size = 15),
                                                                             rep(F, 20))])
 ```
 
-Save the heatmap to output:
+4. Save the heatmap to output:
 
 ```{r, message = FALSE}
 ## Save:
@@ -171,9 +181,9 @@ dir.create(path = "results/plots/")
 save(heatmap_plot, file = "results/plots/wolbachia_snp_plot.Rdata")
 ```
 
-Run lintr:
+5. Run lintr:
 
 ```{r, message = FALSE}
 ## Run lintr
-lintr::lint(file = "./plot_snp_heatmap_wolbachia.Rmd")
+lintr::lint(file = "plot_genotype_heatmap.Rmd")
 ```
