@@ -1,0 +1,64 @@
+
+
+1. Load libraries:
+
+```{r, message = FALSE}
+require(ggplot2)
+require(ggpubr)
+```
+
+2. Load data:
+
+```{r, message = FALSE}
+nsl_data <- read.table(file = "data/annotation_file.txt",
+                       header = FALSE,
+                       col.names = c("chrom",
+                                     "position",
+                                     "nsl_score",
+                                     "annotation",
+                                     "locus"))
+nrow(nsl_data)
+```
+
+3. Calculate physical distance between SNP of interest (i.e. within top 1% of |nsl| scores)  and the closest SNP with low nsl score (e.g. |nsl| score < 1):
+
+```{r, message = FALSE}
+top_one_percent <- subset(nsl_data,
+                          nsl_score >= quantile(nsl_data$nsl_score,
+                                                0.99))
+distance_1 <- vector()
+distance_2 <- vector()
+for (row in 1:nrow(top_one_percent)) {
+        ## Subset 10 SNPs on either side:
+        chrom_position <- top_one_percent[row, ]$chrom
+        snp_position <- top_one_percent[row, ]$position
+        snp_of_interest <- as.numeric(row.names(top_one_percent[row, ]))
+        downstream_snps <- snp_of_interest - 100
+        upstream_snps <- snp_of_interest + 100
+        downstream_snps_tmp <- nsl_data[downstream_snps:snp_of_interest, ]
+        downstream_snps_tmp$diff <- snp_position - downstream_snps_tmp$position
+        downstream_snps_min <- abs(min(subset(downstream_snps_tmp,
+                                              chrom == chrom_position &
+                                          diff != 0 &
+                                                  nsl_score <= 1)$diff))
+        upstream_snps_tmp <- nsl_data[downstream_snps:snp_of_interest, ]
+        upstream_snps_tmp$diff <- upstream_snps_tmp$position - snp_position
+        upstream_snps_min <- abs(min(subset(upstream_snps_tmp,
+                                            chrom == chrom_position &
+                                          diff != 0 &
+                                          nsl_score <= 1)$diff))
+        distance_1 <- c(distance_1,
+                      min(c(downstream_snps_min, upstream_snps_min)))
+}
+
+## Check for infinite values:
+table(distance_1 == Inf)
+
+## Remove infinite values:
+distance_1[is.infinite(distance_1)] <- NA
+distance_1 <- na.omit(distance_1)
+
+## Calculate summary statistics:
+summary(distance_1)
+```
+
