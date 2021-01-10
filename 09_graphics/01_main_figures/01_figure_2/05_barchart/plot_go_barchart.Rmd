@@ -79,7 +79,7 @@ combined_terms$updated_terms <- gsub("_", " ", combined_terms$updated_terms)
 
 4. Generate plot:  
 
-```
+```{r, message = FALSE}
 ## Generate plot:
 combined_terms_plot <- ggbarplot(combined_terms,
                                  x = "updated_terms",
