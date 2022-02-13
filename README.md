@@ -1,35 +1,12 @@
-## Context & Citation:  
-This repository contains all scripts used for the population genomics analysis of wild-caught _Bombus terrestris_ males collected across the island of Great Britain.  
-This study was developed as part of a NERC-funded project reported implemented in [Yannick Wurm's lab at Queen Mary University of London](https://wurmlab.github.io/).  
-Findings are reported in the following manuscript:
+## Context & citation
 
-Colgan, TJ, Arce, AN, Gill, RJ, Ramos Rodrigues, A, Kanteh, A, Duncan, EJ, Li, L, Chittka, L, Wurm, Y.  
-__Genomics of adaptation to a changing world in a wild pollinator__, in prep for submission.  
+This repository contains all scripts used for the population genomic analysis of _Bombus terrestris_ males sampled across the island of Great Britain. This was developed as part of a NERC-funded project implemented in [Yannick Wurm's lab at Queen Mary University of London](http://wurmlab.com). Findings are reported in the following manuscript: 
 
-The present repository contains scripts for:  
-```
-01_quality_assessment/  
-02_species_confirmation/  
-03_data_filtering/  
-04_variant_calling/  
-05_population_structure_analysis/  
-|--01_pca_and_ibs  
-|--02_admixture  
-|--03_finestructure  
-06_selection_analyses/  
-|--01_nucleotide_diversity  
-|--02_extended_haplotype_homozygosity_analysis  
-|--03_gene_specific_analysis  
-07_copy_number_variation_analysis
-|--01_data_alignment  
-|--02_cnv_duplication  
-|--03_cnv_deletions  
-|--04_cnv_shuffle_analysis  
-|--05_graphics  
-08_functional_term_enrichment_analysis/  
-|--01_gene_ontoloy_enrichment  
-|--02_functional_domain_analysis  
-09_graphics  
-|--01_main_figures  
-|--02_supplemental_figures  
-```
+Colgan, T.J., Arce, A.N., Gill, R.J., Ramos Rodrigues, A., Kanteh, A., Duncan, E.J., Li, L., Chittka, L. and Wurm, Y.  
+**[Genomics of adaptation to a changing world in a wild bumblebee](https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msab366/6521030)**. *Molecular Biology & Evolution (2022)*.  
+
+## License
+
+This work is distributed under the [GPLv3 license](LICENSE). Reuse of code derived from this repository is permitted under two conditions: 
+1) Proper attribution (i.e., citation of the associated publication; see [CITATION.cff](CITATION.cff) and above).
+2) Publication of reused scripts on an open-access platform, such as Github.  
