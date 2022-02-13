@@ -1,0 +1,12 @@
+cff-version: 1.0.3
+message: If you use this software, please cite it as below.
+authors:
+  - family-names: Colgan; Arce; Gill; Ramos-Rodrigues; Kanteh; Duncan; Li; Chittka; Wurm 
+    given-names: Thomas J.; Andres N.; Richard J.; Ana; Abdoulie; Elizabeth J.; Li; Lars; Yannick
+    orcid: (Thomas Colgan) https://orcid.org/0000-0002-0547-8228; (Yannick Wurm) https://orcid.org/0000-0002-3140-2809
+title: Genomics of adaptation to a changing world in a wild bumblebee.
+journal: Molecular Biology & Evolution
+doi: https://doi.org/10.1093/molbev/msab366. 
+date-released: 2022-02-03
+license: GPLv3
+repository: https://github.com/Joscolgan/bter_population_genomics/
